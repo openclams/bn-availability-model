@@ -1,0 +1,33 @@
+{
+  "services":[
+    {
+      "name": "er",
+      "init": "G1",
+      "servers": [
+        "H1",
+        "H2",
+        "H3",
+        "H7",
+        "H8",
+        "H9"
+      ],
+      "k": 5
+    },
+    {
+      "name": "mysql",
+      "init": "G2",
+      "servers": [
+        "H4",
+        "H5",
+        "H6"
+      ],
+      "k": 2
+    }
+  ],
+  "application": {
+    "init" : "G1",
+    "topology" : [
+      {"from" : "er", "to" : "mysql"}
+    ]
+  }
+}
