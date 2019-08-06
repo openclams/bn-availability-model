@@ -6,17 +6,12 @@ import json
 
 class GraphParser():
 
-    def __init__(self,file_name):
-        self.file_name = file_name
+    def __init__(self,cim):
         self.G = Graph()
-        self.parse()
+        self.load_nodes(cim)
+        self.load_network_edges(cim)
+        self.load_dependency_edges(cim)
 
-    def parse(self):
-        with open(self.file_name) as json_file:
-            data = json.load(json_file)
-            self.load_nodes(data)
-            self.load_network_edges(data)
-            self.load_dependency_edges(data)
 
     def get_graph(self):
         return self.G
@@ -28,14 +23,14 @@ class GraphParser():
                 node = Node(nodes['name'],nodes['availability'])
                 self.G.add_node(node)
                 if "group" in nodes.keys():
-                    self.G.add_node_to_group(node,nodes["group"])
+                    self.G.add_node_to_group(node,nodes["group"]+"g")
             else:
                 for n in nodes["name"]:
                     # The name field is an array
                     node = Node(n,nodes["availability"])
                     self.G.add_node(node)
                     if "group" in nodes.keys():
-                        self.G.add_node_to_group(node, nodes["group"])
+                        self.G.add_node_to_group(node, nodes["group"]+"g")
 
     def load_network_edges(self,data):
         for edges in data["network"]:

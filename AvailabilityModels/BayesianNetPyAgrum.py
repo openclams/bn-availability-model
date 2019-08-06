@@ -1,46 +1,20 @@
-from CloudGraph.Graph import Graph
-from GraphParser import GraphParser
 import pyAgrum as gum
-import pyAgrum.lib.bn2graph as bngraph
 import numpy as np
-import json
+import BayesianNetworks.pyagrum.operators as ops
+
+
+
 
 class BayesianNetModel:
 
-    def __init__(self):
-        parser = GraphParser("Tests/graph.json")
-        self.G = parser.G
+    def __init__(self,G,app,andNodeCPT = ops.and_node, orNodeCPT= ops.or_node, knNodeCPT=ops.kn_node):
+        self.G = G
         self.bn = gum.BayesNet('App')
-        json_file = open("Tests/deployment_1.json")
-        self.app = json.load(json_file)
+        self.app = app
+        self.andNodeCPT = andNodeCPT
+        self.orNodeCPT = orNodeCPT
+        self.knNodeCPT = knNodeCPT
         self.construct_bn()
-
-    def create_cpt(self,bn,bn_node,fn): # Put in a lambade for the evaluation and the node to load the conditions
-        names = bn.cpt(bn_node).var_names #this array also contains the node it slef
-        names.remove(bn_node) # extract own from node
-        if len(names) == 0: #this condition is for the root nodes
-            bn.cpt(bn_node)[:] = fn({})
-            return
-        num_entries = 2**len(names)
-        for i in range(num_entries):
-            bin = "{0:0"+str(len(names))+"b}"
-            permutation = bin.format(i)
-            cond = {}
-            for idx, b in enumerate(permutation):
-                cond[names[idx]] = int(b)
-            bn.cpt(bn_node)[cond] = fn(cond)
-
-    def and_node(self,bn, bn_node):
-        fn = lambda c : [len(c.values())!= sum(c.values()), len(c.values())== sum(c.values())]
-        self.create_cpt(bn, bn_node, fn)
-
-    def or_node(self,bn, bn_node):
-        fn = lambda c: [len(c.values()) == 0, len(c.values()) >= 1]
-        self.create_cpt(bn, bn_node, fn)
-
-    def kn_node(self,bn, bn_node,k):
-        fn = lambda c: [sum(c.values()) < k, sum(c.values()) >= k]
-        self.create_cpt(bn, bn_node, fn)
 
 
     def construct_bn(self):
@@ -62,12 +36,12 @@ class BayesianNetModel:
         #bngraph.pdfize(bn,"step0.png");
         for node_name in self.G.V:
             # For each node string id, we associate a an AND CPT with the corresponding BN node
-            self.and_node(self.bn, node_name)
+            self.andNodeCPT(self.bn, node_name)
 
             # Now we need to add at the last row of the CPT, where all conditions are true, the availability
             if isinstance(self.bn.cpt(node_name)[-1],(np.ndarray)):
                 # IF the last row is still an array, i.e. no root nodes
-                self.bn.cpt(node_name)[-1] = np.array([1-self.G.V[node_name].availability,self.G.V[node_name].availability])
+                self.bn.cpt(node_name)[1] = np.array([1-self.G.V[node_name].availability,self.G.V[node_name].availability])
             else:
                 # If we have a root node
                 self.bn.cpt(node_name)[0] = 1 - self.G.V[node_name].availability
@@ -93,7 +67,7 @@ class BayesianNetModel:
                 self.bn.addArc(host, server_name)
                 #print(host,server_name,self.bn.cpt(server_name).var_names)
                 # Add an AND CPT to the server BN node
-                self.and_node(self.bn, server_name)
+                self.andNodeCPT(self.bn, server_name)
                 # TODO: At this point I do no assume that server names are listed int he deployment file
 
             n_servers = len(service["servers"])
@@ -155,12 +129,12 @@ class BayesianNetModel:
                 self.bn.add(path, 2)
                 for component in all_paths[path]:
                     self.bn.addArc(component, path)
-                self.and_node(self.bn,path)
+                self.andNodeCPT(self.bn,path)
             # Connect the path to the channel; the channel is now completed
             for endpoints in path_channel_map:
                 channel_name =  service["name"]+"_"+endpoints
                 self.bn.addArc(path_channel_map[endpoints],channel_name)
-                self.and_node(self.bn,channel_name)
+                self.andNodeCPT(self.bn,channel_name)
 
 
             #print("Add replication semantics")
@@ -180,9 +154,9 @@ class BayesianNetModel:
                         a = j
                         b = i
                         self.bn.addArc(channels[service["name"]][str(a) + "_" + str(b)], A)
-                self.kn_node(self.bn,A,service["k"]-1)
+                self.knNodeCPT(self.bn,A,service["k"]-1)
                 self.bn.addArc(A,K)
-            self.kn_node(self.bn,K,service["k"])
+            self.knNodeCPT(self.bn,K,service["k"])
 
            #computing external channel
             n_servers = len(A_nodes)
@@ -208,8 +182,7 @@ class BayesianNetModel:
                     paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
 
                 if len(paths) == 0:
-                    print("No Paht found")
-                    exit(1)
+                    raise Exception("No Path Found")
                 else:
                     # TODO: We only consider the frist path, we should consider all paths with an OR node later
                     path = set(paths[0])
@@ -228,7 +201,7 @@ class BayesianNetModel:
                         self.bn.addArc( path_name,external_channels[i])
                         for component in path:
                             self.bn.addArc(component, path_name)
-                        self.and_node(self.bn, path_name)
+                        self.andNodeCPT(self.bn, path_name)
 
                 # Connect the path to the channel; the channel is now completed
 
@@ -236,15 +209,15 @@ class BayesianNetModel:
             OR = service["name"] + "_EXT"
             self.bn.add(OR,2)
             for channel_name in external_channels:
-                self.and_node(self.bn, channel_name)
+                self.andNodeCPT(self.bn, channel_name)
                 self.bn.addArc(channel_name, OR)
 
-            self.or_node(self.bn,OR)
+            self.orNodeCPT(self.bn,OR)
 
             self.bn.add( service["name"], 2)
             self.bn.addArc(K, service["name"])
             self.bn.addArc(OR, service["name"])
-            self.and_node(self.bn,service["name"])
+            self.andNodeCPT(self.bn,service["name"])
 
 
 
