@@ -17,8 +17,8 @@ time_dic['n'] = []
 
 skip_computation = {}
 stop_naive_list = ['NveSimpleBNlearn','NvSimplegRain','NvSimpleBeliefePropagation']
-
-for n in range(12,14,1):
+print("Start with 3 step 3 until 1000")
+for n in range(3,1000,3):
 
     se = gn.SimpleExample(n,int(round(n/2+0.5)))
 
@@ -92,7 +92,7 @@ for n in range(12,14,1):
                 time_dic[eng['name']] = []
             time_dic[eng['name']].append(eng['engine'].meanTime)
 
-            if eng['engine'].meanTime > 1.0:
+            if eng['engine'].meanTime > 100.0:
                 print("Inference time exceeded 1s: Set to ignore.")
                 skip_computation[ eng['name']] = 0;
         else:
@@ -103,14 +103,17 @@ for n in range(12,14,1):
             if eng['name'] not in time_dic:
                 time_dic[eng['name']] = []
             time_dic[eng['name']].append( float('inf'))
+    pn.DataFrame(res_dic).to_csv('/opt/tmp/export_dataframe_res.csv', index=None, header=True)
+    pn.DataFrame(time_dic).to_csv('/opt/tmp/export_dataframe_time.csv', index=None, header=True)
+
 
 res = pn.DataFrame(res_dic)
 res_time = pn.DataFrame(time_dic)
 print(res)
 print(res_time)
 
-export_csv = res.to_csv ('export_dataframe_res5.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
-export_csv = res_time.to_csv ('export_dataframe_time5.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
+res.to_csv ('export_dataframe_res_final.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
+res_time.to_csv ('export_dataframe_time_final.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
 
 
 
