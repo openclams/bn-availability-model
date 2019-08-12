@@ -65,6 +65,11 @@ class BNLearn(Engine):
 
         except Exception as inst:
             print(inst, "Time", time.time() - start)
+            self.availabilityData = [float('inf')]
+            self.meanAvailability = float('inf')
+            self.timeData = [float('inf')]
+            self.meanTime = float('inf')
+            self.is_successful = False
 
 
     def run_with_R(self,solution,*argv):
@@ -100,7 +105,11 @@ class BNLearn(Engine):
             self.is_successful = True
 
         except Exception as inst:
-            print(inst, "Time", time.time() - start)
+            self.availabilityData = [float('inf')]
+            self.meanAvailability = float('inf')
+            self.timeData = [float('inf')]
+            self.meanTime = float('inf')
+            self.is_successful = False
 
         #print(self.meanAvailability)
         #print(st.describe(res['availability']))

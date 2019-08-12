@@ -26,3 +26,8 @@ class BeliefePropagation(Engine):
 
         except Exception as inst:
             print(inst, "Time", time.time() - start_new_run)
+            self.availabilityData = [float('inf')]
+            self.meanAvailability = float('inf')
+            self.timeData = [float('inf')]
+            self.meanTime = float('inf')
+            self.is_successful = False

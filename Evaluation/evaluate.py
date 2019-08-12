@@ -14,34 +14,43 @@ res_dic = {}
 res_dic['n'] = []
 time_dic = {}
 time_dic['n'] = []
-for n in range(26,30):
+
+skip_computation = {}
+stop_naive_list = ['NveSimpleBNlearn','NvSimplegRain','NvSimpleBeliefePropagation']
+
+for n in range(12,14,1):
+
     se = gn.SimpleExample(n,int(round(n/2+0.5)))
 
-    bn = se.createNaiveNetwork()
-    bs = se.createScalableNetwork()
+    if all(elm in skip_computation.keys() for elm in stop_naive_list):
+        bs = se.createScalableNetwork()
+        bn = bs
+    else:
+        bn = se.createNaiveNetwork()
+        bs = se.createScalableNetwork()
 
     inferenceEngines = [
             {
                 'name' : 'NveSimpleBNlearn',
                 'title' : 'Naive Simple Example with BNLearn(R)',
-                'engine' : bnlearn.BNLearn(bn,driver="R",use_cached_file=False,tmp_file_name = "bnlearn_tmp_R"),
+                'engine' :  bnlearn.BNLearn(bn,driver="R",use_cached_file=False,tmp_file_name = "bnlearn_tmp_R"),
                 'run_parameters' : lambda eng: set_repetition(eng,20)
             },
             {
                 'name': 'NvSimplegRain',
                 'title': 'Naive Simple Example with gRain(R)',
-                'engine': grain.gRain(bn,driver="R",use_cached_file=True,tmp_file_name = "bnlearn_tmp_R"),
+                'engine': grain.gRain(bn,driver="R",use_cached_file=('NveSimpleBNlearn' not in skip_computation),tmp_file_name = "bnlearn_tmp_R"),
                 'run_parameters':  lambda eng: set_repetition(eng,20)
             },
             {
                 'name': 'NvSimpleBeliefePropagation',
-                'title': 'Naive Simple Example with ppmpy BeliefePropagation',
-                'engine': dummy.Dummy(bn),#(n > 23)? belprop.BeliefePropagation(bn): dummy.Dummy(bn),
+                'title': 'Naive Simple Example with pgmpy BeliefePropagation',
+                'engine':  belprop.BeliefePropagation(bn),
                 'run_parameters':   lambda eng: set_repetition(eng,20)
             },
             {
                 'name': 'ScSimpleBelifePropagation',
-                'title': 'Scalable Simple Example with ppmpy BeliefePropagation',
+                'title': 'Scalable Simple Example with pgmpy BeliefePropagation',
                 'engine': belprop.BeliefePropagation(bs),
                 'run_parameters':   lambda eng: set_repetition(eng,20)
             },
@@ -54,7 +63,7 @@ for n in range(26,30):
             {
                 'name': 'ScSimplegRain',
                 'title': 'Scalable Simple Example with gRain(R)',
-                'engine': grain.gRain(bs,driver="R",use_cached_file=True,tmp_file_name = "bnlearn_tmp_R"),
+                'engine': grain.gRain(bs,driver="R",use_cached_file=('ScSimpleBNlearn' not in skip_computation),tmp_file_name = "bnlearn_tmp_R"),
                 'run_parameters':   lambda eng: set_repetition(eng,20)
             }
     ]
@@ -63,32 +72,45 @@ for n in range(26,30):
     time_dic['n'].append(n)
     for eng in inferenceEngines:
         print(' ')
-        print(eng['title'], se.n, "/",se.k)
+        print(eng['title'], se.k , ":" ,se.n)
         print('-' * 30 )
         print(eng['name'])
-        run_param = eng['run_parameters'](eng['engine'])
-        if run_param is not None:
-            eng['engine'].run('K',run_param)
+        if  eng['name'] not in skip_computation.keys() :
+            run_param = eng['run_parameters'](eng['engine'])
+            if run_param is not None:
+                eng['engine'].run('K',run_param)
+            else:
+                eng['engine'].run('K')
+            print('Availability',eng['engine'].meanAvailability)
+            print('Time',eng['engine'].meanTime)
+
+            if eng['name'] not in res_dic:
+                res_dic[eng['name']] = []
+            res_dic[eng['name']].append(eng['engine'].meanAvailability)
+
+            if eng['name'] not in time_dic:
+                time_dic[eng['name']] = []
+            time_dic[eng['name']].append(eng['engine'].meanTime)
+
+            if eng['engine'].meanTime > 1.0:
+                print("Inference time exceeded 1s: Set to ignore.")
+                skip_computation[ eng['name']] = 0;
         else:
-            eng['engine'].run('K')
-        print('Availability',eng['engine'].meanAvailability)
-        print('Time',eng['engine'].meanTime)
-
-        if eng['name'] not in res_dic:
-            res_dic[eng['name']] = []
-        res_dic[eng['name']].append(eng['engine'].meanAvailability)
-
-        if eng['name'] not in time_dic:
-            time_dic[eng['name']] = []
-        time_dic[eng['name']].append(eng['engine'].meanTime)
+            print("Pass")
+            if eng['name'] not in res_dic:
+                res_dic[eng['name']] = []
+            res_dic[eng['name']].append( float('inf'))
+            if eng['name'] not in time_dic:
+                time_dic[eng['name']] = []
+            time_dic[eng['name']].append( float('inf'))
 
 res = pn.DataFrame(res_dic)
 res_time = pn.DataFrame(time_dic)
 print(res)
 print(res_time)
 
-export_csv = res.to_csv ('export_dataframe_res2.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
-export_csv = res_time.to_csv ('export_dataframe_time2.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
+export_csv = res.to_csv ('export_dataframe_res5.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
+export_csv = res_time.to_csv ('export_dataframe_time5.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
 
 
 
