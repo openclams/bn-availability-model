@@ -54,18 +54,8 @@ inferenceEngines = [
     }
 ]
 
-r = ev.Evaluate(inferenceEngines,'SimpleEx_1',range(3,5,1),[])
-r.run(lambda n: gn.SimpleExample(n,int(round(n / 2 + 0.5)+1)) if n % 2 == 0 else gn.SimpleExample(n,int(round(n / 2 + 0.5))))
-
-
-
-
-
-
-
-
-
-
+r = ev.Evaluate(inferenceEngines,'ParallelEx_3_30_3',range(3,31,3),[])
+r.run(lambda n: gn.ParallelExample(n,int(round(n / 2 )+1)) if n % 2 == 0 else gn.ParallelExample(n,int(round(n / 2 + 0.5))))
 
 
 
