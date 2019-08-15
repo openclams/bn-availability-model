@@ -1,120 +1,182 @@
 import Evaluation.generate as gn
 import pandas as pn
-
+import os
 import Inference.bnlearn.BNLearn as bnlearn
 import Inference.grain.gRain as grain
 import Inference.pgmpy.BeliefePropagation as belprop
 import Inference.Dummy as dummy
+from pgmpy.models import BayesianModel
+import time
+import gc
+
 
 def set_repetition(eng, n, c=None):
     eng.repetition = n
     return c
 
-res_dic = {}
-res_dic['n'] = []
-time_dic = {}
-time_dic['n'] = []
+class Evaluate:
 
-skip_computation = {}
-stop_naive_list = ['NveSimpleBNlearn','NvSimplegRain','NvSimpleBeliefePropagation']
-print("Start with 3 step 3 until 1000")
-for n in range(3,1000,3):
+    def __init__(self,engines, project_folder,tests, skip_engines = []):
 
-    se = gn.SimpleExample(n,int(round(n/2+0.5)))
+        if not os.path.exists(project_folder):
+            os.makedirs(project_folder)
 
-    if all(elm in skip_computation.keys() for elm in stop_naive_list):
-        bs = se.createScalableNetwork()
-        bn = bs
-    else:
-        bn = se.createNaiveNetwork()
-        bs = se.createScalableNetwork()
+        if not os.path.exists(project_folder+'/raw/'):
+            os.makedirs(project_folder+'/raw/')
 
-    inferenceEngines = [
-            {
-                'name' : 'NveSimpleBNlearn',
-                'title' : 'Naive Simple Example with BNLearn(R)',
-                'engine' :  bnlearn.BNLearn(bn,driver="R",use_cached_file=False,tmp_file_name = "bnlearn_tmp_R"),
-                'run_parameters' : lambda eng: set_repetition(eng,20)
-            },
-            {
-                'name': 'NvSimplegRain',
-                'title': 'Naive Simple Example with gRain(R)',
-                'engine': grain.gRain(bn,driver="R",use_cached_file=('NveSimpleBNlearn' not in skip_computation),tmp_file_name = "bnlearn_tmp_R"),
-                'run_parameters':  lambda eng: set_repetition(eng,20)
-            },
-            {
-                'name': 'NvSimpleBeliefePropagation',
-                'title': 'Naive Simple Example with pgmpy BeliefePropagation',
-                'engine':  belprop.BeliefePropagation(bn),
-                'run_parameters':   lambda eng: set_repetition(eng,20)
-            },
-            {
-                'name': 'ScSimpleBelifePropagation',
-                'title': 'Scalable Simple Example with pgmpy BeliefePropagation',
-                'engine': belprop.BeliefePropagation(bs),
-                'run_parameters':   lambda eng: set_repetition(eng,20)
-            },
-            {
-                'name': 'ScSimpleBNlearn',
-                'title': 'Scalable Simple Example with BNLearn(R)',
-                'engine': bnlearn.BNLearn(bs,driver="R",tmp_file_name = "bnlearn_tmp_R"),
-                'run_parameters':  lambda eng: set_repetition(eng,20)
-            },
-            {
-                'name': 'ScSimplegRain',
-                'title': 'Scalable Simple Example with gRain(R)',
-                'engine': grain.gRain(bs,driver="R",use_cached_file=('ScSimpleBNlearn' not in skip_computation),tmp_file_name = "bnlearn_tmp_R"),
-                'run_parameters':   lambda eng: set_repetition(eng,20)
-            }
-    ]
+        self.project_folder = project_folder
+        self.engines = engines
+        self.skip_engines = skip_engines
+        self.naive_engine_names = [ eng['name'] for eng in self.engines if eng['is_native']]
+        self.scalable_engine_names = [eng['name'] for eng in self.engines if not eng['is_native']]
+        self.tests = tests
 
-    res_dic['n'].append(n)
-    time_dic['n'].append(n)
-    for eng in inferenceEngines:
-        print(' ')
-        print(eng['title'], se.k , ":" ,se.n)
-        print('-' * 30 )
-        print(eng['name'])
-        if  eng['name'] not in skip_computation.keys() :
-            run_param = eng['run_parameters'](eng['engine'])
-            if run_param is not None:
-                eng['engine'].run('K',run_param)
+    def bn_memory(self,bn: BayesianModel):
+        size = 0;
+        for n in bn.nodes():
+            n = bn.get_cpds(n).get_values()
+            size = size + (n.size * n.itemsize)
+        return size
+
+    def run(self,generator):
+
+        res_dic = {}
+        res_dic['n'] = []
+        time_dic = {}
+        time_dic['n'] = []
+        mem_dic = {}
+        mem_dic['n'] = []
+        build_time_dic = {}
+        build_time_dic['n'] = []
+        total_time_dic = {}
+        total_time_dic['n'] = []
+
+        for eng in self.engines:
+            if eng['name'] not in res_dic:
+                res_dic[eng['name']] = []
+            if eng['name'] not in time_dic:
+                time_dic[eng['name']] = []
+            if eng['name'] not in mem_dic:
+                mem_dic[eng['name']] = []
+            if eng['name'] not in build_time_dic:
+                build_time_dic[eng['name']] = []
+            if eng['name'] not in total_time_dic:
+                total_time_dic[eng['name']] = []
+
+        for n in self.tests:
+            se = generator(n)
+
+            start_build_time_nv = time.time()
+            if all(elm in self.skip_engines for elm in self.naive_engine_names):
+                bn = BayesianModel()
             else:
-                eng['engine'].run('K')
-            print('Availability',eng['engine'].meanAvailability)
-            print('Time',eng['engine'].meanTime)
+                bn = se.createNaiveNetwork()
+            build_time_nv = time.time() - start_build_time_nv
 
-            if eng['name'] not in res_dic:
-                res_dic[eng['name']] = []
-            res_dic[eng['name']].append(eng['engine'].meanAvailability)
+            start_build_time_sc = time.time()
+            if all(elm in self.skip_engines for elm in self.scalable_engine_names):
+                bs = BayesianModel()
+            else:
+                bs = se.createNaiveNetwork()
+            build_time_sc = start_build_time_sc - time.time()
+            # Add first column to result file
+            res_dic['n'].append(n)
+            time_dic['n'].append(n)
+            mem_dic['n'].append(n)
 
-            if eng['name'] not in time_dic:
-                time_dic[eng['name']] = []
-            time_dic[eng['name']].append(eng['engine'].meanTime)
+            # Evaluate each engine
+            for eng in self.engines:
+                print(' ')
+                print(eng['title'], se.k, ":", se.n)
+                print('-' * 30)
+                print(eng['name'])
 
-            if eng['engine'].meanTime > 100.0:
-                print("Inference time exceeded 1s: Set to ignore.")
-                skip_computation[ eng['name']] = 0;
-        else:
-            print("Pass")
-            if eng['name'] not in res_dic:
-                res_dic[eng['name']] = []
-            res_dic[eng['name']].append( float('inf'))
-            if eng['name'] not in time_dic:
-                time_dic[eng['name']] = []
-            time_dic[eng['name']].append( float('inf'))
-    pn.DataFrame(res_dic).to_csv('/opt/tmp/export_dataframe_res.csv', index=None, header=True)
-    pn.DataFrame(time_dic).to_csv('/opt/tmp/export_dataframe_time.csv', index=None, header=True)
+                if eng['name'] not in self.skip_engines:
+
+                    run_param = eng['run_parameters'](eng['engine'])
+
+                    start_total_time = time.time()
+                    if run_param is not None:
+                        eng['engine'].run('K', run_param)
+                    else:
+                        eng['engine'].run('K')
+                    total_time = start_total_time
+                    print('Availability', eng['engine'].meanAvailability)
+                    print('Time', eng['engine'].meanTime,'sec')
+                    if eng['is_native']:
+                        mem = self.bn_memory(bn)
+                        print('Memory', mem,'bytes')
+                        print('Pgmpy Build Time',build_time_nv,'sec')
+                        build_time_dic[eng['name']].append(build_time_nv)
+                    else:
+                        mem = self.bn_memory(bs)
+                        print('Memory', mem,'bytes')
+                        print('Pgmpy Build Time', build_time_sc, 'sec')
+                        build_time_dic[eng['name']].append(build_time_sc)
+
+                    print('Total Time', total_time,'sec')
+
+                    res_dic[eng['name']].append(eng['engine'].meanAvailability)
+                    time_dic[eng['name']].append(eng['engine'].meanTime)
+                    mem_dic[eng['name']].append(mem)
+                    total_time_dic[eng['name']].append(total_time)
+
+                    #ouput timing and availability data as raw
 
 
-res = pn.DataFrame(res_dic)
-res_time = pn.DataFrame(time_dic)
-print(res)
-print(res_time)
 
-res.to_csv ('export_dataframe_res_final.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
-res_time.to_csv ('export_dataframe_time_final.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
+                    # When to ignore any engine
+                    if eng['engine'].meanTime > 100.0:
+                        print("Inference time exceeded 1s: Set to ignore.")
+                        self.skip_engines.append(eng['name'])
+                else:
+                    print("Pass")
+                    res_dic[eng['name']].append(float('inf'))
+                    time_dic[eng['name']].append(float('inf'))
+                    mem_dic[eng['name']].append(float('inf'))
+                    build_time_dic[eng['name']].append(float('inf'))
+                    total_time_dic[eng['name']].append(float('inf'))
 
+            res = pn.DataFrame(res_dic)
+            res.to_csv(self.project_folder+'/tmp_availability.csv', index=None, header=True)
+            del res
+
+            res = pn.DataFrame(time_dic)
+            res.to_csv(self.project_folder+'/tmp_inference_time.csv', index=None, header=True)
+            del res
+
+            res = pn.DataFrame(mem_dic)
+            res .to_csv(self.project_folder+'/tmp_memory.csv', index=None, header=True)
+            del res
+
+            res = pn.DataFrame(build_time_dic)
+            res.to_csv(self.project_folder + '/tmp_build_time.csv', index=None,header=True)
+            del res
+
+            res = pn.DataFrame(total_time_dic)
+            res.to_csv(self.project_folder + '/tmp_total_time.csv', index=None,header=True)
+            del res
+
+            del bs, bn
+
+            gc.collect()
+
+        res = pn.DataFrame(res_dic)
+        res.to_csv(self.project_folder + '/final_availability.csv', index=None, header=True)
+
+        res = pn.DataFrame(time_dic)
+        res.to_csv(self.project_folder + '/final_inference_time.csv', index=None, header=True)
+
+        res = pn.DataFrame(mem_dic)
+        res.to_csv(self.project_folder + '/final_memory.csv', index=None, header=True)
+
+        res = pn.DataFrame(build_time_dic)
+        res.to_csv(self.project_folder + '/final_build_time.csv', index=None, header=True)
+
+        res = pn.DataFrame(total_time_dic)
+        res.to_csv(self.project_folder + '/final_total_time.csv', index=None, header=True)
+
+        print('Finished')
 
 
 
