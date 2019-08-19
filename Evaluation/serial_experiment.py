@@ -54,7 +54,7 @@ inferenceEngines = [
     }
 ]
 
-r = ev.Evaluate(inferenceEngines,'SerialEx_3_30_3',range(3,31,3),[])
+r = ev.Evaluate(inferenceEngines,'SerialEx_730_1000_10',range(730,1000,10),['NveSimpleBNlearn','NvSimplegRain','NvSimpleBeliefePropagation','ScSimpleBelifePropagation'])
 r.run(lambda n: gn.SerialExample(n,int(round(n / 2)+1)) if n % 2 == 0 else gn.SerialExample(n,int(round(n / 2 + 0.5))))
 
 

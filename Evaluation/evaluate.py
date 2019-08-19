@@ -16,7 +16,7 @@ import gc
 
 class Evaluate:
 
-    def __init__(self,engines, project_folder,tests, skip_engines = []):
+    def __init__(self,engines, project_folder,tests, skip_engines = [],timeout = 300):
 
         if not os.path.exists(project_folder):
             os.makedirs(project_folder)
@@ -24,6 +24,7 @@ class Evaluate:
         if not os.path.exists(project_folder+'/raw/'):
             os.makedirs(project_folder+'/raw/')
 
+        self.timeout = timeout
         self.project_folder = project_folder
         self.engines = engines
         self.skip_engines = skip_engines
@@ -158,7 +159,7 @@ class Evaluate:
 
 
                     # When to ignore any engine
-                    if eng['engine'].meanTime > 100.0:
+                    if eng['engine'].meanTime > self.timeout:
                         print("Inference time exceeded 1s: Set to ignore.")
                         self.skip_engines.append(eng['name'])
                 else:

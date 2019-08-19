@@ -15,28 +15,28 @@ inferenceEngines = [
         'name': 'NveSimpleBNlearn',
         'title': 'Naive Simple Example with BNLearn(R)',
         'fn': lambda Bnet, skip_list :  bnlearn.BNLearn(Bnet, driver="R", use_cached_file=False, tmp_file_name="bnlearn_tmp_R"),
-        'run_parameters': lambda eng: set_repetition(eng, 20)
+        'run_parameters': lambda eng: set_repetition(eng, 5)
     },
     {
         'is_naive': True,
         'name': 'NvSimplegRain',
         'title': 'Naive Simple Example with gRain(R)',
         'fn': lambda Bnet, skip_list : grain.gRain(Bnet, driver="R", use_cached_file=('NveSimpleBNlearn' not in skip_list),tmp_file_name="bnlearn_tmp_R"),
-        'run_parameters': lambda eng: set_repetition(eng, 20)
+        'run_parameters': lambda eng: set_repetition(eng, 5)
     },
     {
         'is_naive': True,
         'name': 'NvSimpleBeliefePropagation',
         'title': 'Naive Simple Example with pgmpy BeliefePropagation',
         'fn': lambda Bnet, skip_list : belprop.BeliefePropagation(Bnet),
-        'run_parameters': lambda eng: set_repetition(eng, 20)
+        'run_parameters': lambda eng: set_repetition(eng, 5)
     },
     {
         'is_naive': False,
         'name': 'ScSimpleBelifePropagation',
         'title': 'Scalable Simple Example with pgmpy BeliefePropagation',
         'fn': lambda Bnet, skip_list : belprop.BeliefePropagation(Bnet),
-        'run_parameters': lambda eng: set_repetition(eng, 20)
+        'run_parameters': lambda eng: set_repetition(eng, 5)
     },
     {
         'is_naive': False,
@@ -54,7 +54,7 @@ inferenceEngines = [
     }
 ]
 
-r = ev.Evaluate(inferenceEngines,'ParallelEx_3_30_3',range(3,31,3),[])
+r = ev.Evaluate(inferenceEngines,'ParallelEx_30_1000_10',range(30,1000,10),['NveSimpleBNlearn','NvSimplegRain','NvSimpleBeliefePropagation'],200)
 r.run(lambda n: gn.ParallelExample(n,int(round(n / 2 )+1)) if n % 2 == 0 else gn.ParallelExample(n,int(round(n / 2 + 0.5))))
 
 
