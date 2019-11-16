@@ -15,5 +15,3 @@ class Dummy(Engine):
         self.meanTime = 0
         self.is_successful = True
 
-
-

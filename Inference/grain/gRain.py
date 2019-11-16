@@ -44,6 +44,7 @@ class gRain(Engine):
                    }
                    res <- list("availability" = avr, "times" = bvr)
                    setwd(tmp)
+                   rm(bn_read,jtree)
                    return(res)
                 }
                 ''')
@@ -51,15 +52,19 @@ class gRain(Engine):
             res = r_f(self.tmp_file_name, solution, self.repetition)
             res = dict(zip(res.names, map(list, list(res))))
 
-            self.availabilityData = res['availability']
+            self.availabilityData = [float(e[0]) for e in res['availability']]
             self.meanAvailability = numpy.mean(res['availability'])
-            self.timeData = res['times']
+            self.timeData = [float(e[0]) for e in res['times']]
             self.meanTime = numpy.mean(res['times'])
             self.is_successful = True
 
         except Exception as inst:
             print(inst, "Time", time.time() - start)
-
+            self.availabilityData = [float('inf')]
+            self.meanAvailability = float('inf')
+            self.timeData = [float('inf')]
+            self.meanTime = float('inf')
+            self.is_successful = False
 
 
     def run_with_R(self,solution,*argv):
@@ -81,6 +86,7 @@ class gRain(Engine):
                            }
                            res <- list("availability" = avr, "times" = bvr)
                            setwd(tmp)
+                           rm(net1,jtree)
                            return(res)
                        }
                        ''')
@@ -88,11 +94,16 @@ class gRain(Engine):
             res = r_f(self.tmp_file_name+"/bngraphsrc.R", solution, self.repetition)
             res = dict(zip(res.names, map(list, list(res))))
 
-            self.availabilityData = res['availability']
+            self.availabilityData = [float(e[0]) for e in res['availability']]
             self.meanAvailability = numpy.mean(res['availability'])
-            self.timeData = res['times']
+            self.timeData = [float(e[0]) for e in res['times']]
             self.meanTime = numpy.mean(res['times'])
             self.is_successful = True
 
         except Exception as inst:
             print(inst, "Time", time.time() - start)
+            self.availabilityData = [float('inf')]
+            self.meanAvailability = float('inf')
+            self.timeData = [float('inf')]
+            self.meanTime = float('inf')
+            self.is_successful = False

@@ -5,6 +5,7 @@ from pgmpy.factors.discrete import TabularCPD
 import time
 
 
+
 class SimpleExample:
 
     def __init__(self, n, k):
@@ -28,15 +29,21 @@ class SimpleExample:
         return bn
 
     def createNaiveNetwork(self):
-        bn = self.createBasicNetwork()
+        try:
+            bn = self.createBasicNetwork()
 
-        op.kn_node(bn, "K", self.k)
+            op.kn_node(bn, "K", self.k)
+        except Exception as inst:
+            bn =  BayesianModel()
         return bn
 
     def createScalableNetwork(self):
-        bn = self.createBasicNetwork()
+        try:
+            bn = self.createBasicNetwork()
 
-        op.scalable_kn_node(bn, "K", self.k)
+            op.scalable_kn_node(bn, "K", self.k)
+        except Exception as inst:
+            bn = BayesianModel()
         return bn
 
 class ParallelExample:
@@ -98,23 +105,30 @@ class ParallelExample:
         return bn
 
     def createNaiveNetwork(self):
-        bn = self.createBasicNetwork()
+        try:
+            bn = self.createBasicNetwork()
 
-        op.kn_node(bn, "K", self.k)
-        op.and_node(bn, "AND_1")
-        op.and_node(bn, 'AND_2')
-        op.or_node(bn, "OR")
-        op.and_node(bn, 'SYS')
+            op.kn_node(bn, "K", self.k)
+            op.and_node(bn, "AND_1")
+            op.and_node(bn, 'AND_2')
+            op.or_node(bn, "OR")
+            op.and_node(bn, 'SYS')
+        except Exception as inst:
+            bn = BayesianModel()
+
         return bn
 
     def createScalableNetwork(self):
-        bn = self.createBasicNetwork()
+        try:
+            bn = self.createBasicNetwork()
 
-        op.scalable_kn_node(bn, "K", self.k)
-        op.and_node(bn, "AND_1")
-        op.and_node(bn, 'AND_2')
-        op.or_node(bn, "OR")
-        op.and_node(bn, 'SYS')
+            op.scalable_kn_node(bn, "K", self.k)
+            op.and_node(bn, "AND_1")
+            op.and_node(bn, 'AND_2')
+            op.or_node(bn, "OR")
+            op.and_node(bn, 'SYS')
+        except Exception as inst:
+            bn = BayesianModel()
         return bn
 
 class SerialExample:
@@ -176,22 +190,28 @@ class SerialExample:
         return bn
 
     def createNaiveNetwork(self):
-        bn = self.createBasicNetwork()
+        try:
+            bn = self.createBasicNetwork()
 
-        op.kn_node(bn, "K", self.k)
-        op.and_node(bn, "AND_1")
-        op.and_node(bn, 'AND_2')
-        op.or_node(bn, "OR")
-        op.and_node(bn, 'SYS')
+            op.kn_node(bn, "K", self.k)
+            op.and_node(bn, "AND_1")
+            op.and_node(bn, 'AND_2')
+            op.or_node(bn, "OR")
+            op.and_node(bn, 'SYS')
+        except Exception as inst:
+            bn = BayesianModel()
         return bn
 
     def createScalableNetwork(self):
-        bn = self.createBasicNetwork()
 
-        op.scalable_kn_node(bn, "K", self.k)
-        op.and_node(bn, "AND_1")
-        op.and_node(bn, 'AND_2')
-        op.or_node(bn, "OR")
-        op.and_node(bn, 'SYS')
+            op.kn_node(bn, "K", self.k)
+            op.efficient_and_node(bn, "AND_1")
+            op.and_node(bn, 'AND_2')
+            op.or_node(bn, "OR")
+            op.and_node(bn, 'SYS')
+
+        except Exception as inst:
+            bn = BayesianModel()
+
         return bn
 
