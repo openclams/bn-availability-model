@@ -14,17 +14,19 @@ res_dic = {}
 res_dic['n'] = []
 time_dic = {}
 time_dic['n'] = []
-for n in range(26,30):
+for n in range(3,17,2):
+
     se = gn.SimpleExample(n,int(round(n/2+0.5)))
 
     bn = se.createNaiveNetwork()
+
     bs = se.createScalableNetwork()
 
     inferenceEngines = [
             {
                 'name' : 'NveSimpleBNlearn',
                 'title' : 'Naive Simple Example with BNLearn(R)',
-                'engine' : bnlearn.BNLearn(bn,driver="R",use_cached_file=False,tmp_file_name = "bnlearn_tmp_R"),
+                'engine' :  bnlearn.BNLearn(bn,driver="R",use_cached_file=False,tmp_file_name = "bnlearn_tmp_R"),
                 'run_parameters' : lambda eng: set_repetition(eng,20)
             },
             {
@@ -36,7 +38,7 @@ for n in range(26,30):
             {
                 'name': 'NvSimpleBeliefePropagation',
                 'title': 'Naive Simple Example with ppmpy BeliefePropagation',
-                'engine': dummy.Dummy(bn),#(n > 23)? belprop.BeliefePropagation(bn): dummy.Dummy(bn),
+                'engine':  belprop.BeliefePropagation(bn),
                 'run_parameters':   lambda eng: set_repetition(eng,20)
             },
             {
@@ -66,29 +68,37 @@ for n in range(26,30):
         print(eng['title'], se.n, "/",se.k)
         print('-' * 30 )
         print(eng['name'])
-        run_param = eng['run_parameters'](eng['engine'])
-        if run_param is not None:
-            eng['engine'].run('K',run_param)
+        if not isinstance(eng['engine'], dummy.Dummy):
+            run_param = eng['run_parameters'](eng['engine'])
+            if run_param is not None:
+                eng['engine'].run('K',run_param)
+            else:
+                eng['engine'].run('K')
+            print('Availability',eng['engine'].meanAvailability)
+            print('Time',eng['engine'].meanTime)
+
+            if eng['name'] not in res_dic:
+                res_dic[eng['name']] = []
+            res_dic[eng['name']].append(eng['engine'].meanAvailability)
+
+            if eng['name'] not in time_dic:
+                time_dic[eng['name']] = []
+            time_dic[eng['name']].append(eng['engine'].meanTime)
+
+            if eng['engine'].meanTime > 1:
+                eng['engine'] = dummy.Dummy()
         else:
-            eng['engine'].run('K')
-        print('Availability',eng['engine'].meanAvailability)
-        print('Time',eng['engine'].meanTime)
-
-        if eng['name'] not in res_dic:
-            res_dic[eng['name']] = []
-        res_dic[eng['name']].append(eng['engine'].meanAvailability)
-
-        if eng['name'] not in time_dic:
-            time_dic[eng['name']] = []
-        time_dic[eng['name']].append(eng['engine'].meanTime)
+            print("Pass");
+            res_dic[eng['name']].append(eng['engine'].meanAvailability)
+            time_dic[eng['name']].append(eng['engine'].meanTime)
 
 res = pn.DataFrame(res_dic)
 res_time = pn.DataFrame(time_dic)
 print(res)
 print(res_time)
 
-export_csv = res.to_csv ('export_dataframe_res2.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
-export_csv = res_time.to_csv ('export_dataframe_time2.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
+export_csv = res.to_csv ('export_dataframe_res3.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
+export_csv = res_time.to_csv ('export_dataframe_time3.csv', index = None, header=True) #Don't forget to add '.csv' at the end of the path
 
 
 

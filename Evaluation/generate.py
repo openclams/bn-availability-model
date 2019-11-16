@@ -63,25 +63,27 @@ class ParallelExample:
         bn.add_node(node_name, 2)
 
         for i in range(self.n,self.n+3):
-            node_name = "C_" + str(self.n)
+            node_name = "C_" + str(i)
             bn.add_node(node_name, 2)
             bn.add_edge(node_name, "AND_1")
 
             cpd = TabularCPD(variable=node_name, variable_card=2, values=[[0.01, 0.99]],
                              evidence=[],
                              evidence_card=[])
+            bn.add_cpds(cpd)
 
         node_name = "AND_2"
         bn.add_node(node_name, 2)
 
         for i in range(self.n+3, self.n + 5):
-            node_name = "C_" + str(self.n)
+            node_name = "C_" + str(i)
             bn.add_node(node_name, 2)
             bn.add_edge(node_name, "AND_2")
 
             cpd = TabularCPD(variable=node_name, variable_card=2, values=[[0.01, 0.99]],
                              evidence=[],
                              evidence_card=[])
+            bn.add_cpds(cpd)
 
         node_name = "OR"
         bn.add_node(node_name, 2)
@@ -139,25 +141,27 @@ class SerialExample:
         bn.add_node(node_name, 2)
 
         for i in range(3,self.n+3):
-            node_name = "C_" + str(self.n)
+            node_name = "C_" + str(i)
             bn.add_node(node_name, 2)
             bn.add_edge(node_name, "AND_1")
 
             cpd = TabularCPD(variable=node_name, variable_card=2, values=[[0.01, 0.99]],
                              evidence=[],
                              evidence_card=[])
+            bn.add_cpds(cpd)
 
         node_name = "AND_2"
         bn.add_node(node_name, 2)
 
         for i in range(self.n+3, self.n + 5):
-            node_name = "C_" + str(self.n)
+            node_name = "C_" + str(i)
             bn.add_node(node_name, 2)
             bn.add_edge(node_name, "AND_2")
 
             cpd = TabularCPD(variable=node_name, variable_card=2, values=[[0.01, 0.99]],
                              evidence=[],
                              evidence_card=[])
+            bn.add_cpds(cpd)
 
         node_name = "OR"
         bn.add_node(node_name, 2)
@@ -190,3 +194,4 @@ class SerialExample:
         op.or_node(bn, "OR")
         op.and_node(bn, 'SYS')
         return bn
+

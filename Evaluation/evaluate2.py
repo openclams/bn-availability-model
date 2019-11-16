@@ -14,13 +14,13 @@ res_dic = {}
 res_dic['n'] = []
 time_dic = {}
 time_dic['n'] = []
-for n in range(3,27):
+for n in range(3,21):
     se = gn.ParallelExample(n,int(round(n/2+0.5)))
 
     bnp = se.createNaiveNetwork()
     bsp = se.createScalableNetwork()
 
-    se = gn.SerialExampleExample(n, int(round(n / 2 + 0.5)))
+    se = gn.SerialExample(n, int(round(n / 2 + 0.5)))
 
     bns = se.createNaiveNetwork()
     bss = se.createScalableNetwork()
@@ -29,75 +29,75 @@ for n in range(3,27):
             {
                 'name' : 'NvParallelBNlearn',
                 'title' : 'Naive Parallel Example with BNLearn(R)',
-                'engine' : bnlearn.BNLearn(bn,driver="R",use_cached_file=False,tmp_file_name = "bnlearn_tmp_pase_R"),
+                'engine' : bnlearn.BNLearn(bnp,driver="R",use_cached_file=False,tmp_file_name = "bnlearn_tmp_pase_R"),
                 'run_parameters' : lambda eng: set_repetition(eng,20)
             },
             {
                 'name': 'NvParallelgRain',
                 'title': 'Naive Parallel Example with gRain(R)',
-                'engine': grain.gRain(bn,driver="R",use_cached_file=True,tmp_file_name = "bnlearn_tmp_pase_R"),
+                'engine': grain.gRain(bnp,driver="R",use_cached_file=True,tmp_file_name = "bnlearn_tmp_pase_R"),
                 'run_parameters':  lambda eng: set_repetition(eng,20)
             },
             {
                 'name': 'NvParallelBeliefePropagation',
                 'title': 'Naive Parallel Example with ppmpy BeliefePropagation',
-                'engine': dummy.Dummy(bn),#(n > 23)? belprop.BeliefePropagation(bn): dummy.Dummy(bn),
+                'engine': belprop.BeliefePropagation(bnp), # dummy.Dummy(bn),#(n > 23)? belprop.BeliefePropagation(bn): dummy.Dummy(bn),
                 'run_parameters':   lambda eng: set_repetition(eng,20)
             },
             {
                 'name': 'ScParallelBelifePropagation',
                 'title': 'Scalable Parallel Example with ppmpy BeliefePropagation',
-                'engine': belprop.BeliefePropagation(bs),
+                'engine': belprop.BeliefePropagation(bsp),
                 'run_parameters':   lambda eng: set_repetition(eng,20)
             },
             {
                 'name': 'ScParallelBNlearn',
                 'title': 'Scalable Parallel Example with BNLearn(R)',
-                'engine': bnlearn.BNLearn(bs,driver="R",tmp_file_name = "bnlearn_tmp_pase_R"),
+                'engine': bnlearn.BNLearn(bsp,driver="R",tmp_file_name = "bnlearn_tmp_pase_R"),
                 'run_parameters':  lambda eng: set_repetition(eng,20)
             },
             {
-                'name': 'ScParallelRain',
+                'name': 'ScParallelgRain',
                 'title': 'Scalable Parallel Example with gRain(R)',
-                'engine': grain.gRain(bs,driver="R",use_cached_file=True,tmp_file_name = "bnlearn_tmp_pase_R"),
+                'engine': grain.gRain(bsp,driver="R",use_cached_file=True,tmp_file_name = "bnlearn_tmp_pase_R"),
                 'run_parameters':   lambda eng: set_repetition(eng,20)
             },
-        {
-            'name': 'NvSerialBNlearn',
-            'title': 'Naive Serial Example with BNLearn(R)',
-            'engine': bnlearn.BNLearn(bn, driver="R", use_cached_file=False, tmp_file_name="bnlearn_tmp_pase_R"),
-            'run_parameters': lambda eng: set_repetition(eng, 20)
-        },
-        {
-            'name': 'NvParallelgRain',
-            'title': 'Naive Parallel Example with gRain(R)',
-            'engine': grain.gRain(bn, driver="R", use_cached_file=True, tmp_file_name="bnlearn_tmp_pase_R"),
-            'run_parameters': lambda eng: set_repetition(eng, 20)
-        },
-        {
-            'name': 'NvParallelBeliefePropagation',
-            'title': 'Naive Parallel Example with ppmpy BeliefePropagation',
-            'engine': dummy.Dummy(bn),  # (n > 23)? belprop.BeliefePropagation(bn): dummy.Dummy(bn),
-            'run_parameters': lambda eng: set_repetition(eng, 20)
-        },
-        {
-            'name': 'ScParallelBelifePropagation',
-            'title': 'Scalable Parallel Example with ppmpy BeliefePropagation',
-            'engine': belprop.BeliefePropagation(bs),
-            'run_parameters': lambda eng: set_repetition(eng, 20)
-        },
-        {
-            'name': 'ScParallelBNlearn',
-            'title': 'Scalable Parallel Example with BNLearn(R)',
-            'engine': bnlearn.BNLearn(bs, driver="R", tmp_file_name="bnlearn_tmp_pase_R"),
-            'run_parameters': lambda eng: set_repetition(eng, 20)
-        },
-        {
-            'name': 'ScParallelRain',
-            'title': 'Scalable Parallel Example with gRain(R)',
-            'engine': grain.gRain(bs, driver="R", use_cached_file=True, tmp_file_name="bnlearn_tmp_pase_R"),
-            'run_parameters': lambda eng: set_repetition(eng, 20)
-        }
+            {
+                'name': 'NvSerialBNlearn',
+                'title': 'Naive Serial Example with BNLearn(R)',
+                'engine': bnlearn.BNLearn(bns, driver="R", use_cached_file=False, tmp_file_name="bnlearn_tmp_pase_R"),
+                'run_parameters': lambda eng: set_repetition(eng, 20)
+            },
+            {
+                'name': 'NvSerialgRain',
+                'title': 'Naive Serial Example with gRain(R)',
+                'engine': grain.gRain(bns, driver="R", use_cached_file=True, tmp_file_name="bnlearn_tmp_pase_R"),
+                'run_parameters': lambda eng: set_repetition(eng, 20)
+            },
+            {
+                'name': 'NvSerialBeliefePropagation',
+                'title': 'Naive Serial Example with ppmpy BeliefePropagation',
+                'engine': belprop.BeliefePropagation(bns), #dummy.Dummy(bns),  # (n > 23)? belprop.BeliefePropagation(bn): dummy.Dummy(bn),
+                'run_parameters': lambda eng: set_repetition(eng, 20)
+            },
+            {
+                'name': 'ScSerialBelifePropagation',
+                'title': 'Scalable Serial Example with ppmpy BeliefePropagation',
+                'engine': belprop.BeliefePropagation(bss),
+                'run_parameters': lambda eng: set_repetition(eng, 20)
+            },
+            {
+                'name': 'ScSerialBNlearn',
+                'title': 'Scalable Serial Example with BNLearn(R)',
+                'engine': bnlearn.BNLearn(bss, driver="R", tmp_file_name="bnlearn_tmp_pase_R"),
+                'run_parameters': lambda eng: set_repetition(eng, 20)
+            },
+            {
+                'name': 'ScSerialgRain',
+                'title': 'Scalable Serial Example with gRain(R)',
+                'engine': grain.gRain(bss, driver="R", use_cached_file=True, tmp_file_name="bnlearn_tmp_pase_R"),
+                'run_parameters': lambda eng: set_repetition(eng, 20)
+            }
     ]
 
     res_dic['n'].append(n)
@@ -109,9 +109,9 @@ for n in range(3,27):
         print(eng['name'])
         run_param = eng['run_parameters'](eng['engine'])
         if run_param is not None:
-            eng['engine'].run('K',run_param)
+            eng['engine'].run(se.solution,run_param)
         else:
-            eng['engine'].run('K')
+            eng['engine'].run(se.solution)
         print('Availability',eng['engine'].meanAvailability)
         print('Time',eng['engine'].meanTime)
 
