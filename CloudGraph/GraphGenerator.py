@@ -1,16 +1,20 @@
 import random
 import json
+from typing import List,Dict, Optional
+
 class GraphGenerator:
 
 
     def __init__(self):
-        self.cim = { "nodes" : [], "network": [], "dependencies" : []}
+        self.cim = { "components" : [], "network": [], "dependencies" : []}
         self.hosts = []
 
 
-    def create_cim(self, net_size=10,numRootNodes=2, ratio_random_connection=0.0, max_level=2, degree=[3],min_availability=0.9990, max_availability=0.99999):
+    def create_cim(self, net_size: int = 10, numRootNodes :  int = 2, ratio_random_connection:float = 0.0,
+                   max_level: int = 2, degree: List[int] = [3],
+                   min_availability:float = 0.9990, max_availability:float = 0.99999):
 
-        network, nodes, leafs = self.create_cfc_graph(numRootNodes, ratio_random_connection, max_level, degree)
+        network, nodes, leafs = self.create_fault_dependency_graph(numRootNodes, ratio_random_connection, max_level, degree)
 
         hosts = []
         groups = {}
@@ -26,13 +30,13 @@ class GraphGenerator:
 
         for node in nodes:
             if node in hosts:
-                self.cim["nodes"].append({
+                self.cim["components"].append({
                   "name": node,
                   "availability": random.uniform(min_availability, max_availability),
                   "group": inv_groups[node]
                 })
             else:
-                self.cim["nodes"].append({
+                self.cim["components"].append({
                     "name": node,
                     "availability": random.uniform(min_availability, max_availability),
                 })
@@ -49,7 +53,7 @@ class GraphGenerator:
             })
 
         for node in nodes:
-            self.cim["nodes"].append({
+            self.cim["components"].append({
                 "name": node,
                 "availability": random.uniform(min_availability, max_availability),
             })
@@ -93,7 +97,7 @@ class GraphGenerator:
 
         return edges
 
-    def create_cfc_graph(self,numRootNodes, ratio_random_connection=0.1, max_level=2, degree=[3]):
+    def create_fault_dependency_graph(self,numRootNodes:int, ratio_random_connection:float = 0.1, max_level:int=2, degree:List[int]=[3]):
         leafs = []
         network = []
         nodes = []

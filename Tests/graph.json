@@ -1,5 +1,5 @@
 {
-  "nodes": [
+  "components": [
     {
       "name": "D1",
       "availability": 0.9998

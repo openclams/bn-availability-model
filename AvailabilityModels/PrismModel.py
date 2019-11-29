@@ -224,6 +224,3 @@ class PrismModel:
         print(output)
         return (10000-float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))/10000
 
-if __name__ == "__main__":
-    g = PrismModel()
-    print(g.result())

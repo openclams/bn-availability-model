@@ -202,16 +202,16 @@ class SerialExample:
             bn = BayesianModel()
         return bn
 
-    def createScalableNetwork(self):
-
-            op.kn_node(bn, "K", self.k)
-            op.efficient_and_node(bn, "AND_1")
-            op.and_node(bn, 'AND_2')
-            op.or_node(bn, "OR")
-            op.and_node(bn, 'SYS')
-
-        except Exception as inst:
-            bn = BayesianModel()
-
-        return bn
+    # def createScalableNetwork(self):
+    #
+    #         op.kn_node(bn, "K", self.k)
+    #         op.efficient_and_node(bn, "AND_1")
+    #         op.and_node(bn, 'AND_2')
+    #         op.or_node(bn, "OR")
+    #         op.and_node(bn, 'SYS')
+    #
+    #     except Exception as inst:
+    #         bn = BayesianModel()
+    #
+    #     return bn
 
