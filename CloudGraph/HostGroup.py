@@ -1,5 +1,5 @@
 import CloudGraph.Host as h
-from typing import Set
+from typing import Set, List
 
 class HostGroup:
     """Named set of hosts"""

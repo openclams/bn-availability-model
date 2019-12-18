@@ -22,17 +22,17 @@
     },
     {
       "name": ["H1","H2","H3"],
-      "availability": 0.99999,
+      "availability": 0.99,
       "group": "HG1"
     },
     {
       "name": ["H4","H5","H6"],
-      "availability": 0.99999,
+      "availability": 0.99,
       "group": "HG2"
     },
     {
       "name": ["H7","H8","H9"],
-      "availability": 0.99999,
+      "availability": 0.99,
       "group": "HG3"
     },
     {

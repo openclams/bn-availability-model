@@ -3,10 +3,32 @@ from AvailabilityModels.PrismModel import PrismModel
 from CloudGraph.GraphParser import GraphParser
 from BayesianNetworks.pgmpy.writers import writeBIF
 import json
-
+from Inference.bnlearn.BNLearn import BNLearn
 import networkx as nx
 from networkx.drawing.nx_agraph import write_dot, graphviz_layout
 import matplotlib.pyplot as plt
+import time
+
+def eval_models(bn,pm,G,c):
+
+    print("Num. Components:",len(G.nodes))
+    print("Num. BN nodes:",len(bn.nodes()))
+
+
+    solution = "A"
+
+    # print("R BMLearn")
+    # approx = BNLearn(bn, use_cached_file=False, tmp_file_name="tmp/eval2", driver="R")
+    # approx.repetition = 30
+    # approx.run(solution)
+    #
+    # print(approx.meanAvailability)
+
+    start = time.time()
+    print("PrimsSimulation(bn)\t\t", pm.simulate(), "Time", time.time() - start)
+    #start = time.time()
+    #print("PrimsResult(bn)\t", pm.result(), "Time", time.time() - start)
+
 
 config = [
     {"n":10,"k":9,"numRootNodes": 1, "maxLevel": 2,"degree":[3],"net":5,"epsilon":10**-3,"epsilonRate":1e-9,"maxTime":20},
@@ -45,13 +67,22 @@ if not generate:
     #BN availability model
     ba = BayesianNetModel(G,app)#knNodeCPT=scalable_kn_node,orNodeCPT=efficient_or_node,andNodeCPT=efficient_and_node)
     bn = ba.bn
-    
+
+    solution = "A"
+
+    print("R BMLearn")
+    approx = BNLearn(bn, use_cached_file=False, tmp_file_name="tmp/eval2", driver="R")
+    approx.repetition = 100
+    approx.run(solution)
+
+    print(approx.meanAvailability)
+
     #writeBIF(bn,"test.bif")
 
     #Prism availablity model
-    #pm = PrismModel(G,app,"ctmc",temp_file_name,prism_location)
-    #pm.buildCTMCPrismModel()
-
+    #pm = PrismModel(G,app,temp_file_name,prism_location)
+    #pm.build()
+    #eval_models(bn, pm, G, c)
 
 
 
