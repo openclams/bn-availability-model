@@ -227,6 +227,9 @@ class BayesianNetModel:
 
             print(service["name"],"created")
 
+        if 'application' not in self.app:
+            return;
+
         # Compute external (super) channels
         self.bn.add_node("A", 2) # Create app node
 

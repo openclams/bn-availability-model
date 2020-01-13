@@ -1,34 +1,9 @@
 from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
-from AvailabilityModels.PrismModel import PrismModel
 from CloudGraph.GraphParser import GraphParser
-from BayesianNetworks.pgmpy.writers import writeBIF
 import json
-from Inference.bnlearn.BNLearn import BNLearn
-import networkx as nx
-from networkx.drawing.nx_agraph import write_dot, graphviz_layout
-import matplotlib.pyplot as plt
-import time
-
-def eval_models(bn,pm,G,c):
-
-    print("Num. Components:",len(G.nodes))
-    print("Num. BN nodes:",len(bn.nodes()))
-
-
-    solution = "A"
-
-    # print("R BMLearn")
-    # approx = BNLearn(bn, use_cached_file=False, tmp_file_name="tmp/eval2", driver="R")
-    # approx.repetition = 30
-    # approx.run(solution)
-    #
-    # print(approx.meanAvailability)
-
-    start = time.time()
-    print("PrimsSimulation(bn)\t\t", pm.simulate(), "Time", time.time() - start)
-    #start = time.time()
-    #print("PrimsResult(bn)\t", pm.result(), "Time", time.time() - start)
-
+from Inference.pgmpy.VariableElimination import VariableElimination
+from CloudGraph.GraphGenerator import GraphGenerator
+import BayesianNetworks.pgmpy.draw as dr
 
 config = [
     {"n":10,"k":9,"numRootNodes": 1, "maxLevel": 2,"degree":[3],"net":5,"epsilon":10**-3,"epsilonRate":1e-9,"maxTime":20},
@@ -48,12 +23,10 @@ c = config[0]
 generate = False
 bn = None
 pm = None
-temp_file_name = "cim.sm"
-prism_location = "C:\\Program Files\\prism-4.5\\"
 
 if not generate:
-    cim_file_name = "Tests/graph.json"
-    dep_file_name = "Tests/deployment.json"
+    cim_file_name = "Tests/service/graph.json"
+    dep_file_name = "Tests/service/deployment.json"
 
     cim = json.load(open(cim_file_name))
 
@@ -67,22 +40,33 @@ if not generate:
     #BN availability model
     ba = BayesianNetModel(G,app)#knNodeCPT=scalable_kn_node,orNodeCPT=efficient_or_node,andNodeCPT=efficient_and_node)
     bn = ba.bn
+    dr.plot(bn)
+    solution = "er"
 
-    solution = "A"
+    print("Variable Elimination Algorithm")
+    vea = VariableElimination(bn)
+    vea.repetition = 1
+    vea.run(solution)
+    print(vea.meanAvailability)
+else:
 
-    print("R BMLearn")
-    approx = BNLearn(bn, use_cached_file=False, tmp_file_name="tmp/eval2", driver="R")
-    approx.repetition = 100
-    approx.run(solution)
+    gg = GraphGenerator()
+    cim = gg.create_cim(net_size=c["net"],
+                        numRootNodes=c["numRootNodes"],
+                        ratio_random_connection=0.0,
+                        max_level=c["maxLevel"],
+                        degree=c["degree"],
+                        min_availability=0.9990,
+                        max_availability=0.99999)
+    app = gg.create_app(c["n"],c["k"])
+    print(cim)
+    print(app)
+    parser = GraphParser(cim)
+    G = parser.G
 
-    print(approx.meanAvailability)
-
-    #writeBIF(bn,"test.bif")
-
-    #Prism availablity model
-    #pm = PrismModel(G,app,temp_file_name,prism_location)
-    #pm.build()
-    #eval_models(bn, pm, G, c)
+    ba = BayesianNetModel(G,app)
+    bn = ba.bn
+    dr.plot(bn)
 
 
 
