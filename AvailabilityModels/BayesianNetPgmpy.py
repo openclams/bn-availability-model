@@ -8,13 +8,14 @@ import BayesianNetworks.pgmpy.draw as dr
 
 class BayesianNetModel:
 
-    def __init__(self,G:Graph,app,andNodeCPT = ops.and_node, orNodeCPT= ops.or_node, knNodeCPT=ops.kn_node):
+    def __init__(self,G:Graph,app,andNodeCPT = ops.and_node, orNodeCPT= ops.or_node, knNodeCPT=ops.kn_node, weightedKnNodeCPT = ops.weighted_kn_node):
         self.G:Graph = G
         self.bn:BayesianModel = BayesianModel()
         self.app = app
         self.andNodeCPT = andNodeCPT
         self.orNodeCPT = orNodeCPT
         self.knNodeCPT = knNodeCPT
+        self.weightedKnNodeCPT = weightedKnNodeCPT
         self.construct_bn()
 
     def construct_bn(self):
@@ -57,6 +58,7 @@ class BayesianNetModel:
         # in all paths with store as key the unique path names and as values the network components of the path as array
         all_paths = {}
         current_path_index = 1
+        weights = []
         for service in self.app["services"]:
             # For each service we create all servers nodes
             #print ("Service", service["name"],"found")
@@ -76,24 +78,27 @@ class BayesianNetModel:
                 self.andNodeCPT(self.bn, server_name)
                 # TODO: At this point I do no assume that server names are listed int he deployment file
 
-            n_servers = len(service["servers"])
-            channels[service["name"]] = {} # store here all internal channels
-            # Now we create the channel BN nodes for every server pair
-            # We have undreicted edges, therefore, we only iterate between every pair without backedge (n/2)
-            for i in range(0,n_servers):
-                for j in range(i+1,n_servers):
-                    channel_name = service["name"]+"_"+str(i)+"_"+str(j)  # here we have i< j
-                    # e.g.Channel for 5 to 3 is "3_5"
-                    channels[service["name"]][str(i)+"_"+str(j)] = channel_name
-                    self.bn.add_node(channel_name, 2)
-                    # Connect src and dst with BN channel node
-                    self.bn.add_edge(servers[service["name"]][i], channel_name)
-                    self.bn.add_edge(servers[service["name"]][j], channel_name)
-                    # Each BN channel node is an AND node
 
-            A_nodes = [] #Store for further processing the names of ther augemented servers
+            n_servers = len(service["servers"])
+            channels[service["name"]] = {}  # store here all internal channels
+            A_nodes = []  # Store for further processing the names of ther augemented servers
             n = sum([service["servers"][idx]["votes"] for idx in range(n_servers)])
-            if not(threshold == n or threshold == 1): # If not read-on/write all
+            if not (threshold == n or threshold == 1):  # If not read-on/write all
+
+                # Now we create the channel BN nodes for every server pair
+                # We have undreicted edges, therefore, we only iterate between every pair without backedge (n/2)
+                for i in range(0,n_servers):
+                    for j in range(i+1,n_servers):
+                        channel_name = service["name"]+"_"+str(i)+"_"+str(j)  # here we have i< j
+                        # e.g.Channel for 5 to 3 is "3_5"
+                        channels[service["name"]][str(i)+"_"+str(j)] = channel_name
+                        self.bn.add_node(channel_name, 2)
+                        # Connect src and dst with BN channel node
+                        self.bn.add_edge(servers[service["name"]][i], channel_name)
+                        self.bn.add_edge(servers[service["name"]][j], channel_name)
+                        # Each BN channel node is an AND node
+
+
                 #print("Add paths to channels", service["name"])
 
                 # Here are key the src dst part as string and the value is the path name as stirng, e.g. P1 node
@@ -117,7 +122,6 @@ class BayesianNetModel:
                             print("No Paht found")
                             exit(1)
                         else:
-                            # TODO: We only consider the frist path, we should consider all paths with an OR node later
                             for path in paths:
                                 found = False
                                 for c in all_paths:
@@ -174,8 +178,9 @@ class BayesianNetModel:
                             self.bn.add_edge(channels[service["name"]][str(a) + "_" + str(b)], A)
                     self.knNodeCPT(self.bn,A,threshold-1)
                     self.bn.add_edge(A,K)
-                self.knNodeCPT(self.bn,K,threshold)
+                self.weightedKnNodeCPT(self.bn,K,threshold,weights)
             else:
+                #The read-one/write-all case
                 for idx, server in enumerate(service["servers"]):
                     A_nodes.append(service["name"] + "_" + "R_" + str(idx))
 
@@ -186,8 +191,6 @@ class BayesianNetModel:
                 ext = service["init"]
                 channel_name = service["name"] + "_" + str(i) + "_" + ext  # here we have i< j
                 external_channels.append(channel_name)
-                # e.g.Channel for 5 to 3 is "3_5"
-                channels[service["name"]][str(i) + "_" + ext] = channel_name
                 self.bn.add_node(channel_name, 2)
                 # Connect src and dst with BN channel node
                 self.bn.add_edge(A_nodes[i], channel_name)
@@ -205,7 +208,28 @@ class BayesianNetModel:
                 if len(paths) == 0:
                     raise Exception("No Path Found")
                 else:
-                    # TODO: We only consider the frist path, we should consider all paths with an OR node later
+                    # for path in paths:
+                    #     found = False
+                    #     for c in all_paths:
+                    #         if path == all_paths[c]:
+                    #             # We have found a duplicate path
+                    #             path_channel_map[str(i) + "_" + str(j)].append(c)
+                    #             found = True
+                    #             print("reuse", c, all_paths[c])
+                    #             break
+                    #     if not found:
+                    #         # We have a new path
+                    #         path_name = service['name'] + "P_" + str(current_path_index)
+                    #         all_paths[path_name] = path
+                    #         path_channel_map[str(i) + "_" + str(j)].append(path_name)
+                    #         current_path_index = current_path_index + 1
+                    #         print("make new", path_name, all_paths[path_name])
+                    #         self.bn.add_node(path_name, 2)
+                    #         for component in path:
+                    #             self.bn.add_edge(component, path_name)
+                    #         self.andNodeCPT(self.bn, path_name)
+
+
                     path = set(paths[0])
                     found = False
                     for c in all_paths:

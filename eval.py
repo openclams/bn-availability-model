@@ -43,12 +43,12 @@ if not generate:
 
     ba = BayesianNetModel(G, app)
     bn = ba.bn
-
+    #dr.plot(bn)
     approx = BNLearn(bn, use_cached_file=False, tmp_file_name="tmp/eval2", driver="R")
-    approx.repetition = 30
+    approx.repetition = 1
     approx.run("er")
     print(approx.meanAvailability)
-    exit()
+
 
     #Prism availablity model
     pm = PrismModel(G,app,temp_file_name,prism_location)

@@ -143,3 +143,47 @@ def scalable_kn_node(bn : BayesianModel, bn_node_name, k):
                      evidence=[last_e],
                      evidence_card=[m])
     bn.add_cpds(cpd)
+
+
+def weighted_kn_node(bn : BayesianModel, bn_node, k,weights):
+    fn = lambda c: [sum([weights[idx] * s for idx, s in enumerate(c)]) < k,
+                    sum([weights[idx] * s for idx, s in enumerate(c)]) >= k]
+    create_cpt(bn, bn_node, fn)
+
+def scalable_weighted_kn_node(bn : BayesianModel, bn_node_name, k, weights):
+
+    c_parents = list(bn.get_parents(bn_node_name))  # this array also contains the node itself
+    c_parents_card = [bn.get_cardinality(x) for x in c_parents]
+    # create for each C node an E node
+    last_e = None
+    first = True
+    m = 1
+    for c in c_parents:
+        e_name = "E_" + c + "_" + bn_node_name
+        bn.add_node(e_name, m + 1) # the number of labels
+        m = m + 1
+        bn.add_edge(c, e_name)
+        if not first:
+            bn.add_edge(last_e, e_name)
+        adder_cpt(bn, e_name, m)
+        last_e = e_name
+        first = False
+    # remove all arcs from bn_node_name and bindto the last e_nam
+    for c in c_parents:
+        bn.remove_edge(c,bn_node_name)
+    bn.add_edge(last_e, bn_node_name)
+
+    cpt = np.zeros((2,m))
+
+    for e in range(m):
+        if e < k:
+            cpt[0,e] = 1
+            cpt[1,e] = 0
+        else:
+            cpt[0,e] = 0
+            cpt[1,e] = 1
+
+    cpd = TabularCPD(variable=bn_node_name, variable_card=2, values=cpt,
+                     evidence=[last_e],
+                     evidence_card=[m])
+    bn.add_cpds(cpd)

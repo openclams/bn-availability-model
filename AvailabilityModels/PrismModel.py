@@ -70,6 +70,34 @@ class PrismModel:
             all_components.add("&".join([c+"_w " for c in components_set]))
 
         return all_components
+
+    def get_external_paths(self, G, host_groups, init):
+        # get one representative host from each host group
+        hosts = [G.host_groups[group].hosts[0].name for group in host_groups]
+
+        all_components = set()
+        paths_list = []
+        for i in range(len(hosts)):
+            src = init
+            dst = hosts[i]
+            paths = compute_path.print_all_paths(G, src, dst)
+
+            # Delete first and last element
+            for k in range(len(paths)):
+                paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
+                # all_components.update(paths[k])
+            paths_list.append(paths)
+            print(init, src, dst, paths)
+
+        for path_combination in itertools.product(*paths_list):
+            components_set = set()
+            print(path_combination)
+            [components_set.update(path) for path in path_combination]
+            print(components_set)
+            all_components.add("&".join([c + "_w " for c in components_set]))
+
+        return all_components
+
     #
     def create_cfc_dependencies(self,node_name,variable_name,f,votes=None):
         for parent in self.G.nodes[node_name].fault_dependencies["parents"]:
@@ -214,11 +242,17 @@ class PrismModel:
             # disjunctive normal form (DNF)
             # This list stores the conjunctions as strings
             terms:List[str] = []
+            total_votes = sum([voteMap[h] for h in voteMap])
             for ag in available_groups:
                 if(len(ag) != 0):
                     #compute paths between any pair
 
-                    paths = "|".join(self.get_paths(self.G,ag,init))
+                    paths = ""
+                    if threshold == 1 or threshold == total_votes:
+                        paths="|".join(self.get_external_paths(self.G,ag,init))
+                    else:
+                        paths="|".join(self.get_paths(self.G,ag,init))
+
                     if not paths:
                         paths = ""
                     else:

@@ -12,7 +12,7 @@
         {"host":"H7","votes": 1},
         {"host":"H7","votes": 1}
       ],
-      "threshold": 4,
+      "threshold": 7,
       "direct_communication": false
     }
   ]
