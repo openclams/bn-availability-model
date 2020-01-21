@@ -1,0 +1,19 @@
+{
+  "services":[
+    {
+      "name": "er",
+      "init": "G1",
+      "servers": [
+        {"host":"H1","votes": 1},
+        {"host":"H2","votes": 1},
+        {"host":"H4","votes": 1},
+        {"host":"H5","votes": 1},
+        {"host":"H6","votes": 1},
+        {"host":"H7","votes": 1},
+        {"host":"H7","votes": 1}
+      ],
+      "threshold": 4,
+      "direct_communication": false
+    }
+  ]
+}

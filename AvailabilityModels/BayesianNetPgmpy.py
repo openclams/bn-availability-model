@@ -60,16 +60,17 @@ class BayesianNetModel:
         for service in self.app["services"]:
             # For each service we create all servers nodes
             #print ("Service", service["name"],"found")
+            threshold = service['threshold']
             servers[ service["name"] ] = []  # store all server names per service in this dic
             # We iterate over all hosts, i.e. deployments
             # Server do not have names, this version does not support nested k:n service models yet
-            for idx, host in enumerate(service["servers"]):
+            for idx, server in enumerate(service["servers"]):
                 server_name = service["name"]+"_"+"R_"+str(idx)
                 servers[service["name"]].append(server_name)
                 # Add BN nodes for each server of the service
                 self.bn.add_node(server_name, 2)
                 # Connect the servers with the appropriate hosts
-                self.bn.add_edge(host, server_name)
+                self.bn.add_edge(server['host'], server_name)
                 #print(host,server_name,self.bn.cpt(server_name).var_names)
                 # Add an AND CPT to the server BN node
                 self.andNodeCPT(self.bn, server_name)
@@ -90,79 +91,95 @@ class BayesianNetModel:
                     self.bn.add_edge(servers[service["name"]][j], channel_name)
                     # Each BN channel node is an AND node
 
+            A_nodes = [] #Store for further processing the names of ther augemented servers
+            n = sum([service["servers"][idx]["votes"] for idx in range(n_servers)])
+            if not(threshold == n or threshold == 1): # If not read-on/write all
+                #print("Add paths to channels", service["name"])
 
-            #print("Add paths to channels", service["name"])
+                # Here are key the src dst part as string and the value is the path name as stirng, e.g. P1 node
+                path_channel_map = {}
+                # We keep track how many unique paths we have found
 
-            # Here are key the src dst part as string and the value is the path name as stirng, e.g. P1 node
-            path_channel_map = {}
-            # We keep track how many unique paths we have found
+                #We iterate over each src dst pair and we compute a path
+                for i in range(0, n_servers):
+                    for j in range(i + 1, n_servers):
+                        path_channel_map[str(i) + "_" + str(j)] = []
+                        host_a = self.bn.get_parents(servers[service["name"]][i])[0] # get host, which is a parent node of the server node
+                        host_b = self.bn.get_parents(servers[service["name"]][j])[0]
+                        paths = compute_path.print_all_paths(self.G,host_a,host_b)
 
-            #We iterate over each src dst pair and we compute a path
-            for i in range(0, n_servers):
-                for j in range(i + 1, n_servers):
-                    host_a = self.bn.get_parents(servers[service["name"]][i])[0] # get host, which is a parent node of the server node
-                    host_b = self.bn.get_parents(servers[service["name"]][j])[0]
-                    paths = compute_path.print_all_paths(self.G,host_a,host_b)
+                        # Delete first and last element
+                        for k in range(len(paths)):
+                            paths[k] = paths[k][slice(1,len( paths[k])-1)]
 
-                    # Delete first and last element
-                    for k in range(len(paths)):
-                        paths[k] = paths[k][slice(1,len( paths[k])-1)]
+                        #print(host_a,'to',host_b,paths)
+                        if len(paths) == 0 :
+                            print("No Paht found")
+                            exit(1)
+                        else:
+                            # TODO: We only consider the frist path, we should consider all paths with an OR node later
+                            for path in paths:
+                                found = False
+                                for c in all_paths:
+                                    if path == all_paths[c]:
+                                        #We have found a duplicate path
+                                        path_channel_map[str(i)+"_"+str(j)].append(c)
+                                        found = True
+                                        print("reuse", c,all_paths[c])
+                                        break
+                                if not found:
+                                    # We have a new path
+                                    path_name = service['name']+"P_"+str(current_path_index)
+                                    all_paths[path_name] = path
+                                    path_channel_map[str(i) + "_" + str(j)].append(path_name)
+                                    current_path_index = current_path_index + 1
+                                    print("make new", path_name, all_paths[path_name])
+                                    self.bn.add_node(path_name, 2)
+                                    for component in path:
+                                        self.bn.add_edge(component, path_name)
+                                    self.andNodeCPT(self.bn, path_name)
 
-                    #print(host_a,'to',host_b,paths)
-                    if len(paths) == 0 :
-                        print("No Paht found")
-                        exit(1)
+                # Connect the path to the channel; the channel is now completed
+                for endpoints in path_channel_map:
+                    channel_name =  service["name"]+"_"+endpoints
+                    if(len(path_channel_map[endpoints]) == 1):
+                        #No OR node
+                        self.bn.add_edge(path_channel_map[endpoints][0], channel_name)
                     else:
-                        # TODO: We only consider the frist path, we should consider all paths with an OR node later
-                        path = set(paths[0])
-                        found = False
-                        for c in all_paths:
-                            if path == all_paths[c]:
-                                #We have found a duplicate path
-                                path_channel_map[str(i)+"_"+str(j)] = c
-                                found = True
-                                print("reuse", c,all_paths[c])
-                        if not found:
-                            # We have a new path
-                            path_name = service['name']+"P_"+str(current_path_index)
-                            all_paths[path_name] = path
-                            path_channel_map[str(i) + "_" + str(j)] = path_name
-                            current_path_index = current_path_index + 1
-                            print("make new", path_name, all_paths[path_name])
-                            self.bn.add_node(path_name, 2)
-                            for component in path:
-                                self.bn.add_edge(component, path_name)
-                            self.andNodeCPT(self.bn, path_name)
-
-            # Connect the path to the channel; the channel is now completed
-            for endpoints in path_channel_map:
-                channel_name =  service["name"]+"_"+endpoints
-                self.bn.add_edge(path_channel_map[endpoints],channel_name)
-                self.andNodeCPT(self.bn,channel_name)
+                        OR = service["name"]+"_"+endpoints+ "_OR"
+                        self.bn.add_node(OR, 2)
+                        for path in path_channel_map[endpoints]:
+                            self.bn.add_edge(path, OR)
+                        self.orNodeCPT(self.bn, OR)
+                        self.bn.add_edge(OR, channel_name)
+                    self.andNodeCPT(self.bn, channel_name)
 
 
-            #print("Add replication semantics")
-            K = service["name"] + "_K"
-            self.bn.add_node(K, 2)
-            A_nodes = []
-            for i in range(0, n_servers):
-                A = service["name"] + "_A_"+ str(i)
-                A_nodes.append(A)
-                self.bn.add_node(A,2)
-                for j in range(0, n_servers):
-                    if (j > i):
-                        a = i
-                        b = j
-                        self.bn.add_edge(channels[service["name"]][str(a) + "_" + str(b)], A)
-                    elif (j < i):
-                        a = j
-                        b = i
-                        self.bn.add_edge(channels[service["name"]][str(a) + "_" + str(b)], A)
-                self.knNodeCPT(self.bn,A,service["k"]-1)
-                self.bn.add_edge(A,K)
-            self.knNodeCPT(self.bn,K,service["k"])
+                print("Add replication semantics",threshold)
+                K = service["name"] + "_K"
+                self.bn.add_node(K, 2)
 
-           #computing external channel
+                for i in range(0, n_servers):
+                    A = service["name"] + "_A_"+ str(i)
+                    A_nodes.append(A)
+                    self.bn.add_node(A,2)
+                    for j in range(0, n_servers):
+                        if (j > i):
+                            a = i
+                            b = j
+                            self.bn.add_edge(channels[service["name"]][str(a) + "_" + str(b)], A)
+                        elif (j < i):
+                            a = j
+                            b = i
+                            self.bn.add_edge(channels[service["name"]][str(a) + "_" + str(b)], A)
+                    self.knNodeCPT(self.bn,A,threshold-1)
+                    self.bn.add_edge(A,K)
+                self.knNodeCPT(self.bn,K,threshold)
+            else:
+                for idx, server in enumerate(service["servers"]):
+                    A_nodes.append(service["name"] + "_" + "R_" + str(idx))
+
+            #computing external channel
             n_servers = len(A_nodes)
             external_channels = []
             for i in range(0, n_servers):
@@ -212,23 +229,21 @@ class BayesianNetModel:
                 # Connect the path to the channel; the channel is now completed
 
 
-            OR = service["name"] + "_EXT"
+            OR = service["name"]
             self.bn.add_node(OR,2)
             for channel_name in external_channels:
                 self.andNodeCPT(self.bn, channel_name)
                 self.bn.add_edge(channel_name, OR)
 
-            self.orNodeCPT(self.bn,OR)
-
-            self.bn.add_node( service["name"], 2)
-            self.bn.add_edge(K, service["name"])
-            self.bn.add_edge(OR, service["name"])
-            self.andNodeCPT(self.bn,service["name"])
+            if threshold == n: #if write-all
+                self.andNodeCPT(self.bn, OR)
+            else:
+                self.orNodeCPT(self.bn,OR)
 
             print(service["name"],"created")
 
         if 'application' not in self.app:
-            return;
+            return
 
         # Compute external (super) channels
         self.bn.add_node("A", 2) # Create app node

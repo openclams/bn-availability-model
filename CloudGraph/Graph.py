@@ -22,7 +22,7 @@ class Graph:
             self.host_groups[group_name] = HostGroup(group_name)
 
         #Attach the host to the host group
-        self.host_groups[group_name].hosts.add(host)
+        self.host_groups[group_name].hosts.append(host)
         host.host_groups.add(self.host_groups[group_name])
 
     def remove_node(self,node:Component) -> None:

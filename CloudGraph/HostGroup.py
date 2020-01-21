@@ -6,4 +6,4 @@ class HostGroup:
 
     def __init__(self,name : str):
         self.name: str  = name
-        self.hosts: Set[h.Host] = set()  # Reference to the  hosts
+        self.hosts: Set[h.Host] = []  # Reference to the  hosts
