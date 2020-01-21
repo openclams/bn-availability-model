@@ -67,6 +67,7 @@ class BayesianNetModel:
             # We iterate over all hosts, i.e. deployments
             # Server do not have names, this version does not support nested k:n service models yet
             for idx, server in enumerate(service["servers"]):
+                weights.append(server['votes'])
                 server_name = service["name"]+"_"+"R_"+str(idx)
                 servers[service["name"]].append(server_name)
                 # Add BN nodes for each server of the service
