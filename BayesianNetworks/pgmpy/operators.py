@@ -153,14 +153,13 @@ def weighted_kn_node(bn : BayesianModel, bn_node, k,weights):
 def scalable_weighted_kn_node(bn : BayesianModel, bn_node_name, k, weights):
 
     c_parents = list(bn.get_parents(bn_node_name))  # this array also contains the node itself
-    c_parents_card = [bn.get_cardinality(x) for x in c_parents]
     # create for each C node an E node
     last_e = None
     first = True
-    m = 1
+    m = 0
     for c in c_parents:
         e_name = "E_" + c + "_" + bn_node_name
-        bn.add_node(e_name, m + 1) # the number of labels
+        bn.add_node(e_name, sum(weights[:m])+1) # the number of labels
         m = m + 1
         bn.add_edge(c, e_name)
         if not first:
@@ -173,7 +172,7 @@ def scalable_weighted_kn_node(bn : BayesianModel, bn_node_name, k, weights):
         bn.remove_edge(c,bn_node_name)
     bn.add_edge(last_e, bn_node_name)
 
-    cpt = np.zeros((2,m))
+    cpt = np.zeros((2,sum(weights)))
 
     for e in range(m):
         if e < k:

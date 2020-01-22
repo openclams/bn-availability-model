@@ -41,6 +41,8 @@ class Evaluate:
 
     def run(self,generator):
 
+        has_prism = any([eng['is_prism'] for eng in self.engines])
+
         res_dic = {}
         res_dic['n'] = []
 
@@ -51,11 +53,15 @@ class Evaluate:
         mem_dic['n'] = []
         mem_dic['size_nv'] = []
         mem_dic['size_sc'] = []
+        if has_prism:
+            mem_dic['size_prism'] = []
 
         build_time_dic = {}
         build_time_dic['n'] = []
         build_time_dic['time_nv'] = []
         build_time_dic['time_sc'] = []
+        if has_prism:
+            build_time_dic['time_prism'] = []
 
         total_time_dic = {}
         total_time_dic['n'] = []
@@ -97,6 +103,14 @@ class Evaluate:
                 mem_sc = self.bn_memory(bs)
             build_time_sc = time.time() - start_build_time_sc
 
+            if has_prism:
+                start_build_prism = time.time()
+                se.createPrism()
+                mem_prism = 0
+                build_time_prism = time.time() - start_build_prism
+                build_time_dic['time_prism'].append(build_time_prism)
+                mem_dic['size_prism'].append(mem_prism)
+
             build_time_dic['time_nv'].append(build_time_nv)
             build_time_dic['time_sc'].append(build_time_sc)
 
@@ -120,29 +134,38 @@ class Evaluate:
 
                 if eng['name'] not in self.skip_engines:
 
-                    if eng['is_naive']:
-                        eng['engine'] = eng['fn'](bn, self.skip_engines)
+                    if eng['is_prism']:
+                        eng['engine'] = eng['fn'](self.skip_engines)
                     else:
-                        eng['engine'] = eng['fn'](bs, self.skip_engines)
+                        if eng['is_naive']:
+                            eng['engine'] = eng['fn'](bn, self.skip_engines)
+                        else:
+                            eng['engine'] = eng['fn'](bs, self.skip_engines)
 
                     run_param = eng['run_parameters'](eng['engine'])
 
                     start_total_time = time.time()
+
                     if run_param is not None:
                         eng['engine'].run(se.solution, run_param)
                     else:
                         eng['engine'].run(se.solution)
+
                     total_time =  time.time() - start_total_time
                     print('Mean Availability', eng['engine'].meanAvailability)
                     print('Inference Mean Time', eng['engine'].meanTime,'sec')
                     print('Total Time', total_time,'sec')
 
-                    if eng['is_naive']:
-                        print('Memory', mem_nv, 'bytes')
-                        print('Pgmpy Build Time', build_time_nv, 'sec')
+                    if not eng['is_prism']:
+                        if eng['is_naive']:
+                            print('Memory', mem_nv, 'bytes')
+                            print('Pgmpy Build Time', build_time_nv, 'sec')
+                        else:
+                            print('Memory', mem_sc, 'bytes')
+                            print('Pgmpy Build Time', build_time_sc, 'sec')
                     else:
-                        print('Memory', mem_sc, 'bytes')
-                        print('Pgmpy Build Time', build_time_sc, 'sec')
+                        print('Memory', mem_prism, 'bytes')
+                        print('Prism Build Time', build_time_prism, 'sec')
 
                     res_dic[eng['name']].append(eng['engine'].meanAvailability)
                     time_dic[eng['name']].append(eng['engine'].meanTime)

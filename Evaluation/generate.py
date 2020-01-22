@@ -1,9 +1,64 @@
 import BayesianNetworks.pgmpy.operators as op
-import BayesianNetworks.pgmpy.writers as wr
 from pgmpy.models import BayesianModel
 from pgmpy.factors.discrete import TabularCPD
-import time
+import json
+from CloudGraph.GraphParser import GraphParser
+from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
+from AvailabilityModels.PrismModel import PrismModel
 
+class PrismComparisonExample:
+
+    def __init__(self, n, k, cim_file_name):
+        self.n = n
+        self.k = k
+        self.solution = "er"
+        self.pm = None
+        self.cim = json.load(open(cim_file_name))
+
+        parser = GraphParser(self.cim)
+
+        # The cloud infrastructure graph
+        self.G = parser.get_graph()
+        # The app graph
+        self.app = {
+              "services":[
+                {
+                  "name": "er",
+                  "init": "G1",
+                  "servers": [],
+                  "threshold": self.k,
+                  "direct_communication": False
+                }
+              ]
+            }
+        hosts = []
+        for v in self.G.host_groups.values():
+            hosts.extend(v.hosts)
+
+        h = len(hosts)
+        for i in range(n):
+            self.app["services"][0]["servers"].append({"host":hosts[i%h].name,"votes":1})
+
+
+    def createNaiveNetwork(self):
+        try:
+            ba = BayesianNetModel(self.G, self.app)
+            bn = ba.bn
+        except Exception as inst:
+            bn =  BayesianModel()
+        return bn
+
+    def createScalableNetwork(self):
+        try:
+            ba = BayesianNetModel(self.G, self.app)
+            bn = ba.bn
+        except Exception as inst:
+            bn = BayesianModel()
+        return bn
+
+    def createPrism(self):
+        self.pm = PrismModel(self.G, self.app, "cim.sm", "C:\\Program Files\\prism-4.5\\")
+        self.pm.build()
 
 
 class SimpleExample:

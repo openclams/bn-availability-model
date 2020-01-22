@@ -45,7 +45,7 @@ if not generate:
     bn = ba.bn
     #dr.plot(bn)
     approx = BNLearn(bn, use_cached_file=False, tmp_file_name="tmp/eval2", driver="R")
-    approx.repetition = 1
+    approx.repetition = 30
     approx.run("er")
     print(approx.meanAvailability)
 
