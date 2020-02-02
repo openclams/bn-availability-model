@@ -12,6 +12,7 @@ class PrismSim(Engine):
         self.my_env = os.environ.copy()
         self.my_env["PATH"] = "C:\\Program Files\\prism-4.5\\" + self.my_env["PATH"]
         self.temp_file_name =temp_file_name
+        self.mission_time = 10000
         # -h uses the hybrid engine
 
 
@@ -24,12 +25,12 @@ class PrismSim(Engine):
             for i in range(self.repetition):
                 start = time.time()
 
-                popen = subprocess.Popen(self.args, env=self.my_env, shell=True, stdout=subprocess.PIPE)
+                popen = subprocess.Popen(args, env=self.my_env, shell=True, stdout=subprocess.PIPE)
                 popen.wait()
                 output = str(popen.stdout.read())
                 # print(output)
 
-                self.availabilityData.append(float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))
+                self.availabilityData.append((self.mission_time-float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))/self.mission_time)
                 self.timeData.append(time.time() - start)
 
             self.meanAvailability = numpy.mean(self.availabilityData)

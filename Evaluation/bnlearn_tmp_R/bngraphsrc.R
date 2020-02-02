@@ -1,5 +1,0 @@
-this.dir <- dirname(parent.frame(2)$ofile)
-setwd(this.dir)
-a <- list()
-plist <- compileCPT(a)
-net1 <- grain(plist)

@@ -27,9 +27,6 @@ class PrismModel:
         self.model_name:str = temp_file_name
         self.prism_location:str = prism_location
 
-
-
-
     def all_available(self,G,node_name):
         """
         Create a string of all ascendants of the node
@@ -60,13 +57,13 @@ class PrismModel:
                     paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
                     #all_components.update(paths[k])
                 paths_list.append(paths)
-                print(init, src, dst, paths)
+                # print(init, src, dst, paths)
 
         for path_combination in itertools.product(*paths_list):
             components_set = set()
-            print(path_combination)
+            # print(path_combination)
             [components_set.update(path) for path in path_combination]
-            print(components_set)
+            # print(components_set)
             all_components.add("&".join([c+"_w " for c in components_set]))
 
         return all_components
@@ -87,17 +84,40 @@ class PrismModel:
                 paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
                 # all_components.update(paths[k])
             paths_list.append(paths)
-            print(init, src, dst, paths)
+            # print(init, src, dst, paths)
 
         for path_combination in itertools.product(*paths_list):
             components_set = set()
-            print(path_combination)
+            # print(path_combination)
             [components_set.update(path) for path in path_combination]
-            print(components_set)
+            # print(components_set)
             all_components.add("&".join([c + "_w " for c in components_set]))
 
         return all_components
 
+    def get_gate_way_paths(self, G, gateways_from, gateways_to):
+        all_components = set()
+        paths_list = []
+        for i in range(len(gateways_from)):
+            for j in range(len(gateways_to)):
+                src = gateways_from[i]
+                dst = gateways_to[j]
+                paths = compute_path.print_all_paths(G, src, dst)
+
+                # Delete first and last element
+                for k in range(len(paths)):
+                    paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
+                    # all_components.update(paths[k])
+                paths_list.append(paths)
+
+        for path_combination in itertools.product(*paths_list):
+            components_set = set()
+            # print(path_combination)
+            [components_set.update(path) for path in path_combination]
+            # print(components_set)
+            all_components.add("&".join([c + "_w " for c in components_set]))
+
+        return all_components
     #
     def create_cfc_dependencies(self,node_name,variable_name,f,votes=None):
         for parent in self.G.nodes[node_name].fault_dependencies["parents"]:
@@ -193,7 +213,7 @@ class PrismModel:
                 self.create_cfc_dependencies(host, is_working, f,votes)
                 f.write("endmodule\n\n")
 
-        # Add channels for inter server communication and the quorms
+            # Add channels for inter server communication and the quorms
             for hmap in hostMap:
                 s = "formula "+hmap + " = " + "+".join(hostMap[hmap])
                 f.write(s + ";\n")
@@ -266,15 +286,53 @@ class PrismModel:
             self.create_labels(label,terms,f)
             self.create_reward(reward_name,label,f)
 
+        if 'application' not in self.app:
+            # Stop here. It means we have only one service
+            return
+        for channel in self.app['application']['topology']:
+            from_service = channel['from']
+            to_service = channel['to']
+
+            gateways_from = self.get_gateways_name(from_service)
+            gateways_to = self.get_gateways_name(to_service)
+
+            paths="|".join(self.get_gate_way_paths(self.G,gateways_from,gateways_to))
+            if not paths:
+                paths = ""
+            else:
+                paths = " & (%s)" % paths
+
+
+
+        exp = "%s %s\n" % ("& ".join(["availability_"+s['name'] for s in self.app["services"]]),paths)
+
+        f.write("label \"%s\" = %s; \n" % ("availability_", exp))
+        f.write("formula %s = %s; \n" % ("availability_", exp))
+
+        reward_name = "time_unavailable_"
+        self.create_reward(reward_name, "availability_",f)
+
+
         f.close()
 
     def create_labels(self,label_name:str,terms:List[str],f):
         exp = "|".join(terms);
-        f.write("label \"%s\" = %s;\n" % (label_name, exp))
-        f.write("formula %s = %s;\n" % (label_name, exp))
+        f.write("label \"%s\" = %s; \n" % (label_name, exp))
+        f.write("formula %s = %s; \n" % (label_name, exp))
 
     def create_reward(self,reward_name:str,label_name:str,f):
         f.write("rewards \"%s\"\n !%s : 1; \nendrewards\n" % (reward_name,label_name))
+
+    def get_gateways(self,service):
+        if not isinstance(service["init"], list):
+            return [service["init"]]
+        else:
+            return service["init"]
+
+    def get_gateways_name(self, service_name):
+        for service in self.app['services']:
+            if service['name'] == service_name:
+                return self.get_gateways(service)
 
     def result(self,query):
         my_env = os.environ.copy()

@@ -29,8 +29,8 @@ prism_location = "C:\\Program Files\\prism-4.5\\"
 
 
 if not generate:
-    cim_file_name = "Tests/service_voting/graph.json"
-    dep_file_name = "Tests/service_voting/deployment.json"
+    cim_file_name = "Tests/graph.json"
+    dep_file_name = "Tests/deployment.json"
 
     cim = json.load(open(cim_file_name))
 
@@ -53,8 +53,8 @@ if not generate:
     #Prism availablity model
     pm = PrismModel(G,app,temp_file_name,prism_location)
     pm.build()
-    print(pm.simulate("er"))
-    print(pm.result("er"))
+    print(pm.simulate(""))
+    print(pm.result(""))
 
 else:
 

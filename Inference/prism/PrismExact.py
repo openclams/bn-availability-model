@@ -25,7 +25,7 @@ class PrismExact(Engine):
                 popen = subprocess.Popen(args, env=self.my_env, shell=True, stdout=subprocess.PIPE)
                 popen.wait()
                 output = str(popen.stdout.read())
-                #print(output)
+                print(output)
 
                 self.availabilityData.append(float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))
                 self.timeData.append(time.time() - start)

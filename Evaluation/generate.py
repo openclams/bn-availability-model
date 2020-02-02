@@ -41,19 +41,14 @@ class PrismComparisonExample:
 
 
     def createNaiveNetwork(self):
-        try:
-            ba = BayesianNetModel(self.G, self.app)
-            bn = ba.bn
-        except Exception as inst:
-            bn =  BayesianModel()
+        ba = BayesianNetModel(self.G, self.app)
+        bn = ba.bn
         return bn
 
+
     def createScalableNetwork(self):
-        try:
-            ba = BayesianNetModel(self.G, self.app)
-            bn = ba.bn
-        except Exception as inst:
-            bn = BayesianModel()
+        ba = BayesianNetModel(self.G, self.app,andNodeCPT=op.efficient_and_node,orNodeCPT=op.efficient_or_node,knNodeCPT=op.scalable_kn_node)
+        bn = ba.bn
         return bn
 
     def createPrism(self):

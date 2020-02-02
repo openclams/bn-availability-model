@@ -28,8 +28,8 @@ class Evaluate:
         self.project_folder = project_folder
         self.engines = engines
         self.skip_engines = skip_engines
-        self.naive_engine_names = [ eng['name'] for eng in self.engines if eng['is_naive']]
-        self.scalable_engine_names = [eng['name'] for eng in self.engines if not eng['is_naive']]
+        self.naive_engine_names = [ eng['name'] for eng in self.engines if eng['is_naive'] and ('is_prism' not in eng  or ('is_prism' in eng and (eng["is_prism"] is False)))]
+        self.scalable_engine_names = [eng['name'] for eng in self.engines if not eng['is_naive'] and ('is_prism' not in eng  or ('is_prism' in eng and (eng["is_prism"] is False)))]
         self.tests = tests
 
     def bn_memory(self,bn: BayesianModel):
@@ -170,8 +170,10 @@ class Evaluate:
                     res_dic[eng['name']].append(eng['engine'].meanAvailability)
                     time_dic[eng['name']].append(eng['engine'].meanTime)
                     total_time_dic[eng['name']].append(total_time)
+                    print(res_dic)
 
                     #ouput timing and availability data as raw
+                    print(eng['engine'].availabilityData)
                     res = pn.DataFrame({"availability":eng['engine'].availabilityData})
                     res.to_csv(self.project_folder + '/raw/'+str(n)+'_'+eng['name']+'_availability.csv', index=None, header=True)
                     del res
@@ -182,9 +184,9 @@ class Evaluate:
 
 
                     # When to ignore any engine
-                    if eng['engine'].meanTime > self.timeout:
-                        print("Inference time exceeded 1s: Set to ignore.")
-                        self.skip_engines.append(eng['name'])
+                    # if eng['engine'].meanTime > self.timeout:
+                    #     print("Inference time exceeded 1s: Set to ignore.")
+                    #     self.skip_engines.append(eng['name'])
                 else:
                     print("Pass")
                     res_dic[eng['name']].append(float('inf'))

@@ -4,24 +4,24 @@
       "name": "er",
       "init": "G1",
       "servers": [
-        "H1",
-        "H2",
-        "H3",
-        "H7",
-        "H8",
-        "H1"
+        {"host":"H1","votes": 1},
+        {"host":"H2","votes": 1},
+        {"host":"H3","votes": 1},
+        {"host":"H7","votes": 1},
+        {"host":"H8","votes": 1},
+        {"host":"H1","votes": 1}
       ],
-      "k": 5
+        "threshold": 5
     },
     {
       "name": "mysql",
       "init": "G2",
       "servers": [
-        "H4",
-        "H5",
-        "H6"
+        {"host":"H4","votes": 1},
+        {"host":"H5","votes": 1},
+        {"host":"H6","votes": 1}
       ],
-      "k": 2
+        "threshold": 2
     }
   ],
   "application": {
