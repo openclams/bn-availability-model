@@ -7,6 +7,8 @@ from typing import List, Set, Dict, Optional
 import CloudGraph.ComputePath as compute_path
 import BayesianNetworks.pgmpy.draw as dr
 from CloudGraph.Component import Component
+from pgmpy.factors.discrete import TabularCPD
+
 class BayesianNetModel:
 
     def __init__(self,
@@ -34,6 +36,8 @@ class BayesianNetModel:
             # node_name contains the string id of a component
             # For each node in V we create a node in the BN with binary state
             bn.add_node(node_src_name, 2)
+            cpd = TabularCPD(variable=node_src_name, variable_card=2, values=[[1 ,0]])
+            bn.add_cpds(cpd)
 
         for node_src_name in nodes:
             # For each node_name we get the acctual node object
@@ -46,7 +50,14 @@ class BayesianNetModel:
 
         for node_name in nodes:
             # For each node string id, we associate a an AND CPT with the corresponding BN node
-            self.andNodeCPT(bn, node_name)
+
+            try:
+                self.andNodeCPT(bn, node_name)
+            except:
+                parents = list(bn.get_parents(node_name))
+                print(bn.get_cardinality(parents[0]))
+                print(bn.get_cardinality(parents[1]))
+                exit();
             # TODO: At this point we can insert the mechanism to implement any arbitrary FT to BN model
 
             # Now we need to add at the last row of the CPT, where all conditions are true, the availability

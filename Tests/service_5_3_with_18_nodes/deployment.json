@@ -1,0 +1,31 @@
+{
+    "services": [
+        {
+            "name": "er",
+            "init": "N1",
+            "servers": [
+                {
+                    "host": "D010",
+                    "votes": 1
+                },
+                {
+                    "host": "D010",
+                    "votes": 1
+                },
+                {
+                    "host": "D010",
+                    "votes": 1
+                },
+                {
+                    "host": "D010",
+                    "votes": 1
+                },
+                {
+                    "host": "D000",
+                    "votes": 1
+                }
+            ],
+            "threshold": 3
+        }
+    ]
+}

@@ -44,7 +44,7 @@ inferenceEngines = [
         'run_parameters': lambda eng: set_repetition(eng, 5)
     }
 ]
-cim = "../Tests/service_voting/graph.json"
+cim = "../Tests/simple_service/graph.json"
 r = ev.Evaluate(inferenceEngines,'PrismEx_app',[3,4,5,6],["NvSimplegRain","PrismSim"])
 r.run(lambda n: gn.PrismComparisonExample(n,int(round(n / 2 + 0.5)+1),cim) if n % 2 == 0 else gn.PrismComparisonExample(n,int(round(n / 2 + 0.5)),cim))
 

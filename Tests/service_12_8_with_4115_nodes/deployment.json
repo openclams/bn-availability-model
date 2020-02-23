@@ -1,0 +1,59 @@
+{
+    "services": [
+        {
+            "name": "er",
+            "init": "N1",
+            "servers": [
+                {
+                    "host": "D032331",
+                    "votes": 1
+                },
+                {
+                    "host": "D110323",
+                    "votes": 1
+                },
+                {
+                    "host": "D100011",
+                    "votes": 1
+                },
+                {
+                    "host": "D123231",
+                    "votes": 1
+                },
+                {
+                    "host": "D100010",
+                    "votes": 1
+                },
+                {
+                    "host": "D000302",
+                    "votes": 1
+                },
+                {
+                    "host": "D131300",
+                    "votes": 1
+                },
+                {
+                    "host": "D002102",
+                    "votes": 1
+                },
+                {
+                    "host": "D010030",
+                    "votes": 1
+                },
+                {
+                    "host": "D213122",
+                    "votes": 1
+                },
+                {
+                    "host": "D203033",
+                    "votes": 1
+                },
+                {
+                    "host": "D123221",
+                    "votes": 1
+                }
+            ],
+            "threshold": 8
+        }
+    ]
+}

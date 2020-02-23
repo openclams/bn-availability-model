@@ -60,7 +60,7 @@ inferenceEngines = [
         'run_parameters': lambda eng: set_repetition(eng, 1)
     }
 ]
-cim = "../Tests/service_voting/graph.json"
+cim = "../Tests/simple_service/graph.json"
 r = ev.Evaluate(inferenceEngines,'PrismEx_run3',[3,4,5,6,7,10,12,14,16,18,20,22,24,26,28,30,32,34,36,38,40,50,60,70,80,90,100,110,120],[])
 r.run(lambda n: gn.PrismComparisonExample(n,int(n / 2)+1,cim))
 

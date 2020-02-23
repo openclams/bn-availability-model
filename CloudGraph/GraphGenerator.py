@@ -53,6 +53,9 @@ class GraphGenerator:
             })
 
         for node in nodes:
+            self.cim["dependencies"].append({
+                "from": random.choice(leafs)[1], "to": [node]
+            })
             self.cim["components"].append({
                 "name": node,
                 "availability": random.uniform(min_availability, max_availability),
@@ -64,7 +67,7 @@ class GraphGenerator:
                 "from": n1, "to": groups[group]
             })
 
-        with open('result.json', 'w') as fp:
+        with open('graph.json', 'w') as fp:
             json.dump(self.cim, fp, indent=4)
 
         self.hosts = hosts
@@ -146,12 +149,12 @@ class GraphGenerator:
         return  network, nodes
 
     def create_app(self,n,k):
-        app = { "services" : [{ "name": "er", "init" : "N1", "servers":[] , "k":k}]}
+        app = { "services" : [{ "name": "er", "init" : "N1", "servers":[] , "threshold":k}]}
 
         for i in range(n):
-            app["services"][0]["servers"].append(random.choice(self.hosts))
+            app["services"][0]["servers"].append({"host":random.choice(self.hosts),"votes":1})
 
-        with open('deployment_dev.json', 'w') as fp:
+        with open('deployment.json', 'w') as fp:
             json.dump(app, fp, indent=4)
 
         return app
