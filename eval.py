@@ -5,6 +5,7 @@ from AvailabilityModels.PrismModel import PrismModel
 from CloudGraph.GraphGenerator import GraphGenerator
 import BayesianNetworks.pgmpy.draw as dr
 from Inference.bnlearn.BNLearn import BNLearn
+from Inference.grain.gRain import gRain
 import BayesianNetworks.pgmpy.operators as op
 config = [
     #0 service_10_9_with_45_nodes
@@ -29,7 +30,7 @@ config = [
 c = config[6]
 
 # Init
-generate = True
+generate = False
 bn = None
 pm = None
 temp_file_name = "cim.sm"
@@ -38,8 +39,8 @@ prism_location = "C:\\Program Files\\prism-4.5\\"
 
 
 if not generate:
-    cim_file_name = "graph.json"
-    dep_file_name = "deployment.json"
+    cim_file_name = "Tests/simple_service/graph.json"
+    dep_file_name = "Tests/simple_service/deployment.json"
 
     cim = json.load(open(cim_file_name))
 
@@ -56,6 +57,11 @@ if not generate:
     #dr.plot(bn)
     approx = BNLearn(bn, use_cached_file=False, tmp_file_name="tmp/eval2", driver="R")
     approx.repetition = 30
+    approx.run("er")
+    print(approx.meanAvailability)
+
+    approx = gRain(bn, use_cached_file=True, tmp_file_name="tmp/eval2", driver="R")
+    approx.repetition = 1
     approx.run("er")
     print(approx.meanAvailability)
 

@@ -109,19 +109,23 @@ class BayesianNetModel:
                 A = service["name"] + "_A_" + str(i)
                 A_nodes.append(A)
                 self.bn.add_node(A, 2)
+                temp_votes = []
                 for j in range(0, len(hosts)):
                     if j > i:
                         a = i
                         b = j
                         channel_name = service["name"] + "_" + str(a) + "_" + str(b)
                         self.bn.add_edge(channel_name, A)
+                        temp_votes.append(votes[b])
                     elif j < i:
                         a = j
                         b = i
                         channel_name = service["name"] + "_" + str(a) + "_" + str(b)
                         self.bn.add_edge(channel_name, A)
-                self.knNodeCPT(self.bn,A,threshold-1)
-                #self.weightedKnNodeCPT(self.bn, A,  threshold, votes)
+                        temp_votes.append(votes[b])
+                # self.knNodeCPT(self.bn,A,threshold-1)
+                # We subtract the votes of the i-th replica because we assume it allready voted since it issues the protocol
+                self.weightedKnNodeCPT(self.bn, A,  threshold-votes[i], temp_votes)
         else:
             # The read-one/write-all case
             for idx, server in enumerate(service["servers"]):

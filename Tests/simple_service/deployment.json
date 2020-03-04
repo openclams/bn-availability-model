@@ -6,9 +6,12 @@
       "servers": [
         {"host":"H1","votes": 1},
         {"host":"H2","votes": 1},
+        {"host":"H3","votes": 1},
+        {"host":"H1","votes": 1},
+        {"host":"H2","votes": 1},
         {"host":"H3","votes": 1}
       ],
-      "threshold": 2,
+      "threshold": 4,
       "direct_communication": false
     }
   ]

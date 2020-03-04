@@ -150,6 +150,7 @@ def weighted_kn_node(bn : BayesianModel, bn_node, k,weights):
                     sum([weights[idx] * s for idx, s in enumerate(c)]) >= k]
     create_cpt(bn, bn_node, fn)
 
+#tabel size gets out of contor
 def scalable_weighted_kn_node(bn : BayesianModel, bn_node_name, k, weights):
 
     c_parents = list(bn.get_parents(bn_node_name))  # this array also contains the node itself
@@ -158,13 +159,14 @@ def scalable_weighted_kn_node(bn : BayesianModel, bn_node_name, k, weights):
     first = True
     m = 0
     for c in c_parents:
-        e_name = "E_" + c + "_" + bn_node_name
-        bn.add_node(e_name, sum(weights[:m])+1) # the number of labels
         m = m + 1
+        e_name = "E_" + c + "_" + bn_node_name
+
+        bn.add_node(e_name, 1)
         bn.add_edge(c, e_name)
         if not first:
             bn.add_edge(last_e, e_name)
-        adder_cpt(bn, e_name, m)
+        weighted_adder_cpt(bn, e_name, weights[:m],k)
         last_e = e_name
         first = False
     # remove all arcs from bn_node_name and bindto the last e_nam
@@ -172,9 +174,10 @@ def scalable_weighted_kn_node(bn : BayesianModel, bn_node_name, k, weights):
         bn.remove_edge(c,bn_node_name)
     bn.add_edge(last_e, bn_node_name)
 
-    cpt = np.zeros((2,sum(weights)))
+    le = bn.get_cardinality(last_e)
+    cpt = np.zeros((2,le))
 
-    for e in range(m):
+    for e in range(le):
         if e < k:
             cpt[0,e] = 1
             cpt[1,e] = 0
@@ -184,5 +187,27 @@ def scalable_weighted_kn_node(bn : BayesianModel, bn_node_name, k, weights):
 
     cpd = TabularCPD(variable=bn_node_name, variable_card=2, values=cpt,
                      evidence=[last_e],
-                     evidence_card=[m])
+                     evidence_card=[bn.get_cardinality(last_e)])
     bn.add_cpds(cpd)
+
+def weighted_adder_cpt(bn : BayesianModel, bn_node,weights,k):
+    cardinality = min(sum(weights), k) + 1
+    parents = list(bn.get_parents(bn_node))  # this array also contains the node itself
+    parents_card = [bn.get_cardinality(x) for x in parents]
+
+    cpt = np.zeros((cardinality,reduce(mul, parents_card, 1)))
+
+    iterables = [range(p) for p in list(parents_card)]
+    iterables[0] = [0,weights[-1]]
+    cols = product(*iterables)
+
+    for idx, col_value in enumerate(cols):
+        sol = np.zeros(cardinality)
+        sol[min(sum(col_value),k)] = 1
+        cpt[:, idx] = np.array(sol)
+
+    cpd = TabularCPD(variable=bn_node, variable_card=cardinality, values=cpt,
+                     evidence=parents,
+                     evidence_card=parents_card)
+    bn.add_cpds(cpd)
+
