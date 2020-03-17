@@ -17,7 +17,7 @@ inferenceEngines = [
         'name': 'NveSimpleBNlearn',
         'title': 'Naive Simple Example with BNLearn(R)',
         'fn': lambda Bnet, skip_list :  bnlearn.BNLearn(Bnet, driver="R", use_cached_file=False, tmp_file_name="bnlearn_tmp_R"),
-        'run_parameters': lambda eng: set_repetition(eng, 20)
+        'run_parameters': lambda eng: set_repetition(eng, 1)
     },
     {
         'is_naive': True,
@@ -41,12 +41,14 @@ inferenceEngines = [
         'name': 'PrismSim',
         'title': 'Prism Model with simulation',
         'fn': lambda skip_list: prismSim.PrismSim("cim.sm"),
-        'run_parameters': lambda eng: set_repetition(eng, 5)
+        'run_parameters': lambda eng: set_repetition(eng, 1)
     }
 ]
 cim = "../Tests/simple_service/graph.json"
-r = ev.Evaluate(inferenceEngines,'PrismEx_1',[3,4,5,6,7],["PrismSim","PrismRes","NveSimpleBNlearn"])
-r.run(lambda n: gn.PrismComparisonExample(n,int(round(n / 2 + 0.5)+1),cim) if n % 2 == 0 else gn.PrismComparisonExample(n,int(round(n / 2 + 0.5)),cim))
+r = ev.Evaluate(inferenceEngines,'Prism_validate_majority_consensus',range(3,40),[],add_to_skip_list={
+    "NvSimplegRain" : 5 # Stop the bn exact algorithm after n=5
+})
+r.run(lambda n: gn.PrismComparisonExample(n,int(n / 2)+1,cim))
 
 
 

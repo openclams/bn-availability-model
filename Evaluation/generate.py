@@ -47,7 +47,7 @@ class PrismComparisonExample:
 
 
     def createScalableNetwork(self):
-        ba = BayesianNetModel(self.G, self.app,andNodeCPT=op.efficient_and_node,orNodeCPT=op.efficient_or_node,knNodeCPT=op.scalable_kn_node)
+        ba = BayesianNetModel(self.G, self.app,andNodeCPT=op.efficient_and_node,orNodeCPT=op.efficient_or_node,knNodeCPT=op.scalable_kn_node,weightedKnNodeCPT=op.scalable_weighted_kn_node)
         bn = ba.bn
         return bn
 

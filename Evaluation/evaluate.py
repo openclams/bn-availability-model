@@ -16,7 +16,7 @@ import gc
 
 class Evaluate:
 
-    def __init__(self,engines, project_folder,tests, skip_engines = [],timeout = 300):
+    def __init__(self,engines, project_folder,tests, skip_engines = [],timeout = 300,add_to_skip_list={}):
 
         if not os.path.exists(project_folder):
             os.makedirs(project_folder)
@@ -31,6 +31,7 @@ class Evaluate:
         self.naive_engine_names = [ eng['name'] for eng in self.engines if eng['is_naive'] and ('is_prism' not in eng  or ('is_prism' in eng and (eng["is_prism"] is False)))]
         self.scalable_engine_names = [eng['name'] for eng in self.engines if not eng['is_naive'] and ('is_prism' not in eng  or ('is_prism' in eng and (eng["is_prism"] is False)))]
         self.tests = tests
+        self.add_to_skip_list = add_to_skip_list
 
     def bn_memory(self,bn: BayesianModel):
         size = 0;
@@ -132,16 +133,37 @@ class Evaluate:
                 print('-' * 30)
                 print(eng['name'])
 
+                # and before until it reaches its limit
+                if( eng['name'] in self.add_to_skip_list and self.add_to_skip_list[eng['name']] < se.n):
+                    self.skip_engines.append(eng['name'])
+                    print("Max experiment number reached.")
+
+                # Execute the experiment if it is not in the skip list
+
                 if eng['name'] not in self.skip_engines:
-
                     if eng['is_prism']:
-                        eng['engine'] = eng['fn'](self.skip_engines)
+                        try:
+                            eng['engine'] = eng['fn'](self.skip_engines)
+                        except:
+                            print("PRISM model exception occurred")
+                            print("Pass")
+                            res_dic[eng['name']].append(float('inf'))
+                            time_dic[eng['name']].append(float('inf'))
+                            total_time_dic[eng['name']].append(float('inf'))
+                            continue
                     else:
-                        if eng['is_naive']:
-                            eng['engine'] = eng['fn'](bn, self.skip_engines)
-                        else:
-                            eng['engine'] = eng['fn'](bs, self.skip_engines)
-
+                        try:
+                            if eng['is_naive']:
+                                eng['engine'] = eng['fn'](bn, self.skip_engines)
+                            else:
+                                eng['engine'] = eng['fn'](bs, self.skip_engines)
+                        except:
+                            print("BN model exception occurred")
+                            print("Pass")
+                            res_dic[eng['name']].append(float('inf'))
+                            time_dic[eng['name']].append(float('inf'))
+                            total_time_dic[eng['name']].append(float('inf'))
+                            continue
                     run_param = eng['run_parameters'](eng['engine'])
 
                     start_total_time = time.time()
