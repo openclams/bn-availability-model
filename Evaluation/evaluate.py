@@ -1,13 +1,13 @@
-import Evaluation.generate as gn
+
 import pandas as pn
 import os
-import Inference.bnlearn.BNLearn as bnlearn
-import Inference.grain.gRain as grain
-import Inference.pgmpy.BeliefePropagation as belprop
-import Inference.Dummy as dummy
 from pgmpy.models import BayesianModel
 import time
 import gc
+from dotenv import load_dotenv
+from pathlib import Path  # python3 only
+env_path = Path(os.getcwd()) / ".." / '.env'
+load_dotenv(dotenv_path=env_path)
 
 
 # def set_repetition(eng, n, c=None):
@@ -142,15 +142,15 @@ class Evaluate:
 
                 if eng['name'] not in self.skip_engines:
                     if eng['is_prism']:
-                        try:
-                            eng['engine'] = eng['fn'](self.skip_engines)
-                        except:
-                            print("PRISM model exception occurred")
-                            print("Pass")
-                            res_dic[eng['name']].append(float('inf'))
-                            time_dic[eng['name']].append(float('inf'))
-                            total_time_dic[eng['name']].append(float('inf'))
-                            continue
+                        #try:
+                        eng['engine'] = eng['fn'](self.skip_engines)
+                        #except:
+                            # print("PRISM model exception occurred")
+                            # print("Pass")
+                            # res_dic[eng['name']].append(float('inf'))
+                            # time_dic[eng['name']].append(float('inf'))
+                            # total_time_dic[eng['name']].append(float('inf'))
+                            # continue
                     else:
                         try:
                             if eng['is_naive']:

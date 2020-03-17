@@ -15,7 +15,8 @@ class PrismModel:
                  G:Graph,
                  app,
                  temp_file_name:str = "cim.sm",
-                 prism_location:str = "C:\\Program Files\\prism-4.5\\"):
+                 prism_location:str = "C:\\Program Files\\prism-4.5\\",
+                 prism_bin_path:str = "bin\\prism.bat"):
         """
         Create a prism model based on the cloud infrastructure and deployment
         :param cim_file_name: Location of the cloud infrastructure model file
@@ -26,6 +27,7 @@ class PrismModel:
         self.app = app
         self.model_name:str = temp_file_name
         self.prism_location:str = prism_location
+        self.prism_bin_path:str = prism_bin_path
 
     def all_available(self,G,node_name):
         """
@@ -336,9 +338,9 @@ class PrismModel:
 
     def result(self,query):
         my_env = os.environ.copy()
-        my_env["PATH"] = "C:\\Program Files\\prism-4.5\\" + my_env["PATH"]
+        my_env["PATH"] = self.prism_location + my_env["PATH"]
         # -h uses the hybrid engine
-        args = ("C:\\Program Files\\prism-4.5\\bin\\prism.bat", self.model_name , "-pf",
+        args = (self.prism_location + self.prism_bin_path, self.model_name , "-pf",
                 "S=? [ \"availability_%s\" ]"%query, "-h" , "-gs")
 
         popen = subprocess.Popen(args,env=my_env, shell=True, stdout=subprocess.PIPE)
@@ -349,10 +351,10 @@ class PrismModel:
 
     def simulate(self,query):
         my_env = os.environ.copy()
-        my_env["PATH"] = "C:\\Program Files\\prism-4.5\\" + my_env["PATH"]
+        my_env["PATH"] = self.prism_location + my_env["PATH"]
         # -h uses the hybrid engine
         args = (
-            "C:\\Program Files\\prism-4.5\\bin\\prism.bat", self.model_name, "-pf",
+             self.prism_location + self.prism_bin_path, self.model_name, "-pf",
             "R{\"time_unavailable_%s\"}=? [ C<=10000 ]"%query, "-sim")
 
         popen = subprocess.Popen(args, env=my_env, shell=True, stdout=subprocess.PIPE)
@@ -360,29 +362,3 @@ class PrismModel:
         output = str(popen.stdout.read())
         print(output)
         return (10000-float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))/10000
-
-if __name__ == '__main__':
-    parser = argparse.ArgumentParser(
-        prog='PRISM Availability Model for Cloud Applications',
-        description='Compute the availability of a cloud application.')
-    parser.add_argument('--verbose', '-v', action='count', default=0)
-    parser.add_argument('--version', action='version', version='%(prog) Version 0.1')
-    parser.add_argument('--application','-a', default="Tests/simple_service/deployment.json", nargs='?')
-    parser.add_argument('--infrastructure','-i', default="Tests/simple_service/graph.json", nargs='?' )
-    parser.add_argument('--output','-o', default="../test/service-catalog.json", nargs='?')
-    parser.add_argument('--prism_path', '-p', default="C:\\Program Files\\prism-4.5\\", nargs='?')
-    parser.add_argument('--prism_exec', '-e', default="C:\\Program Files\\prism-4.5\\bin\\prism.bat", nargs='?')
-
-    args = parser.parse_args()
-
-    verbose:int = int(args.verbose)
-    application_file: str = args.application
-    infrastructure_file: str = args.infrastructure
-    output_file:str = args.output
-    prism_path:str = args.prism_path
-    prism_exec:str = args.prism_exec
-
-    #tree = main(output_file,path,schema_path)
-
-    # if verbose:
-    #    print_tree(tree)

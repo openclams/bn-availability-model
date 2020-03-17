@@ -6,16 +6,20 @@ import subprocess, os
 
 class PrismExact(Engine):
 
-    def __init__(self,temp_file_name):
+    def __init__(self,temp_file_name,
+                 prism_location:str = "C:\\Program Files\\prism-4.5\\",
+                 prism_bin_path:str = "bin\\prism.bat"):
         Engine.__init__(self, None)
+        self.prism_location: str = prism_location
+        self.prism_bin_path: str = prism_bin_path
         self.my_env = os.environ.copy()
-        self.my_env["PATH"] = "C:\\Program Files\\prism-4.5\\" + self.my_env["PATH"]
+        self.my_env["PATH"] = self.prism_location + self.my_env["PATH"]
         self.temp_file_name = temp_file_name
         # -h uses the hybrid engine
 
 
     def run(self,solution,*argv):
-        args = ("C:\\Program Files\\prism-4.5\\bin\\prism.bat", self.temp_file_name, "-pf",
+        args = (self.prism_location + self.prism_bin_path, self.temp_file_name, "-pf",
                 "S=? [ \"availability_%s\" ]" % solution, "-h", "-gs")
         start_new_run = time.time()
         try:

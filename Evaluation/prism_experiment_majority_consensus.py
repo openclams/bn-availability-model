@@ -4,6 +4,7 @@ import Inference.grain.gRain as grain
 import Inference.prism.PrismExact as prismExc
 import Inference.prism.PrismSim as prismSim
 import Evaluation.evaluate as ev
+import os
 
 def set_repetition(eng, n, c=None):
     eng.repetition = n
@@ -32,7 +33,7 @@ inferenceEngines = [
         'is_prism': True,
         'name': 'PrismRes',
         'title': 'Prism Model with exact results',
-        'fn': lambda skip_list: prismExc.PrismExact("cim.sm"),
+        'fn': lambda skip_list: prismExc.PrismExact("cim.sm",prism_location= os.getenv("PRISM_PATH"),prism_bin_path= os.getenv("PRISM_LOCATION")),
         'run_parameters': lambda eng: set_repetition(eng, 1)
     },
     {
@@ -40,7 +41,7 @@ inferenceEngines = [
         'is_prism': True,
         'name': 'PrismSim',
         'title': 'Prism Model with simulation',
-        'fn': lambda skip_list: prismSim.PrismSim("cim.sm"),
+        'fn': lambda skip_list: prismSim.PrismSim("cim.sm",prism_location= os.getenv("PRISM_PATH"),prism_bin_path= os.getenv("PRISM_LOCATION")),
         'run_parameters': lambda eng: set_repetition(eng, 1)
     }
 ]
