@@ -5,7 +5,7 @@ from CloudGraph.Graph import Graph
 from typing import List, Set, Dict, Optional
 
 import CloudGraph.ComputePath as compute_path
-import BayesianNetworks.pgmpy.draw as dr
+
 from CloudGraph.Component import Component
 from pgmpy.factors.discrete import TabularCPD
 
