@@ -14,7 +14,7 @@ class PrismSim(Engine):
         self.prism_location: str = prism_location
         self.prism_bin_path: str = prism_bin_path
         self.my_env = os.environ.copy()
-        self.my_env["PATH"] = self.prism_location + self.my_env["PATH"]
+        self.my_env["PATH"] = self.prism_location + ";"+self.my_env["PATH"]
         self.temp_file_name =temp_file_name
         self.mission_time = 10000
         # -h uses the hybrid engine

@@ -6,6 +6,8 @@ import time
 import gc
 from dotenv import load_dotenv
 from pathlib import Path  # python3 only
+import datetime
+import shutil
 env_path = Path(os.getcwd()) / ".." / '.env'
 load_dotenv(dotenv_path=env_path)
 
@@ -16,13 +18,18 @@ load_dotenv(dotenv_path=env_path)
 
 class Evaluate:
 
-    def __init__(self,engines, project_folder,tests, skip_engines = [],timeout = 300,add_to_skip_list={}):
+    def __init__(self,engines, project_folder,tests, skip_engines = [],timeout = 300,add_to_skip_list={},run_file=None):
+        timestamp = datetime.datetime.today().strftime("%d.%m.%Y %H-%M-%S")
+        project_folder = project_folder + timestamp
 
         if not os.path.exists(project_folder):
             os.makedirs(project_folder)
 
         if not os.path.exists(project_folder+'/raw/'):
             os.makedirs(project_folder+'/raw/')
+
+        if run_file:
+            shutil.copy(run_file,project_folder+"/run.py")
 
         self.timeout = timeout
         self.project_folder = project_folder

@@ -13,7 +13,8 @@ class PrismExact(Engine):
         self.prism_location: str = prism_location
         self.prism_bin_path: str = prism_bin_path
         self.my_env = os.environ.copy()
-        self.my_env["PATH"] = self.prism_location + self.my_env["PATH"]
+        print(self.prism_location)
+        self.my_env["PATH"] = self.prism_location+";"+ self.my_env["PATH"]
         self.temp_file_name = temp_file_name
         # -h uses the hybrid engine
 
@@ -28,8 +29,8 @@ class PrismExact(Engine):
 
                 popen = subprocess.Popen(args, env=self.my_env, shell=True, stdout=subprocess.PIPE)
                 popen.wait()
-                output = str(popen.stderr.read())
-                print(output)
+                output = str(popen.stdout.read())
+                #print(output)
 
                 self.availabilityData.append(float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))
                 self.timeData.append(time.time() - start)
