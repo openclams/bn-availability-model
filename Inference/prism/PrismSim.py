@@ -22,17 +22,24 @@ class PrismSim(Engine):
 
     def run(self, solution, *argv):
         args = (
-            self.prism_location + self.prism_bin_path, self.temp_file_name , "-pf",
+            self.prism_location + self.prism_bin_path,'-javamaxmem', '16g' ,self.temp_file_name , "-pf",
             "R{\"time_unavailable_%s\"}=? [ C<=10000 ]" % solution, "-sim")
         start_new_run = time.time()
         try:
             for i in range(self.repetition):
                 start = time.time()
 
-                popen = subprocess.Popen(args, env=self.my_env, shell=True, stdout=subprocess.PIPE)
+                popen = subprocess.Popen(args, env=self.my_env, stdout=subprocess.PIPE)
+                # while True:
+                #     output = popen.stdout.readline()
+                #     if output == '' and popen.poll() is not None:
+                #         break
+                #     if output:
+                #         print(output.strip())
+                # exit()
                 popen.wait()
                 output = str(popen.stdout.read())
-                # print(output)
+                print(output)
 
                 self.availabilityData.append((self.mission_time-float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))/self.mission_time)
                 self.timeData.append(time.time() - start)

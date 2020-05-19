@@ -5,10 +5,11 @@ import json
 from CloudGraph.GraphParser import GraphParser
 from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
 from AvailabilityModels.PrismModel import PrismModel
+import numpy as np
 
 class PrismComparisonExample:
 
-    def __init__(self, n, k, cim_file_name):
+    def __init__(self, n, k,  cim_file_name, is_weighted  = False, init="G1"):
         self.n = n
         self.k = k
         self.solution = "er"
@@ -17,6 +18,11 @@ class PrismComparisonExample:
 
         parser = GraphParser(self.cim)
 
+
+        votes = np.ones(n)
+        if is_weighted:
+            votes = votes + np.random.randint(5, size=n)
+            self.k = int(sum(votes) / 2) + 1
         # The cloud infrastructure graph
         self.G = parser.get_graph()
         # The app graph
@@ -24,7 +30,7 @@ class PrismComparisonExample:
               "services":[
                 {
                   "name": "er",
-                  "init": "G1",
+                  "init": init,
                   "servers": [],
                   "threshold": self.k,
                   "direct_communication": False
@@ -36,8 +42,17 @@ class PrismComparisonExample:
             hosts.extend(v.hosts)
 
         h = len(hosts)
+        print("Number of hosts: %d"%h)
+        print("Total Infrastructure %d"%len(self.G.nodes.keys()))
+
+        net = 0
+        for k, v in self.G.nodes.items():
+            if len(v.network_links['parents']) != 0 or len(v.network_links['children']) != 0:
+                net += 1
+
+        print("Total Network %d"%net)
         for i in range(n):
-            self.app["services"][0]["servers"].append({"host":hosts[i%h].name,"votes":1})
+            self.app["services"][0]["servers"].append({"host":hosts[i%h].name,"votes":int(votes[i])})
 
 
     def createNaiveNetwork(self):

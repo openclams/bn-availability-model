@@ -13,7 +13,7 @@ class PrismExact(Engine):
         self.prism_location: str = prism_location
         self.prism_bin_path: str = prism_bin_path
         self.my_env = os.environ.copy()
-        print(self.prism_location)
+
         self.my_env["PATH"] = self.prism_location+";"+ self.my_env["PATH"]
         self.temp_file_name = temp_file_name
         # -h uses the hybrid engine
@@ -22,15 +22,15 @@ class PrismExact(Engine):
     def run(self,solution,*argv):
         args = (self.prism_location + self.prism_bin_path, self.temp_file_name, "-pf",
                 "S=? [ \"availability_%s\" ]" % solution, "-h", "-gs")
+
         start_new_run = time.time()
         try:
             for i in range(self.repetition):
                 start = time.time()
 
-                popen = subprocess.Popen(args, env=self.my_env, shell=True, stdout=subprocess.PIPE)
+                popen = subprocess.Popen(args, env=self.my_env, stdout=subprocess.PIPE)
                 popen.wait()
                 output = str(popen.stdout.read())
-                #print(output)
 
                 self.availabilityData.append(float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))
                 self.timeData.append(time.time() - start)

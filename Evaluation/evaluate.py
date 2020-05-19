@@ -8,6 +8,7 @@ from dotenv import load_dotenv
 from pathlib import Path  # python3 only
 import datetime
 import shutil
+import Evaluation.render as re
 env_path = Path(os.getcwd()) / ".." / '.env'
 load_dotenv(dotenv_path=env_path)
 
@@ -254,6 +255,12 @@ class Evaluate:
         res.to_csv(self.project_folder + '/final_total_time.csv', index=None, header=True)
 
         print('Finished')
+
+
+        #avaibility + raw avaibility
+        re.render(self.project_folder, file="final_inference_time.csv", xLabel='#Processes', yLabel='Computation time [s]',legend=self.engines, errorbars=True, raw="time", skip=self.skip_engines,semilog=True)
+        #inference_time + time
+        re.render(self.project_folder, file="final_availability.csv", xLabel='#Processes', yLabel='Availability',legend=self.engines, errorbars=False, raw="availability", skip=self.skip_engines)
 
 
 
