@@ -79,7 +79,7 @@ def render(project_folder, file="",xLabel='',yLabel='',legend={},errorbars=False
                     p975 = rawDataFrame[raw].quantile(0.975)
                     mean = rawDataFrame[raw].mean()
                     interval[idx].append((p025, p975))
-                    print(p025,mean,p975)
+                    #print(p025,mean,p975)
                 except:
                     pass
 
@@ -113,18 +113,18 @@ inferenceEngines = [
         'title': 'BN approx inference',
         'color': 'r',
         'marker': 'X',
-    },
-    {
+    },{
         'name': 'ScgRain',
         'title': 'BN exact inference',
         'color': 'b',
-        'marker': 'D',
+        'marker': 'D'
     },
     {
+
         'name': 'PrismRes',
         'title': 'PRISM Model (exact)',
-        'color': 'c',
-        'marker': '^',
+        'color': 'y',
+        'marker': '^'
     },
     {
         'name': 'PrismSim',
@@ -137,5 +137,5 @@ inferenceEngines = [
 #render("Full simple experiment", file="final_availability.csv",xLabel='#Replicas',yLabel='Availability',legend=inferenceEngines,errorbars=False,raw="availability",skip=[],semilog=False)
 #render("Full simple experiment", file="final_inference_time.csv",xLabel='#Replicas',yLabel='Computation Time [s]',legend=inferenceEngines,errorbars=True,raw="time",skip=[],semilog=True)
 
-#render("Full Image", file="final_availability.csv",xLabel='#Replicas',yLabel='Availability',legend=inferenceEngines,errorbars=True,raw="availability",skip=[],semilog=False)
-#render("Full Image", file="final_inference_time.csv",xLabel='#Replicas',yLabel='Computation Time [s]',legend=inferenceEngines,errorbars=True,raw="time",skip=[],semilog=True)
+render("/home/bibartoo/spinoza-scripts/Evaluation/0 New Majority Consensus20.05.2020 20-40-19 copy", file="tmp_availability.csv",xLabel='#Replicas',yLabel='Availability',legend=inferenceEngines,errorbars=True,raw="availability",skip=[""],semilog=False)
+render("/home/bibartoo/spinoza-scripts/Evaluation/0 New Majority Consensus20.05.2020 20-40-19 copy", file="tmp_inference_time.csv",xLabel='#Replicas',yLabel='Computation Time [s]',legend=inferenceEngines,errorbars=True,raw="time",skip=[""],semilog=True)

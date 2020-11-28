@@ -23,7 +23,7 @@ class PrismSim(Engine):
     def run(self, solution, *argv):
         args = (
             self.prism_location + self.prism_bin_path,'-javamaxmem', '16g' ,self.temp_file_name , "-pf",
-            "R{\"time_unavailable_%s\"}=? [ C<=10000 ]" % solution, "-sim")
+            "R{\"time_unavailable_%s\"}=? [ C<=10 ]" % solution, "-sim")
         start_new_run = time.time()
         try:
             for i in range(self.repetition):

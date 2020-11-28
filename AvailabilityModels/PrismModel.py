@@ -1,5 +1,5 @@
-
 from CloudGraph.Graph import Graph
+from CloudGraph.Component import Component
 from CloudGraph.Host import Host
 import CloudGraph.ComputePath as compute_path
 import subprocess, os
@@ -12,353 +12,303 @@ import itertools
 class PrismModel:
 
     def __init__(self,
-                 G:Graph,
+                 G: Graph,
                  app,
-                 temp_file_name:str = "cim.sm",
-                 prism_location:str = "C:\\Program Files\\prism-4.5\\",
-                 prism_bin_path:str = "bin\\prism.bat"):
+                 temp_file_name: str = "cim.sm",
+                 prism_location: str = "C:\\Program Files\\prism-4.5\\",
+                 prism_bin_path: str = "bin\\prism.bat"):
         """
-        Create a prism model based on the cloud infrastructure and deployment
-        :param cim_file_name: Location of the cloud infrastructure model file
-        :param dep_file_name: Location of the serverice deployment file
-        :param temp_filen_name: Location where to store the prism intermediate mode file
+
+        @param G: Infrastructure Graph
+        @param app: Deployment file
+        @param temp_file_name:  Output-file name
+        @param prism_location:  Root directory of the PRISM installation
+        @param prism_bin_path:  Subdirectory of the PRISM executable
         """
-        self.G:Graph =G
+        self.G: Graph = G
         self.app = app
-        self.model_name:str = temp_file_name
-        self.prism_location:str = prism_location
-        self.prism_bin_path:str = prism_bin_path
+        self.model_name: str = temp_file_name
+        self.prism_location: str = prism_location
+        self.prism_bin_path: str = prism_bin_path
+        self.f = open(self.model_name, "w+")
+        self.paths = {}
 
-    def all_available(self,G,node_name):
-        """
-        Create a string of all ascendants of the node
-        :param G: The cloud infrastructure graph
-        :param node_name: The name/id of the node
-        :return: String ascendants variable names
-        """
-        ret = ""
-        for parent in G.nodes[node_name].fault_dependencies["parents"]:
-            is_parent_working = "& "+parent.name + "_w"
-            ret = ret + is_parent_working
-        return ret
-
-    def get_paths(self,G,host_groups,init):
-        # get one representative host from each host group
-        hosts = [G.host_groups[group].hosts[0].name for group in host_groups]
-        hosts.append(init) # add the init component
-        all_components = set()
-        paths_list = []
-        for i in range(len(hosts)):
-            for j in range (i+1,len(hosts)):
-                src = hosts[i]
-                dst = hosts[j]
-                paths = compute_path.print_all_paths(G,src, dst)
-
-                # Delete first and last element
-                for k in range(len(paths)):
-                    paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
-                    #all_components.update(paths[k])
-                paths_list.append(paths)
-                # print(init, src, dst, paths)
-
-        for path_combination in itertools.product(*paths_list):
-            components_set = set()
-            # print(path_combination)
-            [components_set.update(path) for path in path_combination]
-            # print(components_set)
-            all_components.add("&".join([c+"_w " for c in components_set]))
-
-        return all_components
-
-    def get_external_paths(self, G, host_groups, init):
-        # get one representative host from each host group
-        hosts = [G.host_groups[group].hosts[0].name for group in host_groups]
-
-        all_components = set()
-        paths_list = []
-        for i in range(len(hosts)):
-            src = init
-            dst = hosts[i]
-            paths = compute_path.print_all_paths(G, src, dst)
-
-            # Delete first and last element
-            for k in range(len(paths)):
-                paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
-                # all_components.update(paths[k])
-            paths_list.append(paths)
-            # print(init, src, dst, paths)
-
-        for path_combination in itertools.product(*paths_list):
-            components_set = set()
-            # print(path_combination)
-            [components_set.update(path) for path in path_combination]
-            # print(components_set)
-            all_components.add("&".join([c + "_w " for c in components_set]))
-
-        return all_components
-
-    def get_gate_way_paths(self, G, gateways_from, gateways_to):
-        all_components = set()
-        paths_list = []
-        for i in range(len(gateways_from)):
-            for j in range(len(gateways_to)):
-                src = gateways_from[i]
-                dst = gateways_to[j]
-                paths = compute_path.print_all_paths(G, src, dst)
-
-                # Delete first and last element
-                for k in range(len(paths)):
-                    paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
-                    # all_components.update(paths[k])
-                paths_list.append(paths)
-
-        for path_combination in itertools.product(*paths_list):
-            components_set = set()
-            # print(path_combination)
-            [components_set.update(path) for path in path_combination]
-            # print(components_set)
-            all_components.add("&".join([c + "_w " for c in components_set]))
-
-        return all_components
-    #
-    def create_cfc_dependencies(self,node_name,variable_name,f,votes=None):
-        for parent in self.G.nodes[node_name].fault_dependencies["parents"]:
-            # Get the action names of the parents
-            sync_failure = parent.name + "_failure"
-            sync_repair = parent.name + "_repaired"
-            #
-            if(not votes):
-                f.write("\t [%s] true -> 1:(%s' = false);\n" % (sync_failure, variable_name))
-                f.write("\t [%s] true -> 1:(%s' = true);\n" % (sync_repair, variable_name))
-            else:
-                f.write("\t [%s] true -> 1:(%s' = 0);\n" % (sync_failure, variable_name))
-                f.write("\t [%s] true -> 1:(%s' = %d);\n" % (sync_repair, variable_name,votes))
-            self.create_cfc_dependencies(parent.name,variable_name,f,votes)
 
     def build(self):
-        f = open(self.model_name,"w+")
-        # First line is the model "continuous-time markov chain"
-        f.write("ctmc\n\n")
-
-        # Add infrastructure dependencies
-        # For each node we generate a module
-        # node_name contains the string id of a component
-        for node_name in self.G.nodes:
-            # is_working is the variable name which stores the available state of the module
-            is_working = node_name+"_w"
-            # the name of the action to sync if this component fails
-            sync_failure = node_name+"_failure"
-            # the name of the action to sync if this component is repaired
-            sync_repair  = node_name+"_repaired"
-
-            f.write("module %s \n" % node_name)
-            # 0 = component failure
-            # 1 = component is working
-
-            f.write("\t %s: bool init true;\n" % is_working)
-
-            MTTF = 1/(1-self.G.nodes[node_name].availability)
-            MTTR = 1
-
-            # Format the failure and repair rate to floats (with 10th decimal precision)
-            failure_rate = "{:1.10f}".format(1/MTTF)
-            repair_rate = "{:1.10f}".format(1/MTTR)
-
-            # State change on component failure
-            f.write("\t [%s] %s -> %s:(%s' = false);\n" % (sync_failure,is_working, failure_rate, is_working))
-
-            # State change on component repair
-            # all_available() contains a string of all ancestors in the common failure graph
-            f.write("\t [%s] !%s %s -> %s:(%s' = true);\n" % (sync_repair,is_working,self.all_available(self.G,node_name),repair_rate,is_working))
-
-
-            # Insert the failure dependencies
-            self.create_cfc_dependencies(node_name,is_working,f)
-            f.write("endmodule\n\n")
-
-        # Add services
-        for s_idx in range(len(self.app["services"])):
-
-            service_name = self.app["services"][s_idx]['name']
-            threshold = self.app["services"][s_idx]['threshold']
-            init = self.app["services"][s_idx]['init']
-            hostMap = {}
-            voteMap = {}
-
-            for idx, server in enumerate(self.app["services"][s_idx]['servers']):
-                # The number of servers on a hosts for a service
-                host = server['host']
-                host_formula_name = host+"_"+service_name
-                votes = server['votes']
-
-                node_name = service_name+"_"+str(idx)
-                # is_working is the variable name which stores the available state of the module
-                is_working = node_name + "_w"
-                if host_formula_name in hostMap:
-                    hostMap[host_formula_name].append(is_working)
-                    voteMap[host_formula_name] = voteMap[host_formula_name] + votes
-                else:
-                    hostMap[host_formula_name] = [is_working]
-                    voteMap[host_formula_name] = votes
-                f.write("module %s \n" % (node_name))
-                # 0 = component failure
-                # 1 = component is working
-                f.write("\t %s:  [0..%d] init %d;\n" % (is_working, votes, votes))
-
-                sync_failure = host + "_failure"
-                sync_repair  = host + "_repaired"
-                # If an
-                f.write("\t [%s] true -> 1:(%s' = 0);\n" % (sync_failure, is_working))
-                f.write("\t [%s] true -> 1:(%s' = %d);\n" % (sync_repair, is_working,votes))
-
-                # Insert the failure dependencies
-                self.create_cfc_dependencies(host, is_working, f,votes)
-                f.write("endmodule\n\n")
-
-            # Add channels for inter server communication and the quorms
-            for hmap in hostMap:
-                s = "formula "+hmap + " = " + "+".join(hostMap[hmap])
-                f.write(s + ";\n")
-
-            group_names_map = {}
-            group_votes_map = {}
-            for group in self.G.host_groups:
-                group_service = group+"_"+service_name
-                hosts = "+".join([host.name+"_"+service_name for host in  self.G.host_groups[group].hosts if host.name+"_"+service_name in hostMap] )
-                if hosts:
-                    group_names_map[group] = group_service
-                    group_votes_map[group] = sum([voteMap[host.name+"_"+service_name] for host in  self.G.host_groups[group].hosts if host.name+"_"+service_name in hostMap] )
-                    s = "formula "+group_service+" = " + hosts
-                    f.write(s+";\n")
-
-            # Count through all group combinations
-            group_names = list(group_names_map.keys())
-            num_entries = 2**len(group_names)
-            # This array holds all arrays of host groups where theire sumi
-
-            available_groups = []
-            #every permutaiton of each group
-            for i in range(num_entries):
-                bin = "{0:0"+str(len(group_names))+"b}"
-                #print(bin.format(i))
-                combination = bin.format(i)
-                collect = set()
-                for idx, b in enumerate(combination):
-                    if b == "1":
-                        collect.add(group_names[idx])
-
-                # count if the permuation has enough servers
-                total = sum([group_votes_map[group_name] for group_name in collect])
-                if total >= threshold:
-                    found = False
-                    for a in available_groups:
-                        if a == collect:
-                            found = True
-                            break
-                    if not found:
-                        available_groups.append(collect)
-
-            #Build the availablity formula and label
-
-            # Store all paths and groups possibilities as a
-            # disjunctive normal form (DNF)
-            # This list stores the conjunctions as strings
-            terms:List[str] = []
-            total_votes = sum([voteMap[h] for h in voteMap])
-            for ag in available_groups:
-                if(len(ag) != 0):
-                    #compute paths between any pair
-
-                    paths = ""
-                    if threshold == 1 or threshold == total_votes:
-                        paths="|".join(self.get_external_paths(self.G,ag,init))
-                    else:
-                        paths="|".join(self.get_paths(self.G,ag,init))
-
-                    if not paths:
-                        paths = ""
-                    else:
-                        paths = " & (%s)" % paths
-                    host_groups_combination = "+".join([group_names_map[a] for a in ag])
-                    term = "((%s >= %d & %s_w) %s)\n" %(host_groups_combination, threshold,  init, paths)
-                    terms.append(term)
-
-            label = "availability_%s" % service_name
-            reward_name = "time_unavailable_%s" % service_name
-            self.create_labels(label,terms,f)
-            self.create_reward(reward_name,label,f)
+        self.f.write("ctmc\n\n")
+        self.build_fault_dependency_graph()
+        for service in self.app["services"]:
+            self.build_service(service)
 
         if 'application' not in self.app:
             # Stop here. It means we have only one service
+            self.f.close()
             return
-        for channel in self.app['application']['topology']:
-            from_service = channel['from']
-            to_service = channel['to']
 
-            gateways_from = self.get_gateways_name(from_service)
-            gateways_to = self.get_gateways_name(to_service)
+        self.build_application()
+        self.f.close()
 
-            paths="|".join(self.get_gate_way_paths(self.G,gateways_from,gateways_to))
-            if not paths:
-                paths = ""
+    def build_fault_dependency_graph(self):
+        for node in self.G.nodes.values():
+            self.build_component_module(node)
+
+    def build_component_module(self, node: Component):
+        # is_working is the variable name which stores state of the module
+        var_name = node.name + "_w"
+        # sync_failure is the name of the action to sync (and propagate a fault) with its child
+        # components if this component fails
+        sync_failure = node.name + "_failure"
+        # sync_repair is the name of the action to sync if this component is repaired
+        sync_repair = node.name + "_repaired"
+
+        MTTF = 1 / (1 - self.G.nodes[node.name].availability)
+        MTTR = 1
+
+        # Format the failure and repair rate to floats
+        # with 8th decimal precision
+        failure_rate = "{:1.8f}".format(1 / MTTF)
+        repair_rate = "{:1.8f}".format(1 / MTTR)
+
+        self.f.write("module %s \n" % node.name)
+        # Defining the working state
+        # false = component failure
+        # true = component is working
+        self.f.write("\t %s: bool init true;\n" % var_name)
+        # State change to not working when component fails
+        self.f.write("\t [%s] %s -> %s:(%s' = false);\n" % (sync_failure, var_name, failure_rate, var_name))
+
+        # State change on component repair (when all its ancestors are working)
+        parent_nodes_working = "& ".join([parent.name + "_w" for parent in node.fault_dependencies["parents"]])
+        if len(parent_nodes_working):
+            parent_nodes_working = "& "+parent_nodes_working
+        self.f.write("\t [%s] !%s %s -> %s:(%s' = true);\n" % (
+        sync_repair, var_name, parent_nodes_working, repair_rate, var_name))
+
+        for ascendant_node in self.get_ascendants(node):
+            sync_failure = ascendant_node.name + "_failure"
+            sync_repair = ascendant_node.name + "_repaired"
+            self.f.write("\t [%s] true -> 1:(%s' = false);\n" % (sync_failure, var_name))
+            self.f.write("\t [%s] true -> 1:(%s' = true);\n" % (sync_repair, var_name))
+
+        self.f.write("endmodule\n\n")
+
+    def build_service(self, service):
+        service_name = service['name']
+        threshold = service['threshold']
+        if not isinstance(service["init"], list):
+            service["init"] = [service["init"]]
+
+        hosts = {}
+        votes_per_host = {}
+        for idx, server in enumerate(service['servers']):
+            server["service"] = service
+            server["id"] = idx
+
+            self.build_server_module(server)
+
+            host_name = server["host"]
+
+            if host_name in hosts:
+                hosts[host_name].append(server["name"])
+                votes_per_host[host_name] += server["votes"]
             else:
-                paths = " & (%s)" % paths
+                hosts[host_name] = [server["name"]]
+                votes_per_host[host_name] = server["votes"]
+
+        for host_name in hosts:
+            self.write_variable(host_name + "_" + service_name, "+ ".join(hosts[host_name]))
+
+        # At this point we cloud aggregate hosts by groups
+        # But we will continue with hosts
+        host_names = list(hosts.keys())
+        num_entries = 2 ** len(host_names)
+        host_combinations = []
+        # every permutation of each group
+        for i in range(num_entries):
+            bin = "{0:0" + str(len(host_names)) + "b}"
+            # print(bin.format(i))
+            combination = bin.format(i)
+            collect = set()
+            for idx, b in enumerate(combination):
+                if b == "1":
+                    collect.add(host_names[idx])
+
+            # count if the permutation has enough servers
+            total = sum([votes_per_host[host_name] for host_name in collect])
+            if total >= threshold:
+                host_combinations.append(collect)
+
+        total_votes = sum([votes_per_host[h] for h in votes_per_host])
+        if threshold == 1 or threshold == total_votes:
+            self.one_step_communication_scheme(service,host_combinations)
+        else:
+            self.two_step_communication_scheme(service,host_combinations)
+
+    def two_step_communication_scheme(self,service, host_combinations):
+        terms: List[str] = []
+        init = service['init']
+        for host_combination in host_combinations:
+            paths_exp = []
+            for source_host in host_combination:
+                host_paths_exp = []
+                for dest_host in host_combination:
+                    if dest_host != source_host:
+                        paths = self.get_paths(source_host, dest_host)
+                        host_paths_exp.append("( %s_w & %s_w & (" % (source_host, dest_host) + "| ".join(paths) + "))\n")
+
+                for entry in init:
+                    paths = self.get_paths(source_host, entry)
+                    paths_exp.append("(" + "&".join(["( %s_w & %s_w & (" %(source_host, entry) + "| ".join(paths) + "))","& ".join(host_paths_exp)])+")\n")
 
 
+            host_names = [host + "_" + service['name'] for host in host_combination]
+            term = "((%s >= %d) & %s)\n" % ("+ ".join(host_names), service['threshold'], "| ".join(paths_exp))
+            terms.append(term)
+        self.write_service_end_block(service, terms)
 
-        exp = "%s %s\n" % ("& ".join(["availability_"+s['name'] for s in self.app["services"]]),paths)
+    def one_step_communication_scheme(self,service, host_combinations):
+        terms: List[str] = []
+        init = service['init']
+        for host_combination in host_combinations:
+            paths_exp = []
+            for host in host_combination:
+                for entry in init:
+                    paths = self.get_paths(host,entry)
+                    paths_exp.append("( %s_w & %s_w & (" %(host, entry) +"| ".join(paths)+"))\n")
 
-        f.write("label \"%s\" = %s; \n" % ("availability_", exp))
-        f.write("formula %s = %s; \n" % ("availability_", exp))
+            host_names = [host+ "_" + service['name'] for host in host_combination]
+            term = "((%s >= %d) & %s)\n" % ("+ ".join(host_names),service['threshold'],"& ".join(paths_exp))
+            terms.append(term)
 
-        reward_name = "time_unavailable_"
-        self.create_reward(reward_name, "availability_",f)
+        self.write_service_end_block(service, terms)
+
+    def write_service_end_block(self,service,terms):
+        label = "availability_%s" % service['name']
+        reward_name = "time_unavailable_%s" % service['name']
+        self.write_variable(label, "| ".join(terms))
+        self.write_label(label, "| ".join(terms))
+        self.write_reward(reward_name, label)
 
 
-        f.close()
+    def build_server_module(self, server):
+        node_name = server['service']["name"] + "_" + str(server["id"])
+        server['name'] = node_name + "_w"
+        var_name = server['name']
+        votes = server['votes']
+        host = server['host']
+        self.f.write("module %s \n" % node_name)
+        self.f.write("\t %s:  [0..%d] init %d;\n" % (var_name, votes, votes))
 
-    def create_labels(self,label_name:str,terms:List[str],f):
-        exp = "|".join(terms);
-        f.write("label \"%s\" = %s; \n" % (label_name, exp))
-        f.write("formula %s = %s; \n" % (label_name, exp))
+        sync_failure = host + "_failure"
+        sync_repair = host + "_repaired"
+        # If an
+        self.f.write("\t [%s] true -> 1:(%s' = 0);\n" % (sync_failure, var_name))
+        self.f.write("\t [%s] true -> 1:(%s' = %d);\n" % (sync_repair, var_name, votes))
 
-    def create_reward(self,reward_name:str,label_name:str,f):
-        f.write("rewards \"%s\"\n !%s : 1; \nendrewards\n" % (reward_name,label_name))
+        for ascendant_node in self.get_ascendants(self.G.nodes[host]):
+            sync_failure = ascendant_node.name + "_failure"
+            sync_repair = ascendant_node.name + "_repaired"
+            self.f.write("\t [%s] true -> 1:(%s' = 0);\n" % (sync_failure, var_name))
+            self.f.write("\t [%s] true -> 1:(%s' = %d);\n" % (sync_repair, var_name, votes))
 
-    def get_gateways(self,service):
+        self.f.write("endmodule\n\n")
+
+    def build_application(self):
+
+        # Application channels contain the list of channels that
+        # contains the list of paths in the channel
+        application_channels: List[str] = []
+
+        for channel in self.app['application']['topology']:
+            source_service = self.get_service_by_name(channel['from'])
+            dest_service = self.get_service_by_name(channel['to'])
+
+            source_gateways = self.get_service_end_points(source_service)
+            dest_gateways = self.get_service_end_points(dest_service)
+
+            # Returns an array of path names
+            paths = self.get_paths(source_gateways, dest_gateways)
+
+            application_channel = "E_" + source_service + "_" + dest_service
+
+            # Both services need to work and at least one path
+            exp = "& ".join([source_service, dest_service, "(" + "| ".join(paths) + ")"])
+            self.write_variable(application_channel, exp)
+
+            application_channels.append(application_channel)
+
+        name = "availability_"
+        self.write_variable(name, "& ".join(application_channels))
+        self.write_label(name, "& ".join(application_channels))
+
+    def get_service_end_points(self, service):
         if not isinstance(service["init"], list):
             return [service["init"]]
         else:
             return service["init"]
 
-    def get_gateways_name(self, service_name):
+    def get_service_by_name(self, name):
         for service in self.app['services']:
-            if service['name'] == service_name:
-                return self.get_gateways(service)
+            if service['name'] == name:
+                return service
 
-    def result(self,query):
-        my_env = os.environ.copy()
-        my_env["PATH"] = self.prism_location + my_env["PATH"]
-        # -h uses the hybrid engine
-        args = (self.prism_location + self.prism_bin_path, self.model_name , "-pf",
-                "S=? [ \"availability_%s\" ]"%query, "-h" , "-gs")
+    def get_ascendants(self, node: Component):
+        # Make a copy of the parent list
+        stack: List[Component] = [n for n in node.fault_dependencies["parents"]]
+        visited: Set[Component] = set()
+        while stack:
+            n = stack.pop()
+            if n not in visited:
+                visited.add(n)
+                stack.extend(set(n.fault_dependencies["parents"]) - visited)
+        return visited
 
-        popen = subprocess.Popen(args,env=my_env, shell=True, stdout=subprocess.PIPE)
-        popen.wait()
-        output = str(popen.stdout.read())
-        print(output)
-        return float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)",output)[0])
+    def get_paths(self, sources, destinations):
+        if not isinstance(sources,list):
+            sources =  [sources]
 
-    def simulate(self,query):
-        my_env = os.environ.copy()
-        my_env["PATH"] = self.prism_location + my_env["PATH"]
-        # -h uses the hybrid engine
-        args = (
-             self.prism_location + self.prism_bin_path, self.model_name, "-pf",
-            "R{\"time_unavailable_%s\"}=? [ C<=10000 ]"%query, "-sim")
+        if not isinstance(destinations, list):
+            destinations = [destinations]
+        results = []
+        for source in sources:
+            for dest in destinations:
+                paths = compute_path.print_all_paths(self.G, source, dest)
 
-        popen = subprocess.Popen(args, env=my_env, shell=True, stdout=subprocess.PIPE)
-        popen.wait()
-        output = str(popen.stdout.read())
-        print(output)
-        return (10000-float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))/10000
+                # Delete first and last element
+                for k in range(len(paths)):
+                    paths[k] = paths[k][slice(1, len(paths[k]) - 1)]
+
+                if len(paths) == 0:
+                    print("No Paht found")
+                    exit(1)
+
+                for path in paths:
+                    found = False
+                    for c in self.paths:
+                        if path == self.paths[c]:
+                            # We have found a duplicate path
+                            results.append(c)
+                            found = True
+                            # print("reuse", c, self.paths[c])
+                            break
+                    if not found:
+                        # We have a new path
+                        path_name = "P_" + str(len(self.paths.keys())+1)
+                        self.paths[path_name] = path
+                        results.append(path_name)
+                        if len(path):
+                            component_names = [c+"_w" for c in path]
+                            self.write_variable(path_name, "& ".join(component_names))
+                        else:
+                            self.write_variable(path_name, "true")
+        return results
+
+    def write_variable(self, name, exp):
+        self.f.write("formula %s = %s;\n" % (name, exp))
+
+    def write_label(self, name, exp):
+        self.f.write("label \"%s\" = %s;\n" % (name, exp))
+
+    def write_reward(self, name: str, label_name: str):
+        self.f.write("rewards \"%s\"\n !%s : 1; \nendrewards\n" % (name, label_name))
+

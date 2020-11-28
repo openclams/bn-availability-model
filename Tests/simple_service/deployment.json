@@ -8,8 +8,8 @@
         {"host":"H2","votes": 1},
         {"host":"H3","votes": 1},
         {"host":"H1","votes": 1},
-        {"host":"H2","votes": 1},
-        {"host":"H3","votes": 1}
+        {"host":"H6","votes": 1},
+        {"host":"H9","votes": 1}
       ],
       "threshold": 4,
       "direct_communication": false
