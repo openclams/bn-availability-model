@@ -88,12 +88,12 @@ def render(project_folder, file="",xLabel='',yLabel='',legend={},errorbars=False
 
 
     for i in range(1,data.shape[1]):
-        if legend[i-1]['name'] in skip:
+        if legend[i-1].name in skip:
             continue
 
-        c = legend[i-1]['color']
-        m = legend[i - 1]['marker']
-        plt.plot(data[:,0],data[:,i], c+m,label=legend[i-1]['title'])
+        c = legend[i-1].color
+        m = legend[i - 1].marker
+        plt.plot(data[:,0],data[:,i], c+m,label=legend[i-1].title)
         plt.plot(data[:,0],data[:,i],c+"-",alpha=0.7)
 
         if errorbars:
@@ -105,37 +105,3 @@ def render(project_folder, file="",xLabel='',yLabel='',legend={},errorbars=False
     fig.tight_layout()
     plt.legend()
     plt.savefig(project_folder+"/"+file+'.png')
-
-
-inferenceEngines = [
-    {
-        'name': 'ScBNlearn',
-        'title': 'BN approx inference',
-        'color': 'r',
-        'marker': 'X',
-    },{
-        'name': 'ScgRain',
-        'title': 'BN exact inference',
-        'color': 'b',
-        'marker': 'D'
-    },
-    {
-
-        'name': 'PrismRes',
-        'title': 'PRISM Model (exact)',
-        'color': 'y',
-        'marker': '^'
-    },
-    {
-        'name': 'PrismSim',
-        'title': 'PRISM Model (simulation)',
-        'color': 'g',
-        'marker': 'o'
-    }
-]
-
-#render("Full simple experiment", file="final_availability.csv",xLabel='#Replicas',yLabel='Availability',legend=inferenceEngines,errorbars=False,raw="availability",skip=[],semilog=False)
-#render("Full simple experiment", file="final_inference_time.csv",xLabel='#Replicas',yLabel='Computation Time [s]',legend=inferenceEngines,errorbars=True,raw="time",skip=[],semilog=True)
-
-render("/home/bibartoo/spinoza-scripts/Evaluation/0 New Majority Consensus20.05.2020 20-40-19 copy", file="tmp_availability.csv",xLabel='#Replicas',yLabel='Availability',legend=inferenceEngines,errorbars=True,raw="availability",skip=[""],semilog=False)
-render("/home/bibartoo/spinoza-scripts/Evaluation/0 New Majority Consensus20.05.2020 20-40-19 copy", file="tmp_inference_time.csv",xLabel='#Replicas',yLabel='Computation Time [s]',legend=inferenceEngines,errorbars=True,raw="time",skip=[""],semilog=True)

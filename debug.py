@@ -1,33 +1,49 @@
-from pgmpy.models import BayesianModel
-from pgmpy.factors.discrete import TabularCPD
-import BayesianNetworks.pgmpy.operators as ops
+from AvailabilityModels.FaultTreeModel import FaultTreeModel
 import numpy
+import json
+from CloudGraph.GraphParser import GraphParser
 numpy.set_printoptions(suppress=True)
+import time
+from Inference.scram.Scram import Scram
 
-bn: BayesianModel = BayesianModel()
+cim_file_name = "./Tests/simple_service/graph.json"
+dep_file_name = "./Tests/simple_service/deployment.json"
 
-bn.add_node("A", 2) # Create app node
+cim = json.load(open(cim_file_name))
 
-for node_src_name in range(0,4):
-    # node_name contains the string id of a component
-    # For each node in V we create a node in the BN with binary state
-    bn.add_node('b'+str(node_src_name), 2)
-    cpd = TabularCPD(variable='b'+str(node_src_name), variable_card=2, values=[[1, 0]])
-    bn.add_cpds(cpd)
-    bn.add_edge('b'+str(node_src_name), "A")
+parser = GraphParser(cim)
+
+#The cloud infrastructure graph
+G = parser.get_graph()
+print(len(G.nodes))
+#The app graph
+app = json.load(open(dep_file_name))
 
 
-#ops.weighted_kn_node(bn, "A",30,[10,20,50,9])
+app = {"services":[
+                {
+                  "name": "er",
+                  "init": 'G1',
+                  "servers": [ {"host":"H1","votes": 1},
+                                {"host":"H2","votes": 1},
+                                {"host":"H3","votes": 1},],
+                  "threshold": 2,
+                  "direct_communication": False
+                }
+              ]
+            }
 
-#print(bn.get_cpds("A"))
-#print(bn.get_parents("A"))
+start = time.time()
+fm = FaultTreeModel(G, app)
+print("Load time ", time.time() - start)
+start = time.time()
+fm.build()
+fm.write()
 
-ops.scalable_weighted_kn_node(bn, "A",30,[10,20,50,9])
+sc = Scram()
+sc.repetition = 1
+sc.run(solution=None)
+print(sc.meanAvailability)
+print(sc.meanTime)
 
-for node_src_name in range(0,4):
-    n = "E_" + 'b'+str(node_src_name) + "_" + "A"
-    print(bn.get_parents(n))
-    print(bn.get_cpds(n))
-
-print(bn.get_cpds("A"))
-
+print("Build time ", time.time() - start)

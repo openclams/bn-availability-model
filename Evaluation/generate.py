@@ -5,6 +5,7 @@ import json
 from CloudGraph.GraphParser import GraphParser
 from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
 from AvailabilityModels.PrismModel import PrismModel
+from AvailabilityModels.FaultTreeModel import FaultTreeModel
 import numpy as np
 
 class PrismComparisonExample:
@@ -14,6 +15,7 @@ class PrismComparisonExample:
         self.k = k
         self.solution = "er"
         self.pm = None
+        self.ft = None
         self.cim = json.load(open(cim_file_name))
 
         parser = GraphParser(self.cim)
@@ -69,6 +71,11 @@ class PrismComparisonExample:
     def createPrism(self):
         self.pm = PrismModel(self.G, self.app, "cim.sm", "C:\\Program Files\\prism-4.5\\")
         self.pm.build()
+
+    def createFaultTree(self):
+        self.ft = FaultTreeModel(self.G, self.app, "ft.R")
+        self.ft.build()
+        self.ft.write()
 
 
 class SimpleExample:
