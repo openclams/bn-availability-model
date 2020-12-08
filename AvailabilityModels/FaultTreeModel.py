@@ -3,24 +3,26 @@ from FaultTrees.FaultTree import FaultTree
 import CloudGraph.ComputePath as compute_path
 from typing import List, Set, Dict
 from FaultTrees.Writer import Writer
+from FaultTrees.MefWriter import MefWriter
 from CloudGraph.Component import Component
 
 class FaultTreeModel:
 
     def __init__(self,
                  G:Graph,
-                 app,
-                 temp_file_name: str = "ft.R",
+                 app
                  ):
         self.G: Graph = G
         self.app = app
-        self.model_name: str = temp_file_name
         self.paths = {}
         self.current_path_index = 1
         self.ft = FaultTree()
 
     def write(self):
         Writer(self.ft)
+
+    def writeXML(self):
+        MefWriter(self.ft)
 
     def create_fault_dependencies(self):
         for node_src_name in self.G.nodes:
@@ -42,7 +44,8 @@ class FaultTreeModel:
                 # TODO: At this point we need insert a mechanism to resolve cycles in the common failure cause structure
 
     def build(self):
-        self.create_fault_dependencies();
+        self.create_fault_dependencies()
+        app = self.app
         for service in self.app["services"]:
             self.add_service(service)
 
