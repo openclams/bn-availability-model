@@ -75,7 +75,7 @@ class PrismComparisonExample:
     def createFaultTree(self):
         self.ft = FaultTreeModel(self.G, self.app, "ft.R")
         self.ft.build()
-        self.ft.write()
+        self.ft.writeXML()
 
 
 class SimpleExample:

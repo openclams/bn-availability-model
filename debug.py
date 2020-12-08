@@ -38,7 +38,7 @@ fm = FaultTreeModel(G, app)
 print("Load time ", time.time() - start)
 start = time.time()
 fm.build()
-fm.write()
+fm.writeXML()
 
 sc = Scram()
 sc.repetition = 1

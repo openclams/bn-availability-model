@@ -1,47 +1,36 @@
 from Inference.Engine import Engine
-import rpy2.robjects as robjects
-from rpy2.robjects.packages import importr
+
 import numpy
 import time
-
-importr('FaultTree')
-importr('FaultTree.SCRAM')
+import subprocess, os
+import xml.etree.ElementTree as ET
 
 # mcub or bdd
 class Scram(Engine):
-    def __init__(self,tmp_file_name = "ft.R",method='bdd'):
+    def __init__(self,tmp_file_name = "ft_mef.xml",method='bdd'):
         Engine.__init__(self,None)
         self.method = method
         self.tmp_file_name = tmp_file_name
 
     def run(self,solution,*argv):
-
+        args = ('scram','--probability','1','--'+self.method,self.tmp_file_name,"-o","res.xml")
         start = time.time()
         try:
-            robjects.r('''
-                       # create a function `f`
-                       scramFn <- function(file_name, s,m) {
-                          tmp <- getwd()
-                           source(file_name)
-                           avr <- list()
-                           bvr <- list()
-                           for ( i in 1:s ){
-                                  bvr[i] <- system.time({avr[i] <-  scram.probability(ft, list_out=F,method=m)})["elapsed"]
-                           }
-                           res <- list("availability" = avr, "times" = bvr)
-                           setwd(tmp)
-                           rm(ft)
-                           return(res)
-                       }
-                       ''')
-            r_f = robjects.r['scramFn']
-            res = r_f(self.tmp_file_name, self.repetition,self.method)
-            res = dict(zip(res.names, map(list, list(res))))
+            for i in range(self.repetition):
+                start = time.time()
 
-            self.availabilityData = [1-float(e[0]) for e in res['availability']]
-            self.meanAvailability = numpy.mean( self.availabilityData)
-            self.timeData = [float(e[0]) for e in res['times']]
-            self.meanTime = numpy.mean(res['times'])
+                popen = subprocess.Popen(args, stdout=subprocess.PIPE)
+                popen.wait()
+                output = str(popen.stdout.read())
+                self.timeData.append(time.time() - start)
+
+                tree = ET.parse('res.xml')
+                root = tree.getroot()
+                prob =  root.find(".//calculation-time/probability").text
+                self.availabilityData.append(float(prob))
+
+            self.meanAvailability = numpy.mean(self.availabilityData)
+            self.meanTime = numpy.mean(self.timeData)
             self.is_successful = True
 
         except Exception as inst:
