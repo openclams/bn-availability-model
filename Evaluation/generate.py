@@ -69,7 +69,7 @@ class PrismComparisonExample:
         return bn
 
     def createPrism(self):
-        self.pm = PrismModel(self.G, self.app, "cim.sm", "C:\\Program Files\\prism-4.5\\")
+        self.pm = PrismModel(self.G, self.app, "cim.sm")
         self.pm.build()
 
     def createFaultTree(self):

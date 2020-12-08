@@ -4,7 +4,7 @@ from Inference.prism.PrismSteadyState import PrismSteadyState
 
 class PrismExact(BaseExperiment):
 
-    def __init__(self, name ,title, experimentData: ExperimentData, color = 'o', marker ='D'):
+    def __init__(self, name ,title, experimentData: ExperimentData, color = 'y', marker ='D'):
         BaseExperiment.__init__(self,name ,title, experimentData, color , marker)
 
     def memory(self):

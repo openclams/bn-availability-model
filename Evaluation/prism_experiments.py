@@ -1,8 +1,8 @@
 import Evaluation.generate as gn
 import Evaluation.evaluate as ev
 from Evaluation.executors.ExperimentData import ExperimentData
-from Evaluation.executors.FaultTreeExact import FaultTreeExact
-from Evaluation.executors.FaultTreeMC import FaultTreeMC
+# from Evaluation.executors.FaultTreeExact import FaultTreeExact
+# from Evaluation.executors.FaultTreeMC import FaultTreeMC
 from Evaluation.executors.ScalableBNExact import ScalableBNExact
 from Evaluation.executors.ScalableBN import ScalableBN
 from Evaluation.executors.NaiveBNExact import NaiveBNExact
@@ -21,7 +21,7 @@ tests = [7,8,9,10,11]
 experiment = ExperimentData()
 
 instances = [
-     FaultTreeExact('FT' ,'Fault Tree Analysis', experiment),
+     #FaultTreeExact('FT' ,'Fault Tree Analysis', experiment),
      #FaultTreeMC('FTsc', 'Fault Tree Sim', experiment),
      #ScalableBNExact('ScgRain' ,'Scalabl bn exact', experiment),
      ScalableBN('Scbnlearn' ,'Sacal BN app', experiment),

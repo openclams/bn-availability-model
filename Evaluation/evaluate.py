@@ -4,13 +4,11 @@ import os
 from pgmpy.models import BayesianModel
 import time
 import gc
-from dotenv import load_dotenv
-from pathlib import Path  # python3 only
+
 import datetime
 import shutil
 import Evaluation.render as re
-env_path = Path(os.getcwd()) / ".." / '.env'
-load_dotenv(dotenv_path=env_path)
+
 
 import logging
 logging.disable(logging.WARNING)

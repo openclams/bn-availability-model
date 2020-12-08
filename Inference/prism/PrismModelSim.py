@@ -3,13 +3,17 @@ import time
 import numpy
 import re
 import subprocess, os
-
+from dotenv import load_dotenv
+from pathlib import Path  # python3 only
+env_path = Path(os.getcwd()) / ".." / '.env'
+load_dotenv(dotenv_path=env_path)
 
 class PrismModelSim(Engine):
 
     def __init__(self, temp_file_name="cim.sm",
-                 prism_location:str = "C:\\Program Files\\prism-4.5\\",
-                 prism_bin_path:str = "bin\\prism.bat"):
+                 prism_location: str = os.getenv("PRISM_LOCATION"),  # "C:\\Program Files\\prism-4.5\\",
+                 prism_bin_path: str = os.getenv("PRISM_PATH")  # "bin\\prism.bat"
+                 ):
         Engine.__init__(self, None)
         self.prism_location: str = prism_location
         self.prism_bin_path: str = prism_bin_path

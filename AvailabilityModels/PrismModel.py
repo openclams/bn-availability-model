@@ -14,22 +14,16 @@ class PrismModel:
     def __init__(self,
                  G: Graph,
                  app,
-                 temp_file_name: str = "cim.sm",
-                 prism_location: str = "C:\\Program Files\\prism-4.5\\",
-                 prism_bin_path: str = "bin\\prism.bat"):
+                 temp_file_name: str = "cim.sm"):
         """
 
         @param G: Infrastructure Graph
         @param app: Deployment file
         @param temp_file_name:  Output-file name
-        @param prism_location:  Root directory of the PRISM installation
-        @param prism_bin_path:  Subdirectory of the PRISM executable
         """
         self.G: Graph = G
         self.app = app
         self.model_name: str = temp_file_name
-        self.prism_location: str = prism_location
-        self.prism_bin_path: str = prism_bin_path
         self.f = open(self.model_name, "w+")
         self.paths = {}
 
