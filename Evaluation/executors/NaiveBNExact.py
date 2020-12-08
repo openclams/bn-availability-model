@@ -9,4 +9,4 @@ class NaiveBNExact(NaiveBN):
         NaiveBN.__init__(self,name ,title, experimentData, use_cached_file, color , marker)
 
     def setEngine(self):
-        self.engine = grain.gRain(self.bn, driver="R", use_cached_file=self.use_cached_file,tmp_file_name="bnlearn_tmp_R")
+        self.engine = grain.gRain(self.bn, driver="R", use_cached_file=self.use_cached_file,tmp_file_name="bnlearn_tmp_R_naive")

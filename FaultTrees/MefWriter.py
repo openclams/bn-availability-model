@@ -68,9 +68,9 @@ class MefWriter:
 
     def BASE(self, gate):
         self.f.write("\t\t<define-basic-event name=\"{}\">\n".format(gate.name))
-        self.f.write("\t\t\t<float value=\"{}\"/>\n".format(gate.prob))
+        self.f.write("\t\t\t<float value=\"{:1.8f}\"/>\n".format(gate.prob))
         self.f.write("\t\t</define-basic-event>\n")
 
     def VOTING(self, gate):
-        self.GATE(gate, 'atleast',"min={}".format(gate.k))
+        self.GATE(gate, 'atleast',"min=\"{}\"".format(gate.k))
 

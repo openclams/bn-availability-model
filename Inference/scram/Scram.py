@@ -13,7 +13,8 @@ class Scram(Engine):
         self.tmp_file_name = tmp_file_name
 
     def run(self,solution,*argv):
-        args = ('scram','--probability','1','--'+self.method,self.tmp_file_name,"-o","res.xml")
+        # in windows we need a "1" for the probability value
+        args = ('scram','--probability','--'+self.method,"-o","res.xml",'ft_mef.xml') #
         start = time.time()
         try:
             for i in range(self.repetition):
@@ -26,8 +27,8 @@ class Scram(Engine):
 
                 tree = ET.parse('res.xml')
                 root = tree.getroot()
-                prob =  root.find(".//calculation-time/probability").text
-                self.availabilityData.append(float(prob))
+                prob =  root.find(".//sum-of-products").attrib['probability']
+                self.availabilityData.append(1-float(prob))
 
             self.meanAvailability = numpy.mean(self.availabilityData)
             self.meanTime = numpy.mean(self.timeData)

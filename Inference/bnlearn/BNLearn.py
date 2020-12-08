@@ -31,7 +31,7 @@ class BNLearn(Engine):
         if not self.use_cached_file:
             start = time.time()
             bnwriters.writeBIF(self.bn, self.tmp_file_name)
-            print("Finished writing ",time.time() - start)
+            # print("Finished writing ",time.time() - start)
         start = time.time()
         try:
             robjects.r('''
@@ -78,7 +78,7 @@ class BNLearn(Engine):
         if not self.use_cached_file:
             start = time.time()
             bnwriters.writeR(self.bn, self.tmp_file_name)
-            print("Finished writing ", time.time() - start)
+            # print("Finished writing ", time.time() - start)
 
         start = time.time()
         try:
@@ -115,7 +115,7 @@ class BNLearn(Engine):
             self.timeData = [float('inf')]
             self.meanTime = float('inf')
             self.is_successful = False
-        print("Computation finished",time.time()-start)
+        # print("Computation finished",time.time()-start)
         #print(self.meanAvailability)
         #print(st.describe(res['availability']))
         #print(st.describe(res['times']))

@@ -23,7 +23,7 @@ class NaiveBN(BaseExperiment):
         self.bn = self. generator.createNaiveNetwork()
 
     def setEngine(self):
-        self.engine = bnlearn.BNLearn(self.bn, driver="R", use_cached_file=self.use_cached_file, tmp_file_name="bnlearn_tmp_R")
+        self.engine = bnlearn.BNLearn(self.bn, driver="R", use_cached_file=self.use_cached_file, tmp_file_name="bnlearn_tmp_R_naive")
 
     def clean(self):
         del self.bn

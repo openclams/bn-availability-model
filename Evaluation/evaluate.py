@@ -89,6 +89,7 @@ class Evaluate:
                 if instance.name not in self.skip_engines:
                     try:
                         instance.setEngine()
+                        instance.engine.repetition = 1
                     except:
                         print("Engine exception occurred")
                         print("Pass")

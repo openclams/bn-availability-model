@@ -2,23 +2,23 @@
   "components": [
     {
       "name": "D1",
-      "availability": 0.9998
+      "availability": 0.8
     },
     {
       "name": "D2",
-      "availability": 0.99999
+      "availability": 0.8
     },
     {
       "name": "R1",
-      "availability": 0.99999
+      "availability": 0.9
     },
     {
       "name": "R2",
-      "availability": 0.99999
+      "availability": 0.8
     },
     {
       "name": "R3",
-      "availability": 0.99999
+      "availability": 0.9
     },
     {
       "name": ["H1","H2","H3"],
@@ -27,17 +27,17 @@
     },
     {
       "name": ["H4","H5","H6"],
-      "availability": 0.99,
+      "availability": 0.5,
       "group": "HG2"
     },
     {
       "name": ["H7","H8","H9"],
-      "availability": 0.99,
+      "availability": 0.5,
       "group": "HG3"
     },
     {
       "name": ["N1","N2","N3","N4","G1","N5"],
-      "availability": 0.99999
+      "availability": 0.8
     }
   ],
   "network" : [

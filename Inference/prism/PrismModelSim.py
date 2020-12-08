@@ -20,14 +20,14 @@ class PrismModelSim(Engine):
         self.my_env = os.environ.copy()
         self.my_env["PATH"] = self.prism_location + ";"+self.my_env["PATH"]
         self.temp_file_name =temp_file_name
-        self.mission_time = 10000
+        self.mission_time = 1000
         # -h uses the hybrid engine
 
 
     def run(self, solution, *argv):
         args = (
             self.prism_location + self.prism_bin_path,'-javamaxmem', '16g' ,self.temp_file_name , "-pf",
-            "R{\"time_unavailable_%s\"}=? [ C<=10 ]" % solution, "-sim")
+            "R{\"time_unavailable_%s\"}=? [ C<=%d ]" % (solution,self.mission_time), "-sim")
         start_new_run = time.time()
         try:
             for i in range(self.repetition):
@@ -43,7 +43,7 @@ class PrismModelSim(Engine):
                 # exit()
                 popen.wait()
                 output = str(popen.stdout.read())
-                print(output)
+
 
                 self.availabilityData.append((self.mission_time-float(re.findall(r"Result: ([-+]?\d*\.\d+|\d+)", output)[0]))/self.mission_time)
                 self.timeData.append(time.time() - start)

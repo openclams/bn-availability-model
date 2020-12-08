@@ -73,7 +73,7 @@ class PrismComparisonExample:
         self.pm.build()
 
     def createFaultTree(self):
-        self.ft = FaultTreeModel(self.G, self.app, "ft.R")
+        self.ft = FaultTreeModel(self.G, self.app)
         self.ft.build()
         self.ft.writeXML()
 

@@ -56,7 +56,7 @@ class BaseExperiment:
         self.engine.run(self.generator.solution)
 
         total_time = time.time() - start_total_time
-        self.engine.run(self.generator.solution)
+
         self.data.res_dic[self.name].append(self.engine.meanAvailability)
         self.data.time_dic[self.name].append(self.engine.meanTime)
         self.data.total_time_dic[self.name].append(total_time)

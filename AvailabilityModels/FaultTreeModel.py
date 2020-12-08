@@ -45,7 +45,6 @@ class FaultTreeModel:
 
     def build(self):
         self.create_fault_dependencies()
-        app = self.app
         for service in self.app["services"]:
             self.add_service(service)
 
