@@ -19,3 +19,4 @@ class FaultTreeExact(BaseExperiment):
 
     def setEngine(self):
         self.engine = Scram(tmp_file_name="ft.R",method='bdd')
+        self.engine.repetition = 1

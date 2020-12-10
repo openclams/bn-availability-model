@@ -11,5 +11,6 @@ class ScalableBN(NaiveBN):
     def setEngine(self):
         self.engine = bnlearn.BNLearn(self.bn, driver="R", use_cached_file=self.use_cached_file,
                                       tmp_file_name="bnlearn_tmp_R")
+        self.engine.repetition = 20
     def generate(self):
         self.bn = self.generator.createScalableNetwork()

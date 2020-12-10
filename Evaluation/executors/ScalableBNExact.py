@@ -10,3 +10,4 @@ class ScalableBNExact(ScalableBN):
 
     def setEngine(self):
         self.engine = grain.gRain(self.bn, driver="R", use_cached_file=self.use_cached_file,tmp_file_name="bnlearn_tmp_R")
+        self.engine.repetition = 10

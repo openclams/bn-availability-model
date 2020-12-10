@@ -38,10 +38,10 @@ config = [
 ]
 
 # Select the
-c = config[9]
+c = config[8]
 
 # Init
-generate = False
+generate = True
 bn = None
 pm = None
 temp_file_name = "cim.sm"

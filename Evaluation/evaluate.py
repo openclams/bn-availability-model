@@ -89,7 +89,7 @@ class Evaluate:
                 if instance.name not in self.skip_engines:
                     try:
                         instance.setEngine()
-                        instance.engine.repetition = 1
+                        #instance.engine.repetition = 1
                     except:
                         print("Engine exception occurred")
                         print("Pass")
@@ -158,7 +158,7 @@ class Evaluate:
         #avaibility + raw avaibility
         re.render(self.project_folder, file="final_inference_time.csv", xLabel='#Processes', yLabel='Computation time [s]',legend=self.instances, errorbars=True, raw="time", skip=self.skip_engines,semilog=True)
         #inference_time + time
-        re.render(self.project_folder, file="final_availability.csv", xLabel='#Processes', yLabel='Availability',legend=self.instances, errorbars=False, raw="availability", skip=self.skip_engines)
+        re.render(self.project_folder, file="final_availability.csv", xLabel='#Processes', yLabel='Availability',legend=self.instances, errorbars=True, raw="availability", skip=self.skip_engines)
 
 
 

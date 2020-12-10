@@ -24,6 +24,7 @@ class NaiveBN(BaseExperiment):
 
     def setEngine(self):
         self.engine = bnlearn.BNLearn(self.bn, driver="R", use_cached_file=self.use_cached_file, tmp_file_name="bnlearn_tmp_R_naive")
+        self.engine.repetition = 20
 
     def clean(self):
         del self.bn

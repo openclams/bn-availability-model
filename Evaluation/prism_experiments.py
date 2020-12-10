@@ -13,27 +13,33 @@ from Evaluation.executors.PrismSim import PrismSim
 
 #from Evaluation.executors.ScalableBNExact import ScalableBNExact
 
-title = "all in one"
+title = "Large Test"
 cim = "../Tests/simple_service/graph.json"
-#cim = "/home/bibartoo/spinoza-scripts/Tests/service_X/graph.json"
-generator = lambda n: gn.PrismComparisonExample(n, int(n / 2) + 1, cim,init='G1')
-tests = [3,4,5,6,7,8,9,10]
+#cim = "/home/bibartoo/spinoza-scripts/Tests/service_100_51_X_nodes/graph.json"
+#cim = "/home/bibartoo/spinoza-scripts/Tests/service_10_9_with_45_nodes/graph.json"
+#cim = "../graph.json"
+generator = lambda n: gn.PrismComparisonExample(n, int(n / 2) + 1, cim,init='N1')
+tests =range(3,100,2)
 experiment = ExperimentData()
 
 instances = [
-     FaultTreeExact('FT' ,'Fault Tree Analysis', experiment),
-     FaultTreeMC('FTsc', 'Fault Tree Sim', experiment),
-     ScalableBNExact('ScgRain' ,'Scalabl bn exact', experiment),
-     ScalableBN('Scbnlearn' ,'Sacal BN app', experiment),
-     NaiveBNExact('NavgRain' ,'Naove BN exact', experiment),
-     NaiveBN('Naivebnlearn' ,'Naive BN approx', experiment),
-     PrismExact('PrismEx', 'Prism Exact', experiment),
-     PrismSim('PrismSim', 'Prism Sim', experiment),
+     FaultTreeExact('FT' ,'Fault Tree with BDD', experiment),
+     #FaultTreeMC('FTsc', 'Fault Tree with MCUB', experiment),
+     #ScalableBNExact('ScgRain' ,'BN Exact Inference', experiment),
+     ScalableBN('Scbnlearn' ,'BN Approx Inference', experiment),
+     #NaiveBNExact('NavgRain' ,'BN Exact Inference', experiment),
+     #NaiveBN('Naivebnlearn' ,'BN Approx Inference', experiment),
+     # PrismExact('PrismEx', 'Prism Exact', experiment),
+     # PrismSim('PrismSim', 'Prism Sim', experiment),
 ]
 
 r = ev.Evaluate(instances, title, tests,
                 skip_engines = [],
-                add_to_skip_list={},
+                add_to_skip_list={
+                    "ScgRain" : 9,
+                    "FT":41,
+                    "FTsc":41
+                },
                 run_file=__file__)
 r.run(generator,experiment)
 

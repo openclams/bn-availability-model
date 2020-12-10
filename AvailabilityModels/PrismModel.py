@@ -55,13 +55,13 @@ class PrismModel:
         # sync_repair is the name of the action to sync if this component is repaired
         sync_repair = node.name + "_repaired"
 
-        MTTF = 1 / (1 - self.G.nodes[node.name].availability)
+        MTTF = 1 / ((1/self.G.nodes[node.name].availability)-1)
         MTTR = 1
 
         # Format the failure and repair rate to floats
         # with 8th decimal precision
-        failure_rate = "{:1.8f}".format(1 / MTTF)
-        repair_rate = "{:1.8f}".format(1 / MTTR)
+        failure_rate = "{:1.5f}".format(1/MTTF)
+        repair_rate = "{:1.5f}".format(1/MTTR)
 
         self.f.write("module %s \n" % node.name)
         # Defining the working state
@@ -156,7 +156,7 @@ class PrismModel:
 
 
             host_names = [host + "_" + service['name'] for host in host_combination]
-            term = "((%s >= %d) & %s)\n" % ("+ ".join(host_names), service['threshold'], "| ".join(paths_exp))
+            term = "((%s >= %d) & (%s))\n" % ("+ ".join(host_names), service['threshold'], "| ".join(paths_exp))
             terms.append(term)
         self.write_service_end_block(service, terms)
 
@@ -171,7 +171,7 @@ class PrismModel:
                     paths_exp.append("( %s_w & %s_w & (" %(host, entry) +"| ".join(paths)+"))\n")
 
             host_names = [host+ "_" + service['name'] for host in host_combination]
-            term = "((%s >= %d) & %s)\n" % ("+ ".join(host_names),service['threshold'],"& ".join(paths_exp))
+            term = "((%s >= %d) & (%s))\n" % ("+ ".join(host_names),service['threshold'],"& ".join(paths_exp))
             terms.append(term)
 
         self.write_service_end_block(service, terms)

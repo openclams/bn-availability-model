@@ -49,7 +49,7 @@ class MinorSymLogLocator(Locator):
 def render(project_folder, file="",xLabel='',yLabel='',legend={},errorbars=False,raw="",skip=[],semilog=False):
     dataFrame = pd.read_csv(project_folder+"/"+file);
     data = dataFrame.values
-
+    skip = []
     fig = plt.figure(figsize=(8,6), dpi=100, facecolor="white")
 
     axes = plt.subplot(111)

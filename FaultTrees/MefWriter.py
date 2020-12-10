@@ -72,5 +72,10 @@ class MefWriter:
         self.f.write("\t\t</define-basic-event>\n")
 
     def VOTING(self, gate):
-        self.GATE(gate, 'atleast',"min=\"{}\"".format(gate.k))
+        if gate.k == len(gate.input_gates):
+            self.AND(gate)
+        elif gate.k == 1:
+            self.OR(gate)
+        else:
+            self.GATE(gate, 'atleast',"min=\"{}\"".format(gate.k))
 

@@ -7,3 +7,4 @@ class PrismSim(PrismExact):
         self.color = 'y'
         self.marker = 'X'
         self.engine =PrismModelSim()
+        self.engine.repetition = 20
