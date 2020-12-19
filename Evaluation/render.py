@@ -58,7 +58,7 @@ def render(project_folder, file="",xLabel='',yLabel='',legend={},errorbars=False
     axes.set_ylabel(yLabel)
     axes.xaxis.set_major_locator(MaxNLocator(integer=True))
     if semilog:
-        plt.yscale('symlog', linthreshy=1e-3)
+        plt.yscale('symlog')
         axes.yaxis.set_minor_locator(MinorSymLogLocator(1e-3))
 
     interval = []

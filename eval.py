@@ -50,8 +50,8 @@ prism_location = os.getenv("PRISM_PATH")
 
 
 if not generate:
-    cim_file_name = "/home/bibartoo/spinoza-scripts/Tests/simple_service/graph.json"
-    dep_file_name = "/home/bibartoo/spinoza-scripts/Tests/simple_service/deployment.json"
+    cim_file_name = "/Assets/simple_service/graph.json"
+    dep_file_name = "/Assets/simple_service/deployment.json"
 
     cim = json.load(open(cim_file_name))
 

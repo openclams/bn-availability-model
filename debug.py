@@ -6,8 +6,8 @@ numpy.set_printoptions(suppress=True)
 import time
 from Inference.scram.Scram import Scram
 
-cim_file_name = "./Tests/simple_service/graph.json"
-dep_file_name = "./Tests/simple_service/deployment.json"
+cim_file_name = "Assets/simple_service/graph.json"
+dep_file_name = "Assets/simple_service/deployment.json"
 
 cim = json.load(open(cim_file_name))
 

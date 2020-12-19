@@ -92,7 +92,6 @@ class BNLearn(Engine):
                            bvr <- list()
                            for ( i in 1:s ){
                                bvr[i] <- system.time({avr[i] <- prop.table(table(cpdist(bn_read, nodes=node, method='ls', evidence=TRUE)))[2]})["elapsed"]
-                            print(i)
                            }
                            res <- list("availability" = avr, "times" = bvr)
                            setwd(tmp)

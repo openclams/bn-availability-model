@@ -1,0 +1,78 @@
+import BayesianNetworks.pgmpy.operators as op
+from pgmpy.models import BayesianModel
+from pgmpy.factors.discrete import TabularCPD
+import json
+from CloudGraph.GraphParser import GraphParser
+from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
+from AvailabilityModels.PrismModel import PrismModel
+from AvailabilityModels.FaultTreeModel import FaultTreeModel
+import numpy as np
+
+class CreateFromGraph:
+
+    def __init__(self, n, k,  cim_file_name, is_weighted  = False, init="G1"):
+        self.n = n
+        self.k = k
+        self.solution = "er"
+        self.pm = None
+        self.ft = None
+        self.cim = json.load(open(cim_file_name))
+
+        parser = GraphParser(self.cim)
+
+
+        votes = np.ones(n)
+        if is_weighted:
+            votes = votes + np.random.randint(5, size=n)
+            self.k = int(sum(votes) / 2) + 1
+        # The cloud infrastructure graph
+        self.G = parser.get_graph()
+        # The app graph
+        self.app = {
+              "services":[
+                {
+                  "name": "er",
+                  "init": init,
+                  "servers": [],
+                  "threshold": self.k,
+                  "direct_communication": False
+                }
+              ]
+            }
+        hosts = []
+        for v in self.G.host_groups.values():
+            hosts.extend(v.hosts)
+
+        h = len(hosts)
+        print("Number of hosts: %d"%h)
+        print("Total Infrastructure %d"%len(self.G.nodes.keys()))
+
+        net = 0
+        for k, v in self.G.nodes.items():
+            if len(v.network_links['parents']) != 0 or len(v.network_links['children']) != 0:
+                net += 1
+
+        print("Total Network %d"%net)
+        for i in range(n):
+            self.app["services"][0]["servers"].append({"host":hosts[i%h].name,"votes":int(votes[i])})
+
+
+    def createNaiveNetwork(self):
+        ba = BayesianNetModel(self.G, self.app)
+        bn = ba.bn
+        return bn
+
+
+    def createScalableNetwork(self):
+        ba = BayesianNetModel(self.G, self.app,andNodeCPT=op.efficient_and_node,orNodeCPT=op.efficient_or_node,knNodeCPT=op.scalable_kn_node,weightedKnNodeCPT=op.scalable_weighted_kn_node)
+        bn = ba.bn
+        return bn
+
+    def createPrism(self):
+        self.pm = PrismModel(self.G, self.app, "cim.sm")
+        self.pm.build()
+
+    def createFaultTree(self):
+        self.ft = FaultTreeModel(self.G, self.app)
+        self.ft.build()
+        self.ft.writeXML()
