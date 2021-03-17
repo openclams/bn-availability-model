@@ -14,28 +14,23 @@ class GraphParser():
     def get_graph(self) -> Graph:
         return self.G
 
-    def create_component(self, name:str, availability:float, group_name : Optional[str] = None):
-        if group_name:
-            host = Host(name,availability)
-            self.G.add_node(host)
-            self.G.add_node_to_group(host, group_name)
+    def create_component(self, name:str, component):
+        availability = component['availability']
+        if "type" in component.keys():
+            self.G.add_node(Host(name,availability))
         else:
             self.G.add_node(Component(name,availability))
 
     def load_nodes(self,cloud_infrastructure_model):
         for component in cloud_infrastructure_model["components"]:
 
-            group_name = None
-            if "group" in component.keys():
-                group_name = component["group"]
-
             if isinstance(component["name"],str):
                 # The name field is a string
-                self.create_component(component['name'], component['availability'],group_name)
+                self.create_component(component['name'], component)
             else:
                 for element in component["name"]:
                     # The name field is an array
-                    self.create_component(element, component['availability'], group_name)
+                    self.create_component(element, component)
 
     def load_network_edges(self,data):
         for edges in data["network"]:

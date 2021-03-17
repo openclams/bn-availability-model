@@ -2,42 +2,88 @@
   "components": [
     {
       "name": "D1",
-      "availability": 0.995
+      "availability": 0.9908
     },
     {
       "name": "D2",
-      "availability": 0.995
+      "availability": 0.9931
     },
     {
       "name": "R1",
-      "availability": 0.9
+      "availability": 0.9920
     },
     {
       "name": "R2",
-      "availability": 0.92
+      "availability": 0.9921
     },
     {
       "name": "R3",
-      "availability": 0.988
+      "availability": 0.9910
     },
     {
-      "name": ["H1","H2","H3"],
-      "availability": 0.99,
-      "group": "HG1"
+      "name": "H1",
+      "availability": 0.9897,
+      "type": "host"
     },
     {
-      "name": ["H4","H5","H6"],
-      "availability": 0.8,
-      "group": "HG2"
+      "name": "H2",
+      "availability": 0.9876,
+      "type": "host"
     },
     {
-      "name": ["H7","H8","H9"],
-      "availability": 0.9,
-      "group": "HG3"
+      "name": "H3",
+      "availability": 0.9921,
+      "type": "host"
     },
     {
-      "name": ["N1","N2","N3","N4","G1"],
-      "availability": 0.85
+      "name": "H4",
+      "availability": 0.9897,
+      "type": "host"
+    },
+    {
+      "name": "H5",
+      "availability": 0.9899,
+      "type": "host"
+    },
+    {
+      "name": "H6",
+      "availability": 0.9884,
+      "type": "host"
+    },
+    {
+      "name": "H7",
+      "availability": 0.9860,
+      "type": "host"
+    },
+    {
+      "name": "H8",
+      "availability": 0.9916,
+      "type": "host"
+    },
+    {
+      "name": "H9",
+      "availability": 0.9893,
+      "type": "host"
+    },
+    {
+      "name": "G1",
+      "availability": 0.9842
+    },
+    {
+      "name": "N4",
+      "availability": 0.9831
+    },
+    {
+      "name": "N3",
+      "availability": 0.9947
+    },
+    {
+      "name":"N2",
+      "availability": 0.9921
+    },
+    {
+      "name": "N1",
+      "availability": 0.9943
     }
   ],
   "network" : [
@@ -73,6 +119,5 @@
     {
       "from": "R3", "to": ["H7","H8","H9","N4"]
     }
-
   ]
 }

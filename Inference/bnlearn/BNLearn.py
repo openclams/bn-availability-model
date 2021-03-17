@@ -82,6 +82,8 @@ class BNLearn(Engine):
 
         start = time.time()
         try:
+            robjects.r('print(packageVersion("bnlearn"))')
+            robjects.r('print(packageVersion("gRain"))')
             robjects.r('''
                        # create a function `f`
                        RbnlearnFn <- function(file_name, node, s) {
@@ -109,6 +111,7 @@ class BNLearn(Engine):
             self.is_successful = True
 
         except Exception as inst:
+            print(inst)
             self.availabilityData = [float('inf')]
             self.meanAvailability = float('inf')
             self.timeData = [float('inf')]

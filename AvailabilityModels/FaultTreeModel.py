@@ -88,8 +88,12 @@ class FaultTreeModel:
 
                 gate = self.ft.add_node(A)
 
-                gate.k = threshold
+
                 gate.n = len(hosts)-1
+                gate.k = len(hosts) - threshold + 1
+
+                #print(gate.k, "/" , gate.n)
+
                 if gate.k > 1:
                     gate.type = "vote"  # here wrong
                 else:

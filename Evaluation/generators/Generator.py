@@ -1,9 +1,9 @@
 class Generator:
 
-    def createNaiveNetwork(self):
+    def createNaiveNetwork(self,write=True):
        pass
 
-    def createScalableNetwork(self):
+    def createScalableNetwork(self,write=True):
        pass
 
     def createPrism(self):

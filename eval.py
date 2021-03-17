@@ -1,12 +1,9 @@
-from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
+
 from CloudGraph.GraphParser import GraphParser
 import json
 from AvailabilityModels.PrismModel import PrismModel
 from CloudGraph.GraphGenerator import GraphGenerator
-import BayesianNetworks.pgmpy.draw as dr
-from Inference.bnlearn.BNLearn import BNLearn
-from Inference.grain.gRain import gRain
-import BayesianNetworks.pgmpy.operators as op
+
 import  os
 from dotenv import load_dotenv
 import time
@@ -38,7 +35,7 @@ config = [
 ]
 
 # Select the
-c = config[8]
+c = config[0]
 
 # Init
 generate = True
@@ -94,12 +91,12 @@ else:
 
     gg = GraphGenerator()
     cim = gg.create_cim(net_size=c["net"],
-                        numRootNodes=c["numRootNodes"],
-                        ratio_random_connection=0.05,
+                        num_root_nodes=c["numRootNodes"],
+                        ratio_random_connection=0.5,
                         max_level=c["maxLevel"],
                         degree=c["degree"],
-                        min_availability=0.9990,
-                        max_availability=0.99999)
+                        a=1000,
+                        b=10)
     app = gg.create_app(c["n"],c["k"])
     #print(cim)
     #print(app)

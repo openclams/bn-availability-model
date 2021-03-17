@@ -2,6 +2,7 @@ import BayesianNetworks.pgmpy.operators as op
 from pgmpy.models import BayesianModel
 from pgmpy.factors.discrete import TabularCPD
 from Evaluation.generators.Generator import Generator
+from BayesianNetworks.pgmpy import writers as bnwriters
 
 
 class SimpleExample(Generator):
@@ -26,20 +27,29 @@ class SimpleExample(Generator):
             bn.add_cpds(cpd)
         return bn
 
-    def createNaiveNetwork(self):
-        try:
-            bn = self.createBasicNetwork()
+    def createNaiveNetwork(self,write=True):
+        if write:
+            try:
+                bn = self.createBasicNetwork()
 
-            op.kn_node(bn, "K", self.k)
-        except Exception as inst:
-            bn =  BayesianModel()
-        return bn
+                op.kn_node(bn, "K", self.k)
+            except Exception as inst:
+                bn =  BayesianModel()
 
-    def createScalableNetwork(self):
-        try:
-            bn = self.createBasicNetwork()
+            bnwriters.writeR(bn, "bnlearn_tmp_R_naive")
+            return bn
+        else:
+            return BayesianModel()
 
-            op.scalable_kn_node(bn, "K", self.k)
-        except Exception as inst:
-            bn = BayesianModel()
-        return bn
+    def createScalableNetwork(self,write=True):
+        if write:
+            try:
+                bn = self.createBasicNetwork()
+
+                op.scalable_kn_node(bn, "K", self.k)
+            except Exception as inst:
+                bn = BayesianModel()
+            bnwriters.writeR(bn, "bnlearn_tmp_R")
+            return bn
+        else:
+            return BayesianModel()

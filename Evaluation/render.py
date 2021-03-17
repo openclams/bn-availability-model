@@ -86,22 +86,29 @@ def render(project_folder, file="",xLabel='',yLabel='',legend={},errorbars=False
                 idx = idx + 1
 
 
-
+    lines = []
+    labels = []
     for i in range(1,data.shape[1]):
         if legend[i-1].name in skip:
             continue
 
         c = legend[i-1].color
         m = legend[i - 1].marker
-        plt.plot(data[:,0],data[:,i], c+m,label=legend[i-1].title)
-        plt.plot(data[:,0],data[:,i],c+"-",alpha=0.7)
-
+        l = legend[i-1].linestyle
+        p1 = plt.plot(data[:,0],data[:,i],linestyle='', color=c,marker=m,label=legend[i-1].title)
+        p2 = plt.plot(data[:,0],data[:,i],color=c,linestyle=l,alpha=0.5)
+        # plt returns an array with one element. The element contains the plot object
+        lines.append((p1[0],p2[0]))
+        labels.append(legend[i-1].title)
         if errorbars:
             for idx, inv in enumerate(interval[i]):
                 plt.errorbar(data[idx,0], data[idx,i], yerr=[[data[idx,i] - inv[0]], [inv[1]- data[idx,i]]],ecolor=c)
 
+    # for l in plt.gca().lines:
+    #     l.set_alpha(.5)
+    # print(lines)
     axes.grid()
     #seaborn.despine(ax=axes, offset=10, trim=True)
     fig.tight_layout()
-    plt.legend()
+    plt.legend(lines,labels)
     plt.savefig(project_folder+"/"+file+'.png')

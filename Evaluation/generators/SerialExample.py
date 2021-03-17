@@ -2,7 +2,7 @@ import BayesianNetworks.pgmpy.operators as op
 from pgmpy.models import BayesianModel
 from pgmpy.factors.discrete import TabularCPD
 from Evaluation.generators.Generator import Generator
-
+from BayesianNetworks.pgmpy import writers as bnwriters
 
 class SerialExample(Generator):
     def __init__(self, n, k):
@@ -62,7 +62,7 @@ class SerialExample(Generator):
 
         return bn
 
-    def createNaiveNetwork(self):
+    def createNaiveNetwork(self,write=True):
         try:
             bn = self.createBasicNetwork()
 
@@ -73,9 +73,11 @@ class SerialExample(Generator):
             op.and_node(bn, 'SYS')
         except Exception as inst:
             bn = BayesianModel()
+        if write:
+            bnwriters.writeR(bn, "bnlearn_tmp_R_naive")
         return bn
 
-    def createScalableNetwork(self):
+    def createScalableNetwork(self,write=True):
         try:
             bn = self.createBasicNetwork()
 
@@ -87,6 +89,7 @@ class SerialExample(Generator):
 
         except Exception as inst:
             bn = BayesianModel()
-
+        if write:
+            bnwriters.writeR(bn,"bnlearn_tmp_R")
         return bn
 

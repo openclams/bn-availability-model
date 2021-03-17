@@ -7,12 +7,13 @@ import time
 
 class BaseExperiment:
 
-    def __init__(self, name, title, experimentData: ExperimentData, color='r', marker='X'):
+    def __init__(self, name, title, experimentData: ExperimentData, color='r', marker='X',linestyle='-'):
         self.data = experimentData
         self.name = name
         self.color = color
         self.marker = marker
         self.title = title
+        self.linestyle = linestyle
 
         self.engine = None
         self.generator = None
@@ -28,7 +29,7 @@ class BaseExperiment:
         size = 0;
         for n in self.bn.nodes():
             n = self.get_cpds(n).get_values()
-            size = size + (n.size * n.itemsize)
+            size = size + n.size
         return size
 
     def build(self):

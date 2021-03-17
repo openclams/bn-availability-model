@@ -6,5 +6,5 @@ class FaultTreeMC(FaultTreeExact):
     def setEngine(self):
         self.color = 'g'
         self.marker = 'X'
-        self.engine = Scram(tmp_file_name="ft.R",method='mcub')
-        self.engine.repetition = 10
+        self.engine = Scram(tmp_file_name="ft_mef.xml",method='mcub')
+        self.engine.repetition = 1

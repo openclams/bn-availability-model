@@ -14,7 +14,9 @@ class Scram(Engine):
 
     def run(self,solution,*argv):
         # in windows we need a "1" for the probability value
-        args = ('scram','--probability','--'+self.method,"-o","res.xml",'ft_mef.xml') #
+
+        args = ('scram','--probability','1','--'+self.method,"-o","res.xml",'ft_mef.xml') #
+
         start = time.time()
         try:
             for i in range(self.repetition):

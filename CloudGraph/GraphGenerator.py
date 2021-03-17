@@ -1,70 +1,63 @@
 import random
 import json
-from typing import List,Dict, Optional
+from typing import List,Dict, Optional, Tuple
+import numpy
 
 class GraphGenerator:
-
 
     def __init__(self):
         self.cim = { "components" : [], "network": [], "dependencies" : []}
         self.hosts = []
 
 
-    def create_cim(self, net_size: int = 10, numRootNodes :  int = 2, ratio_random_connection:float = 0.0,
-                   max_level: int = 2, degree: List[int] = [3],
-                   min_availability:float = 0.9990, max_availability:float = 0.99999):
+    def create_cim(self,
+                   net_size: int = 10,
+                   num_root_nodes :  int = 2,
+                   ratio_random_connection:float = 0.0,
+                   max_level: int = 2,
+                   degree: List[int] = [3],
+                   a:float = 1000,
+                   b:float = 10):
 
-        network, nodes, leafs = self.create_fault_dependency_graph(numRootNodes, ratio_random_connection, max_level, degree)
+        fault_dependencies, infrastructure, hosts = self.create_fault_dependency_graph(num_root_nodes, ratio_random_connection, max_level, degree)
 
-        hosts = []
-        groups = {}
-        inv_groups = {}
-        for t in leafs:
-            if not t[0] in groups:
-                groups[t[0]] = []
-                groups[t[0]].append(t[1])
-            else:
-                groups[t[0]].append(t[1])
-            inv_groups[t[1]] = t[0]
-            hosts.append(t[1])
+        for node in hosts:
+            self.cim["components"].append({
+              "name": node,
+              "availability": numpy.random.beta(a,b),
+              "type":'host'
+            })
+        for node in infrastructure:
+            self.cim["components"].append({
+                "name": node,
+                "availability": numpy.random.beta(a,b),
+            })
 
-        for node in nodes:
-            if node in hosts:
-                self.cim["components"].append({
-                  "name": node,
-                  "availability": random.uniform(min_availability, max_availability),
-                  "group": inv_groups[node]
-                })
-            else:
-                self.cim["components"].append({
-                    "name": node,
-                    "availability": random.uniform(min_availability, max_availability),
-                })
 
-        for cfc_edge in network:
+        for cfc_edge in fault_dependencies:
             self.cim["dependencies"].append({
                 "from": cfc_edge[0], "to": [ cfc_edge[1] ]
             })
 
-        network, nodes = self.create_net_graph(net_size)
+        network, network_components = self.create_net_graph(net_size)
         for net_edge in network:
             self.cim["network"].append({
                 "from": net_edge[0], "to": [net_edge[1]]
             })
 
-        for node in nodes:
+        for node in network_components:
             self.cim["dependencies"].append({
-                "from": random.choice(leafs)[1], "to": [node]
+                "from": random.choice(infrastructure), "to": [node]
             })
             self.cim["components"].append({
                 "name": node,
-                "availability": random.uniform(min_availability, max_availability),
+                "availability": numpy.random.beta(a,b),
             })
 
-        for group in groups:
-            n1 = random.choice(nodes)
+        for host in hosts:
+            n1 = random.choice(network_components)
             self.cim["network"].append({
-                "from": n1, "to": groups[group]
+                "from": n1, "to": host
             })
 
         with open('graph.json', 'w') as fp:
@@ -74,7 +67,7 @@ class GraphGenerator:
         return self.cim
 
 
-    def create_subgraph(self,root, max_level, degree, level=0, leafs=[], nodes=[]):
+    def create_subgraph(self,root: str, max_level:int, degree: List[int], level:int =0, leafs:List[str]=[], nodes:List[str]=[]):
         """
         Create a n-ary tree
 
@@ -90,52 +83,54 @@ class GraphGenerator:
             i = len(degree) - 1
         edges = []
         for d in range(degree[i]):
-            n = root + "" + str(d)
-            nodes.append(n)
-            edges.append((root, n))
+            n = root + str(d)
             if (level < max_level):
+                nodes.append(n)
                 edges += self.create_subgraph(n, max_level, degree, level + 1, leafs,nodes)
             else:
-                leafs.append((root,n))
+                leafs.append(n)
+            edges.append((root, n))
 
         return edges
 
-    def create_fault_dependency_graph(self,numRootNodes:int, ratio_random_connection:float = 0.1, max_level:int=2, degree:List[int]=[3]):
-        leafs = []
-        network = []
-        nodes = []
+    def create_fault_dependency_graph(self,
+                                      num_root_nodes:int,
+                                      ratio_random_connection:float = 0.1,
+                                      max_level:int=2,
+                                      degree:List[int]=[3]):
+        hosts: List[str] = []
+        fault_dependencies: List[Tuple[str,str]] = []
+        infrastructure: List[str] = []
         # Create for each datacenter root node a new n-ary tree
-        for i in range(numRootNodes):
+        for i in range(num_root_nodes):
             domain = "D" + str(i)
-            nodes.append(domain)
-            network += self.create_subgraph(domain, max_level=max_level, degree=degree, leafs=leafs, nodes=nodes)
+            infrastructure.append(domain)
+            fault_dependencies += self.create_subgraph(domain, max_level=max_level, degree=degree, leafs=hosts, nodes=infrastructure)
 
         # Interconnect the trees of the datacenters with random edges
-        for i in range(int(len(network) * ratio_random_connection)):
-            n1 = random.choice(network)[0]
-            n2 = random.choice(network)[1]
-            while n1 == n2 and len(n2) >= len(n1) and not (n1,n2) in network:
-                n2 = random.choice(network)[1]
-            network.append((n1, n2))
+        for i in range(int(len(infrastructure) * ratio_random_connection)):
+            n1 = random.choice(infrastructure)
+            n2 = random.choice(infrastructure)
+            while n1 == n2 or len(n2) >= len(n1) or (n1,n2) in fault_dependencies:
+                n2 = random.choice(infrastructure)
+            fault_dependencies.append((n1, n2))
 
-        #model.add_edges_from(network)
-
-        return network, nodes ,leafs
+        return fault_dependencies, infrastructure ,hosts
 
     def create_net_graph(self,numNodes):
-        nodes = []
+        network_components:List[str] = []
         network = []
         for i in range(numNodes):
             n = "N" + str(i+1)
-            nodes.append(n)
+            network_components.append(n)
 
-        for i in range(len(nodes)):
-            n1 = random.choice(nodes)
-            n2 = random.choice(nodes)
+        for i in range(len(network_components)):
+            n1 = random.choice(network_components)
+            n2 = random.choice(network_components)
             network.append((n1, n2))
 
         not_set = []
-        for node in nodes:
+        for node in network_components:
             found = False
             for e in network:
                 if  node == e[0] or node == e[1]:
@@ -144,9 +139,9 @@ class GraphGenerator:
                 not_set.append(node)
 
         for node in not_set:
-             n1 = random.choice(nodes)
+             n1 = random.choice(network_components)
              network.append((node, n1))
-        return  network, nodes
+        return  network, network_components
 
     def create_app(self,n,k):
         app = { "services" : [{ "name": "er", "init" : "N1", "servers":[] , "threshold":k}]}

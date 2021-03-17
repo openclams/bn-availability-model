@@ -8,6 +8,9 @@ from AvailabilityModels.PrismModel import PrismModel
 from AvailabilityModels.FaultTreeModel import FaultTreeModel
 import numpy as np
 
+from CloudGraph.Host import Host
+
+
 class CreateFromGraph:
 
     def __init__(self, n, k,  cim_file_name, is_weighted  = False, init="G1"):
@@ -39,20 +42,19 @@ class CreateFromGraph:
                 }
               ]
             }
-        hosts = []
-        for v in self.G.host_groups.values():
-            hosts.extend(v.hosts)
+        hosts = [h for h in self.G.nodes.values() if isinstance(h,Host)]
 
         h = len(hosts)
         print("Number of hosts: %d"%h)
-        print("Total Infrastructure %d"%len(self.G.nodes.keys()))
 
         net = 0
         for k, v in self.G.nodes.items():
             if len(v.network_links['parents']) != 0 or len(v.network_links['children']) != 0:
                 net += 1
 
-        print("Total Network %d"%net)
+        print("Total Network %d"%(net-h))
+        print("Total Infrastructure %d" % (len(self.G.nodes.keys())-net))
+
         for i in range(n):
             self.app["services"][0]["servers"].append({"host":hosts[i%h].name,"votes":int(votes[i])})
 

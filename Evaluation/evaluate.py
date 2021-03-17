@@ -42,6 +42,7 @@ class Evaluate:
     def run(self,generator,experiment):
 
         for n in self.tests:
+
             se = generator(n)
 
             # Add first column to result file
@@ -74,18 +75,17 @@ class Evaluate:
 
                 instance.setGenerator(se)
 
+                # and before until it reaches its limit
+                if (instance.name in self.add_to_skip_list and self.add_to_skip_list[instance.name] < se.n):
+                    self.skip_engines.append(instance.name)
+                    print("Max experiment number reached.")
+
                 if instance.name not in self.skip_engines:
                     instance.build()
                 else:
                     instance.ignoreBuild()
 
-                # and before until it reaches its limit
-                if( instance.name in self.add_to_skip_list and self.add_to_skip_list[instance.name] < se.n):
-                    self.skip_engines.append(instance.name)
-                    print("Max experiment number reached.")
-
                 # Execute the experiment if it is not in the skip list
-
                 if instance.name not in self.skip_engines:
                     try:
                         instance.setEngine()
@@ -133,6 +133,9 @@ class Evaluate:
             res.to_csv(self.project_folder + '/tmp_total_time.csv', index=None, header=True)
             del res
 
+            res = pn.DataFrame(experiment.mem_dic)
+            res.to_csv(self.project_folder + '/tmp_memory.csv', index=None, header=True)
+            del res
             instance.clean()
 
             gc.collect()

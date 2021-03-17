@@ -2,7 +2,11 @@
  visited[] keeps track of vertices in current path.
  path[] stores actual vertices and path_index is current
  index in path[]'''
-def compute_all_paths_util(G,u, d, visited, path, paths):
+from CloudGraph.Component import Component
+from CloudGraph.Graph import Graph
+from typing import Dict, List
+
+def compute_all_paths_util(G: Graph,u:str, d:str, visited: Dict[str, bool], path:List[str], paths:List[List[str]]):
     # Mark the current node as visited and store in path
     visited[u] = True
     path.append(u)
@@ -24,9 +28,9 @@ def compute_all_paths_util(G,u, d, visited, path, paths):
     visited[u] = False
 
 
-def print_all_paths(G, s, d):
+def print_all_paths(G:Graph, s:str, d:str):
     # Call the recursive helper function to print all paths
-    visited = {}
+    visited:Dict[str,bool] = {}
     for k in G.nodes.keys():
         visited[k] = False
     path = []
