@@ -2,8 +2,8 @@ from Inference.Engine import Engine
 
 import numpy
 import time
-import subprocess, os
-import xml.etree.ElementTree as ET
+import subprocess
+import re
 
 # mcub or bdd
 class Scram(Engine):
@@ -15,22 +15,20 @@ class Scram(Engine):
     def run(self,solution,*argv):
         # in windows we need a "1" for the probability value
 
-        args = ('scram','--probability','1','--'+self.method,"-o","res.xml",'ft_mef.xml') #
 
         start = time.time()
         try:
             for i in range(self.repetition):
-                start = time.time()
+                args = ('scram','--probability','1','--'+self.method,'-l','4','--seed',str(int(time.time())),"-o","res.xml",'ft_mef.xml') #
 
                 popen = subprocess.Popen(args, stdout=subprocess.PIPE)
                 popen.wait()
                 output = str(popen.stdout.read())
                 self.timeData.append(time.time() - start)
 
-                tree = ET.parse('res.xml')
-                root = tree.getroot()
-                prob =  root.find(".//sum-of-products").attrib['probability']
+                prob,duration =  self.parseOutput()
                 self.availabilityData.append(1-float(prob))
+
 
             self.meanAvailability = numpy.mean(self.availabilityData)
             self.meanTime = numpy.mean(self.timeData)
@@ -44,4 +42,23 @@ class Scram(Engine):
             self.meanTime = float('inf')
             self.is_successful = False
 
+    def parseOutput(self):
+        prob = float('inf')
+        duration = 0
+        count = 0
+        with open('res.xml', 'r') as f:
+            lines = f.readlines()
+            for line in lines:
+                if 'sum-of-products' in line:
+                    count += 1
+                    prob = float(re.findall("((\\d{1,3}([,\\.]{1}))*[\\d|-]{1,})",line[line.index('probability'):])[0][0])
+                # if '<products>' in line:
+                #     count +=  1
+                #     duration += float(re.findall(r">(.*?)<", line)[0][0])
+                # if '<probability>' in line:
+                #     count += 1
+                #     duration += float(re.findall(r">(.*?)<", line)[0][0])
+                # if count == 3:
+                    break
 
+        return prob, duration

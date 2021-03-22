@@ -156,12 +156,13 @@ class Evaluate:
         res.to_csv(self.project_folder + '/final_total_time.csv', index=None, header=True)
 
         print('Finished')
+        self.render(self.project_folder)
 
-
+    def render(self,project_folder):
         #avaibility + raw avaibility
-        re.render(self.project_folder, file="final_inference_time.csv", xLabel='#Processes', yLabel='Computation time [s]',legend=self.instances, errorbars=True, raw="time", skip=self.skip_engines,semilog=True)
+        re.render(project_folder, file="final_inference_time.csv", xLabel='#Processes', yLabel='Computation time [s]',legend=self.instances, errorbars=True, raw="time", skip=self.skip_engines,semilog=True)
         #inference_time + time
-        re.render(self.project_folder, file="final_availability.csv", xLabel='#Processes', yLabel='Availability',legend=self.instances, errorbars=True, raw="availability", skip=self.skip_engines)
+        re.render(project_folder, file="final_availability.csv", xLabel='#Processes', yLabel='Availability',legend=self.instances, errorbars=True, raw="availability", skip=self.skip_engines)
 
 
 

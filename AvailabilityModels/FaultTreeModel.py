@@ -35,7 +35,7 @@ class FaultTreeModel:
             self.ft.add_edge(node_src_name + "_be", node_src_name)
 
         for node_src_name in self.G.nodes:
-            # For each node_name we get the acctual node object
+            # For each node_name we get the actual node object
             # The Node object contains an array of strings with children node ids
             for node_dst in self.G.nodes[node_src_name].fault_dependencies["children"]:
                 # For each child node id we insert an arc

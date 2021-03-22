@@ -61,6 +61,7 @@ pyparsing==2.4.0
 pyrsistent==0.15.2
 pytest==6.2.0
 python-dateutil==2.8.0
+python-dotenv==0.15.0
 pytils==0.3
 pytz==2019.1
 pywinpty==0.5.5

@@ -54,8 +54,10 @@ def render(project_folder, file="",xLabel='',yLabel='',legend={},errorbars=False
 
     axes = plt.subplot(111)
     #plt.style.use('classic')
-    axes.set_xlabel(xLabel)
-    axes.set_ylabel(yLabel)
+    plt.xlabel(xLabel, fontsize=18)
+    plt.ylabel(yLabel, fontsize=16)
+    #axes.set_xlabel(xLabel)
+    #axes.set_ylabel(yLabel)
     axes.xaxis.set_major_locator(MaxNLocator(integer=True))
     if semilog:
         plt.yscale('symlog')
@@ -108,7 +110,14 @@ def render(project_folder, file="",xLabel='',yLabel='',legend={},errorbars=False
     #     l.set_alpha(.5)
     # print(lines)
     axes.grid()
+    for tick in axes.xaxis.get_major_ticks():
+        tick.label.set_fontsize(14)
+        # specify integer or one of preset strings, e.g.
+        # tick.label.set_fontsize('x-small')
+        #tick.label.set_rotation('vertical')
+    for tick in axes.yaxis.get_major_ticks():
+        tick.label.set_fontsize(14)
     #seaborn.despine(ax=axes, offset=10, trim=True)
     fig.tight_layout()
-    plt.legend(lines,labels)
+    plt.legend(lines,labels, prop={'size': 16})
     plt.savefig(project_folder+"/"+file+'.png')

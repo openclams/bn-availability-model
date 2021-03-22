@@ -11,6 +11,7 @@ env_path =  '.env'
 load_dotenv(dotenv_path=env_path)
 
 config = [
+    {"n": 12, "k": 8, "numRootNodes": 3, "maxLevel": 3, "degree": [20,2,1], "net": 20, "epsilon": 10 ** -1.6, "epsilonRate": 1e-8, "maxTime": 20, "sample_size": 20000},
     #0 service_10_9_with_45_nodes
     {"n":10,"k":9,"numRootNodes": 1, "maxLevel": 2,"degree":[3],"net":5,"epsilon":10**-3,"epsilonRate":1e-9,"maxTime":20},
     #1 service_5_3_with_18_nodes
@@ -20,7 +21,7 @@ config = [
     #3 service_10_3_with_738_nodes
     {"n": 10, "k": 3, "numRootNodes": 2, "maxLevel": 4, "degree": [3], "net": 10, "epsilon": 10 ** -1.6, "epsilonRate": 1e-8, "maxTime": 20, "sample_size": 20000},
     #4 service_12_8_with_4115_nodes
-    {"n": 12, "k": 8, "numRootNodes": 3, "maxLevel": 4, "degree": [4], "net": 20, "epsilon": 10 ** -1.6, "epsilonRate": 1e-8, "maxTime": 20, "sample_size": 20000},
+    {"n": 12, "k": 8, "numRootNodes": 3, "maxLevel": 4, "degree": [4,10,10,1], "net": 50, "epsilon": 10 ** -1.6, "epsilonRate": 1e-8, "maxTime": 20, "sample_size": 20000},
     #5 service_30_15_with_2735_nodes
     {"n": 30, "k": 15, "numRootNodes": 2, "maxLevel": 4, "degree": [4], "net": 5, "epsilon": 10 ** -1.6, "epsilonRate": 1e-8, "maxTime": 20, "sample_size": 20000},
     #6 service_100_51_with_X_nodes

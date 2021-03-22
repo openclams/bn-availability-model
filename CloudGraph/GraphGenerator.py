@@ -83,7 +83,7 @@ class GraphGenerator:
             i = len(degree) - 1
         edges = []
         for d in range(degree[i]):
-            n = root + str(d)
+            n = root +"_"+str(d)
             if (level < max_level):
                 nodes.append(n)
                 edges += self.create_subgraph(n, max_level, degree, level + 1, leafs,nodes)
@@ -108,39 +108,42 @@ class GraphGenerator:
             fault_dependencies += self.create_subgraph(domain, max_level=max_level, degree=degree, leafs=hosts, nodes=infrastructure)
 
         # Interconnect the trees of the datacenters with random edges
-        for i in range(int(len(infrastructure) * ratio_random_connection)):
-            n1 = random.choice(infrastructure)
-            n2 = random.choice(infrastructure)
-            while n1 == n2 or len(n2) >= len(n1) or (n1,n2) in fault_dependencies:
-                n2 = random.choice(infrastructure)
-            fault_dependencies.append((n1, n2))
+        # for i in range(int(len(infrastructure) * ratio_random_connection)):
+        #     n1 = random.choice(infrastructure)
+        #     n2 = random.choice(infrastructure)
+        #     while n1 == n2 or len(n2) >= len(n1) or (n1,n2) in fault_dependencies:
+        #         n2 = random.choice(infrastructure)
+        #     fault_dependencies.append((n1, n2))
 
         return fault_dependencies, infrastructure ,hosts
 
     def create_net_graph(self,numNodes):
         network_components:List[str] = []
         network = []
-        for i in range(numNodes):
+        n = "N" + str(1)
+        network_components.append(n)
+        for i in range(1,numNodes):
             n = "N" + str(i+1)
+            network.append((random.choice(network_components), n))
             network_components.append(n)
 
-        for i in range(len(network_components)):
-            n1 = random.choice(network_components)
-            n2 = random.choice(network_components)
-            network.append((n1, n2))
-
-        not_set = []
-        for node in network_components:
-            found = False
-            for e in network:
-                if  node == e[0] or node == e[1]:
-                    found = True
-            if not found:
-                not_set.append(node)
-
-        for node in not_set:
-             n1 = random.choice(network_components)
-             network.append((node, n1))
+        # for i in range(int(len(network_components)*0.5)):
+        #     n1 = random.choice(network_components)
+        #     n2 = random.choice(network_components)
+        #     network.append((n1, n2))
+        #
+        # not_set = []
+        # for node in network_components:
+        #     found = False
+        #     for e in network:
+        #         if  node == e[0] or node == e[1]:
+        #             found = True
+        #     if not found:
+        #         not_set.append(node)
+        #
+        # for node in not_set:
+        #      n1 = random.choice(network_components)
+        #      network.append((node, n1))
         return  network, network_components
 
     def create_app(self,n,k):

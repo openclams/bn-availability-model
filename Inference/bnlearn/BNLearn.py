@@ -3,15 +3,17 @@ import rpy2.robjects as robjects
 from BayesianNetworks.pgmpy import writers as bnwriters
 from rpy2.robjects.packages import importr
 import numpy
-import scipy.stats as st
 import time
+
+
+robjects.r['options'](warn=-1)
 
 importr('bnlearn')
 importr('gRain')
 
 class BNLearn(Engine):
 
-    def __init__(self,bn,use_cached_file = False,tmp_file_name = "bnlearn_tmp",driver="BIF"):
+    def __init__(self,bn,use_cached_file = False,tmp_file_name = "bnlearn_tmp",driver="R"):
         Engine.__init__(self,bn)
         self.use_cached_file = use_cached_file
         self.tmp_file_name = tmp_file_name
@@ -82,8 +84,8 @@ class BNLearn(Engine):
 
         start = time.time()
         try:
-            robjects.r('print(packageVersion("bnlearn"))')
-            robjects.r('print(packageVersion("gRain"))')
+            #robjects.r('print(packageVersion("bnlearn"))')
+            #robjects.r('print(packageVersion("gRain"))')
             robjects.r('''
                        # create a function `f`
                        RbnlearnFn <- function(file_name, node, s) {
@@ -97,7 +99,7 @@ class BNLearn(Engine):
                            }
                            res <- list("availability" = avr, "times" = bvr)
                            setwd(tmp)
-                           rm(net1,bn_read)
+                           #rm(net1,bn_read)
                            return(res)
                        }
                        ''')

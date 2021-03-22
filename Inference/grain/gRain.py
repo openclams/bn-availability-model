@@ -8,9 +8,13 @@ import time
 importr('bnlearn')
 importr('gRain')
 
+
+robjects.r['options'](warn=-1)
+
+
 class gRain(Engine):
 
-    def __init__(self,bn,use_cached_file = False,tmp_file_name = "bnlearn_tmp",driver="BIF"):
+    def __init__(self,bn,use_cached_file = False,tmp_file_name = "bnlearn_tmp",driver="R"):
         Engine.__init__(self,bn)
         self.use_cached_file = use_cached_file
         self.tmp_file_name = tmp_file_name
@@ -86,7 +90,7 @@ class gRain(Engine):
                            }
                            res <- list("availability" = avr, "times" = bvr)
                            setwd(tmp)
-                           rm(net1,jtree)
+                           #rm(net1,jtree)
                            return(res)
                        }
                        ''')
