@@ -1,0 +1,2 @@
+NumComponents,SearchSpaceSize,TotalComputeTime,HSIterations,Availability,Cost,Loss,MeanSingleInferenceTime,StdSingleInferenceTime,MeanSingleBuildBNTime,StdSingleBuildBNTime,MeanSingleBuildAppTime,StdSingleBuildAppTime
+6,46368000,14.183311223983765,100,0.9282,198.0,198.0,0.25673350420865143,0.015058488480143713,0.011912757700139826,0.0003572755883422825,2.8241764415394176e-05,5.354765324694234e-06

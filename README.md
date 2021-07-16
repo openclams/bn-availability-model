@@ -24,11 +24,13 @@ Download `gRain` version `1.3.2` from [source](https://cran.r-project.org/src/co
 Open R in your terminal, and  install `gRain` and  `bnlearn`:
 
 ```
+install.packages("BiocManager")
+BiocManager::install("gRbase")
 install.packages("path_to_file/to/gRain_1.3-2.tar.gz", repos = NULL, type="source")
 install.packages("path_to_file/to/bnlearn_4.5.tar.gz", repos = NULL, type="source")
 ```
 
-### Install SCRAM
+### Install SCRAMc
 
 The FT evaluation uses the SCRAM CLI. 
 Download SCRAM from [SourceForge](https://sourceforge.net/projects/iscram/) or compile from [source](https://github.com/rakhimov/scram) and make sure `scram` is availability 

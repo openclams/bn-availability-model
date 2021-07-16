@@ -1,0 +1,444 @@
+{
+"metaData":{
+	"id":"Smart Home_17835fac293",
+	"cloudProviders":[
+	{
+		"target":"azure",
+		"title":"Microsoft Azure",
+		"company":"Microsoft",
+		"categoryListUrl":"http://localhost/api/provider/1/categories",
+		"componentUrl":"http://localhost/api/component",
+		"edgesUrl":"http://localhost/api/edge",
+		"image":null,
+		"regions":[
+			{
+			"id":50,
+			"name":"Central US"
+			},
+			{
+			"id":51,
+			"name":"East US"
+			},
+			{
+			"id":52,
+			"name":"East US 2"
+			},
+			{
+			"id":53,
+			"name":"North Central US"
+			}
+		]
+	}
+	],
+	"description":"",
+	"name":"Smart Home",
+	"owner":""
+},
+"frames":[
+	{
+		"graphs":[
+			"Graph_0",
+			"Graph_1"
+		],
+		"activeGrpah":"Graph_0",
+		"size":0
+	}
+],
+"model":{
+	"graphs":[
+	{
+		"id":"Graph_0",
+		"lastId":4,
+		"name":"Base Scenario",
+		"type":"SequenceDiagram",
+		"nodes":[
+		{
+			"type":"Instance",
+			"id":"Instance0",
+			"geometry":{
+				"x":80,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Database for MySQL 0"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance1",
+			"geometry":{
+				"x":180,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Cosmos DB 1"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance2",
+			"geometry":{
+				"x":280,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Cache for Redis 2"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance3",
+			"geometry":{
+				"x":380,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Kubernetes Service (AKS) 3"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance4",
+			"geometry":{
+				"x":480,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Event Hubs 4"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance5",
+			"geometry":{
+				"x":580,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Databricks 5"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance6",
+			"geometry":{
+				"x":680,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Power BI Embedded 6"
+		}
+		],
+		"edges":[
+		{
+			"type":"Message",
+			"from":"Instance0",
+			"to":"Instance1",
+			"position":10,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance1",
+			"to":"Instance2",
+			"position":12,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance2",
+			"to":"Instance3",
+			"position":14,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance3",
+			"to":"Instance4",
+			"position":16,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance4",
+			"to":"Instance5",
+			"position":18,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance5",
+			"to":"Instance6",
+			"position":20,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		}
+		]
+	},
+	{
+		"id":"Graph_1",
+		"lastId":2,
+		"name":"d",
+		"type":"UserProfile",
+		"nodes":[
+		{
+			"type":"Dot",
+			"id":"Dot0",
+			"geometry":{
+				"x":200,
+				"y":50,
+				"w":30,
+				"h":30
+			}
+		},
+		{
+			"id":"State1",
+			"type":"State",
+			"sequenceDiagramId":"Graph_0",
+			"geometry":{
+				"x":400,
+				"y":228,
+				"w":110,
+				"h":40
+			}
+		}
+		],
+		"edges":[
+		{
+			"type":"Arrow",
+			"from":"Dot0",
+			"to":"State1",
+			"p":1,
+			"shape":{
+				"corners":[]
+			}
+		}
+		]
+	}
+	],
+	"cloudProviders":[
+	{
+		"target":"azure",
+		"title":"Microsoft Azure",
+		"company":"Microsoft",
+		"categoryListUrl":"http://localhost/api/provider/1/categories",
+		"componentUrl":"http://localhost/api/component",
+		"edgesUrl":"http://localhost/api/edge",
+		"image":null,
+		"regions":[
+		{
+			"id":50,
+			"name":"Central US"
+		},
+		{
+			"id":51,
+			"name":"East US"
+		},
+		{
+			"id":52,
+			"name":"East US 2"
+		},
+		{
+			"id":53,
+			"name":"North Central US"
+		}
+		]
+	}
+	],
+	"components":[
+{"type": "Service", "id": 49, "name": "Azure Database for MySQL", "img": "http://localhost/storage/components/azure/Azure-Database-MySQL-Server.png", "attributes": [{"id": 97, "value": "Fully managed, scalable MySQL Database", "name": "description", "type": "text", "readable": false}, {"id": 98, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Database for MySQL 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 47, "name": "Azure Cosmos DB", "img": "http://localhost/storage/components/azure/Azure-Cosmos-DB.png", "attributes": [{"id": 93, "value": "Fast NoSQL database with open APIs for any scale", "name": "description", "type": "text", "readable": false}, {"id": 94, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cosmos DB 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 54, "name": "Azure Cache for Redis", "img": "http://localhost/storage/components/azure/Cache-Redis.png", "attributes": [{"id": 107, "value": "Accelerate applications with high-throughput, low-latency data caching", "name": "description", "type": "text", "readable": false}, {"id": 108, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cache for Redis 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 3, "name": "Azure Kubernetes Service (AKS)", "img": "http://localhost/storage/components/azure/Container-Services-(Deprecated).png", "attributes": [{"id": 5, "value": "Simplify the deployment, management, and operations of Kubernetes", "name": "description", "type": "text", "readable": false}, {"id": 6, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Kubernetes Service (AKS) 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 64, "name": "Event Hubs", "img": "http://localhost/storage/components/azure/Event-Hubs.png", "attributes": [{"id": 127, "value": "Receive telemetry from millions of devices", "name": "description", "type": "text", "readable": false}, {"id": 128, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Event Hubs 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 59, "name": "Azure Databricks", "img": "http://localhost/storage/components/azure/Databricks.png", "attributes": [{"id": 117, "value": "Fast, easy, and collaborative Apache Spark-based analytics platform", "name": "description", "type": "text", "readable": false}, {"id": 118, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Databricks 5", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 65, "name": "Power BI Embedded", "img": "http://localhost/storage/components/azure/Power-BI.png", "attributes": [{"id": 129, "value": "Embed fully interactive, stunning data visualizations in your applications", "name": "description", "type": "text", "readable": false}, {"id": 130, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Power BI Embedded 6", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+	"lastId":2
+	}
+}

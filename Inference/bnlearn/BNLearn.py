@@ -4,12 +4,49 @@ from BayesianNetworks.pgmpy import writers as bnwriters
 from rpy2.robjects.packages import importr
 import numpy
 import time
-
+import os
+import shutil
 
 robjects.r['options'](warn=-1)
 
 importr('bnlearn')
 importr('gRain')
+
+robjects.r('''
+# create a function `f`
+BIFbnlearnFn <- function(file_name, node, s) {
+ tmp <- getwd()
+   bn_read <- read.bif(file_name, debug=FALSE)
+    #write.bif("some.bif",bn_read)
+   avr <- list()
+   bvr <- list()
+   for ( i in 1:s ){
+       bvr[i] <- system.time({avr[i] <- prop.table(table(cpdist(bn_read, nodes=node, method='ls', evidence=TRUE)))[2]})["elapsed"]
+   }
+   res <- list("availability" = avr, "times" = bvr)
+    setwd(tmp)
+    rm(bn_read)
+   return(res)
+}
+''')
+
+robjects.r('''
+# create a function `f`
+RbnlearnFn <- function(file_name, node, s) {
+tmp <- getwd()
+  source(file_name)
+  bn_read <- as.bn.fit(net1)
+  avr <- list()
+  bvr <- list()
+  for ( i in 1:s ){
+      bvr[i] <- system.time({avr[i] <- prop.table(table(cpdist(bn_read, nodes=node, method='ls', evidence=TRUE)))[2]})["elapsed"]
+  }
+  res <- list("availability" = avr, "times" = bvr)
+  setwd(tmp)
+  #rm(net1,bn_read)
+  return(res)
+}
+''')
 
 class BNLearn(Engine):
 
@@ -36,23 +73,7 @@ class BNLearn(Engine):
             # print("Finished writing ",time.time() - start)
         start = time.time()
         try:
-            robjects.r('''
-                # create a function `f`
-                BIFbnlearnFn <- function(file_name, node, s) {
-                 tmp <- getwd()
-                   bn_read <- read.bif(file_name, debug=FALSE)
-                    #write.bif("some.bif",bn_read)
-                   avr <- list()
-                   bvr <- list()
-                   for ( i in 1:s ){
-                       bvr[i] <- system.time({avr[i] <- prop.table(table(cpdist(bn_read, nodes=node, method='ls', evidence=TRUE)))[2]})["elapsed"]
-                   }
-                   res <- list("availability" = avr, "times" = bvr)
-                    setwd(tmp)
-                    rm(bn_read)
-                   return(res)
-                }
-                ''')
+
             r_f = robjects.r['BIFbnlearnFn']
             res = r_f(self.tmp_file_name, solution, self.repetition)
             res = dict(zip(res.names, map(list, list(res))))
@@ -75,6 +96,12 @@ class BNLearn(Engine):
             self.meanTime = float('inf')
             self.is_successful = False
 
+        if not self.use_cached_file:
+            try:
+                os.remove(self.tmp_file_name)
+            except OSError as e:
+                print("Error: %s : %s" % (self.tmp_file_name, e.strerror))
+
 
     def run_with_R(self,solution,*argv):
         if not self.use_cached_file:
@@ -86,23 +113,7 @@ class BNLearn(Engine):
         try:
             #robjects.r('print(packageVersion("bnlearn"))')
             #robjects.r('print(packageVersion("gRain"))')
-            robjects.r('''
-                       # create a function `f`
-                       RbnlearnFn <- function(file_name, node, s) {
-                       tmp <- getwd()
-                           source(file_name)
-                           bn_read <- as.bn.fit(net1)
-                           avr <- list()
-                           bvr <- list()
-                           for ( i in 1:s ){
-                               bvr[i] <- system.time({avr[i] <- prop.table(table(cpdist(bn_read, nodes=node, method='ls', evidence=TRUE)))[2]})["elapsed"]
-                           }
-                           res <- list("availability" = avr, "times" = bvr)
-                           setwd(tmp)
-                           #rm(net1,bn_read)
-                           return(res)
-                       }
-                       ''')
+
             r_f = robjects.r['RbnlearnFn']
             res = r_f(self.tmp_file_name+"/bngraphsrc.R", solution, self.repetition)
             res = dict(zip(res.names, map(list, list(res))))
@@ -123,3 +134,9 @@ class BNLearn(Engine):
         #print(self.meanAvailability)
         #print(st.describe(res['availability']))
         #print(st.describe(res['times']))
+
+        if not self.use_cached_file:
+            try:
+                shutil.rmtree(self.tmp_file_name)
+            except OSError as e:
+                print("Error: %s : %s" % (self.tmp_file_name, e.strerror))

@@ -1,0 +1,294 @@
+{
+"metaData":{
+	"id":"Smart Home_17835fac293",
+	"cloudProviders":[
+	{
+		"target":"azure",
+		"title":"Microsoft Azure",
+		"company":"Microsoft",
+		"categoryListUrl":"http://localhost/api/provider/1/categories",
+		"componentUrl":"http://localhost/api/component",
+		"edgesUrl":"http://localhost/api/edge",
+		"image":null,
+		"regions":[
+			{
+			"id":50,
+			"name":"Central US"
+			},
+			{
+			"id":51,
+			"name":"East US"
+			},
+			{
+			"id":52,
+			"name":"East US 2"
+			},
+			{
+			"id":53,
+			"name":"North Central US"
+			}
+		]
+	}
+	],
+	"description":"",
+	"name":"Smart Home",
+	"owner":""
+},
+"frames":[
+	{
+		"graphs":[
+			"Graph_0",
+			"Graph_1"
+		],
+		"activeGrpah":"Graph_0",
+		"size":0
+	}
+],
+"model":{
+	"graphs":[
+	{
+		"id":"Graph_0",
+		"lastId":4,
+		"name":"Base Scenario",
+		"type":"SequenceDiagram",
+		"nodes":[
+		{
+			"type":"Instance",
+			"id":"Instance0",
+			"geometry":{
+				"x":80,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Traffic Manager 0"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance1",
+			"geometry":{
+				"x":180,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Site Recovery 1"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance2",
+			"geometry":{
+				"x":280,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Virtual Network 2"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance3",
+			"geometry":{
+				"x":380,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Blob Storage 3"
+		}
+		],
+		"edges":[
+		{
+			"type":"Message",
+			"from":"Instance0",
+			"to":"Instance1",
+			"position":10,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance1",
+			"to":"Instance2",
+			"position":12,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance2",
+			"to":"Instance3",
+			"position":14,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		}
+		]
+	},
+	{
+		"id":"Graph_1",
+		"lastId":2,
+		"name":"d",
+		"type":"UserProfile",
+		"nodes":[
+		{
+			"type":"Dot",
+			"id":"Dot0",
+			"geometry":{
+				"x":200,
+				"y":50,
+				"w":30,
+				"h":30
+			}
+		},
+		{
+			"id":"State1",
+			"type":"State",
+			"sequenceDiagramId":"Graph_0",
+			"geometry":{
+				"x":400,
+				"y":228,
+				"w":110,
+				"h":40
+			}
+		}
+		],
+		"edges":[
+		{
+			"type":"Arrow",
+			"from":"Dot0",
+			"to":"State1",
+			"p":1,
+			"shape":{
+				"corners":[]
+			}
+		}
+		]
+	}
+	],
+	"cloudProviders":[
+	{
+		"target":"azure",
+		"title":"Microsoft Azure",
+		"company":"Microsoft",
+		"categoryListUrl":"http://localhost/api/provider/1/categories",
+		"componentUrl":"http://localhost/api/component",
+		"edgesUrl":"http://localhost/api/edge",
+		"image":null,
+		"regions":[
+		{
+			"id":50,
+			"name":"Central US"
+		},
+		{
+			"id":51,
+			"name":"East US"
+		},
+		{
+			"id":52,
+			"name":"East US 2"
+		},
+		{
+			"id":53,
+			"name":"North Central US"
+		}
+		]
+	}
+	],
+	"components":[
+{"type": "Service", "id": 21, "name": "Traffic Manager", "img": "http://localhost/storage/components/azure/Traffic-Manager-Profiles.png", "attributes": [{"id": 41, "value": "Route incoming traffic for high performance and availability", "name": "description", "type": "text", "readable": false}, {"id": 42, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Traffic Manager 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 101, "name": "Azure Site Recovery", "img": "http://localhost/storage/components/azure/Recovery-Services-Vaults.png", "attributes": [{"id": 201, "value": "Keep your business running with built-in disaster recovery service", "name": "description", "type": "text", "readable": false}, {"id": 202, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Site Recovery 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 14, "name": "Virtual Network", "img": "http://localhost/storage/components/azure/Virtual-Networks.png", "attributes": [{"id": 27, "value": "Provision private networks, optionally connect to on-premises datacenters", "name": "description", "type": "text", "readable": false}, {"id": 28, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Virtual Network 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 4048, "name": "Blob Storage", "img": "http://localhost/storage/components/patterns/blob_storage_icon.png", "attributes": [{"id": 41371, "value": "Data is provided in form of large files that are made available in a file system-like fashion by Storage Offerings that provides elasticity.", "name": "intend", "type": "text", "readable": false}, {"id": 41372, "value": "Distributed cloud applications often need to handle large data elements, also referred to as binary large objects (blob). Examples are virtual server images managed in an Elastic Infrastructure, pictures, or videos.", "name": "context", "type": "text", "readable": false}, {"id": 41373, "value": "Data elements are organized in a folder hierarchy similar to a local file system. Each data element is given a unique identifier comprised of its location in the folder hierarchy and a file name. This unique identifier is passed to the storage offerings to retrieve a file over a network.", "name": "solution", "type": "text", "readable": false}, {"id": 41374, "value": "Block Storage, Processing Component, Stateless Component, Data Access Component, Strict Consistency, Eventual Consistency", "name": "related-patterns", "type": "text", "readable": false}, {"id": 41375, "value": "http://www.cloudcomputingpatterns.org/blob_storage/", "name": "link", "type": "text", "readable": false}, {"id": 41376, "value": "Creative Commons Attribution 4.0 International (CC BY 4.0)", "name": "license", "type": "text", "readable": false}, {"id": 41377, "value": "http://www.cloudcomputingpatterns.org", "name": "ccby", "type": "text", "readable": false}, {"id": "name", "value": "Blob Storage 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+	"lastId":2
+	}
+}

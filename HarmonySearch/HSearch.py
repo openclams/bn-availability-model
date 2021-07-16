@@ -31,6 +31,8 @@ class HSearch():
         self.HM = self.init_harmony_memory()
 
 
+
+
     def prepare_space(self):
 
         for dimension in self.candidate_space:

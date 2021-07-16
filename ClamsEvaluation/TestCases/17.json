@@ -1,0 +1,344 @@
+{
+"metaData":{
+	"id":"Smart Home_17835fac293",
+	"cloudProviders":[
+	{
+		"target":"azure",
+		"title":"Microsoft Azure",
+		"company":"Microsoft",
+		"categoryListUrl":"http://localhost/api/provider/1/categories",
+		"componentUrl":"http://localhost/api/component",
+		"edgesUrl":"http://localhost/api/edge",
+		"image":null,
+		"regions":[
+			{
+			"id":50,
+			"name":"Central US"
+			},
+			{
+			"id":51,
+			"name":"East US"
+			},
+			{
+			"id":52,
+			"name":"East US 2"
+			},
+			{
+			"id":53,
+			"name":"North Central US"
+			}
+		]
+	}
+	],
+	"description":"",
+	"name":"Smart Home",
+	"owner":""
+},
+"frames":[
+	{
+		"graphs":[
+			"Graph_0",
+			"Graph_1"
+		],
+		"activeGrpah":"Graph_0",
+		"size":0
+	}
+],
+"model":{
+	"graphs":[
+	{
+		"id":"Graph_0",
+		"lastId":4,
+		"name":"Base Scenario",
+		"type":"SequenceDiagram",
+		"nodes":[
+		{
+			"type":"Instance",
+			"id":"Instance0",
+			"geometry":{
+				"x":80,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure SQL Database 0"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance1",
+			"geometry":{
+				"x":180,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure SQL Managed Instance 1"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance2",
+			"geometry":{
+				"x":280,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Cosmos DB 2"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance3",
+			"geometry":{
+				"x":380,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Data Lake Storage Gen1 3"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance4",
+			"geometry":{
+				"x":480,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Data Factory Azure Data Factory V2 4"
+		}
+		],
+		"edges":[
+		{
+			"type":"Message",
+			"from":"Instance0",
+			"to":"Instance1",
+			"position":10,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance1",
+			"to":"Instance2",
+			"position":12,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance2",
+			"to":"Instance3",
+			"position":14,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance3",
+			"to":"Instance4",
+			"position":16,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		}
+		]
+	},
+	{
+		"id":"Graph_1",
+		"lastId":2,
+		"name":"d",
+		"type":"UserProfile",
+		"nodes":[
+		{
+			"type":"Dot",
+			"id":"Dot0",
+			"geometry":{
+				"x":200,
+				"y":50,
+				"w":30,
+				"h":30
+			}
+		},
+		{
+			"id":"State1",
+			"type":"State",
+			"sequenceDiagramId":"Graph_0",
+			"geometry":{
+				"x":400,
+				"y":228,
+				"w":110,
+				"h":40
+			}
+		}
+		],
+		"edges":[
+		{
+			"type":"Arrow",
+			"from":"Dot0",
+			"to":"State1",
+			"p":1,
+			"shape":{
+				"corners":[]
+			}
+		}
+		]
+	}
+	],
+	"cloudProviders":[
+	{
+		"target":"azure",
+		"title":"Microsoft Azure",
+		"company":"Microsoft",
+		"categoryListUrl":"http://localhost/api/provider/1/categories",
+		"componentUrl":"http://localhost/api/component",
+		"edgesUrl":"http://localhost/api/edge",
+		"image":null,
+		"regions":[
+		{
+			"id":50,
+			"name":"Central US"
+		},
+		{
+			"id":51,
+			"name":"East US"
+		},
+		{
+			"id":52,
+			"name":"East US 2"
+		},
+		{
+			"id":53,
+			"name":"North Central US"
+		}
+		]
+	}
+	],
+	"components":[
+{"type": "Service", "id": 48, "name": "Azure SQL Database", "img": "http://localhost/storage/components/azure/SQL-Database.png", "attributes": [{"id": 95, "value": "Managed, intelligent SQL in the cloud", "name": "description", "type": "text", "readable": false}, {"id": 96, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure SQL Database 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 56, "name": "Azure SQL Managed Instance", "img": "http://localhost/storage/components/azure/Instance-Pools.png", "attributes": [{"id": 111, "value": "Managed, always up-to-date SQL instance in the cloud", "name": "description", "type": "text", "readable": false}, {"id": 112, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure SQL Managed Instance 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 47, "name": "Azure Cosmos DB", "img": "http://localhost/storage/components/azure/Azure-Cosmos-DB.png", "attributes": [{"id": 93, "value": "Fast NoSQL database with open APIs for any scale", "name": "description", "type": "text", "readable": false}, {"id": 94, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cosmos DB 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 33, "name": "Azure Data Lake Storage Gen1", "img": "http://localhost/storage/components/azure/Data-Lake-Storage-Gen1.png", "attributes": [{"id": 65, "value": "Hyperscale repository for big data analytics workloads", "name": "description", "type": "text", "readable": false}, {"id": 66, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Data Lake Storage Gen1 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 24674, "name": "Data Factory Azure Data Factory V2", "img": "http://localhost/storage/components/azure/Data-Factory.png", "attributes": [{"id": 186934, "value": "Hybrid data integration at enterprise scale, made easy", "name": "description", "type": "text", "readable": false}, {"id": 186935, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Data Factory Azure Data Factory V2 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+	"lastId":2
+	}
+}
