@@ -21,7 +21,7 @@ import pandas as pd
 import os
 import sys
 
-cim = json.load(open('../Assets/simple_service/graph.json'))
+cim = json.load(open('../Assets/large_service/graph.json'))
 
 parser = GraphParser(cim)
 
@@ -128,11 +128,10 @@ def loss_function(candidates: List[Candidate]) -> float:
 
     start = time.time()
 
-    ba = BayesianNetModel(G, app)
-                          #andNodeCPT=op.efficient_and_node,
-                          #orNodeCPT=op.efficient_or_node,
-                          #knNodeCPT=op.scalable_kn_node,
-                          #weightedKnNodeCPT=op.scalable_weighted_kn_node)
+    ba = BayesianNetModel(G, app,andNodeCPT=op.efficient_and_node,
+                          orNodeCPT=op.efficient_or_node,
+                          knNodeCPT=op.scalable_kn_node,
+                          weightedKnNodeCPT=op.scalable_weighted_kn_node)
     bn = ba.bn
 
     end = time.time()
@@ -248,7 +247,7 @@ if __name__ == '__main__':
 
     pd.set_option('display.expand_frame_repr', False)
 
-    for i in range(2,32):
+    for i in range(1,32):
 
         main_df = pd.DataFrame()
 
@@ -258,12 +257,12 @@ if __name__ == '__main__':
 
             print(df)
 
-            df.to_csv('raw/{}_{}.csv'.format(i,it),index=False)
+            df.to_csv('raw_big/{}_{}.csv'.format(i,it),index=False)
 
             main_df = main_df.append(df, ignore_index=True)
 
         print(main_df)
 
-        main_df.to_csv('final/{}.csv'.format(i), index=False)
+        main_df.to_csv('final_big/{}.csv'.format(i), index=False)
 
     sys.stdout.close()
