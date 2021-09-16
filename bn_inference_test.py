@@ -5,34 +5,36 @@ from Inference.bnlearn.BNLearn import BNLearn
 from Inference.pgmpy.custom.ApproxInference import ApproxInference
 
 import logging
-logger = logging.getLogger()
-logger.disabled = True
+if __name__ == '__main__':
 
-graph_file = "./Assets/simple_service/graph.json"
-deployment_file = "./Assets/simple_service/deployment.json"
+    logger = logging.getLogger()
+    logger.disabled = True
 
-# Load the infrastructure model
-graph = json.load(open(graph_file))
-parser = GraphParser(graph)
-G = parser.get_graph()
+    graph_file = "./Assets/simple_service/graph.json"
+    deployment_file = "./Assets/simple_service/deployment.json"
 
-# Load the model of the replicated system
-service = json.load(open(deployment_file))
+    # Load the infrastructure model
+    graph = json.load(open(graph_file))
+    parser = GraphParser(graph)
+    G = parser.get_graph()
 
-# Generate BN model
-ba = BayesianNetModel(G, service)
+    # Load the model of the replicated system
+    service = json.load(open(deployment_file))
 
-# Execute approximate inference
-approx = BNLearn(ba.bn)
-approx.run("er")
-print(approx.meanAvailability)
-print(approx.meanTime)
+    # Generate BN model
+    ba = BayesianNetModel(G, service)
 
-# Execute the custom python inference algorithm
-approx = ApproxInference(ba.bn)
-approx.run("er")
-print(approx.meanAvailability)
-print(approx.meanTime)
+    # Execute approximate inference
+    approx = BNLearn(ba.bn)
+    approx.run("er")
+    print(approx.meanAvailability)
+    print(approx.meanTime)
+
+    # Execute the custom python inference algorithm
+    approx = ApproxInference(ba.bn)
+    approx.run("er")
+    print(approx.meanAvailability)
+    print(approx.meanTime)
 
 
 
