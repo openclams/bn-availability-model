@@ -46,7 +46,3 @@ print(approx.meanTime)
 
 
 
-
-
-
-
