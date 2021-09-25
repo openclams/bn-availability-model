@@ -7,14 +7,14 @@ from Evaluation.executors.ScalableBNExact import ScalableBNExact
 from Evaluation.executors.ScalableBN import ScalableBN
 
 title = "Large Service Experiment "
-cim = "../../Assets/large_service/graph.json"
+cim = "Assets/large_service/graph.json"
 generator = lambda n: gn.CreateFromGraph(n, int(n / 2) + 1, cim,init='N1')
-tests =  [3,5,7]
+tests =  [100,150,200]
 experiment = ExperimentData()
 
 instances = [
-     FaultTreeExact('FT' ,'Fault Tree (exact)', experiment),
-     FaultTreeMC('FTre', 'Fault Tree (approx.)', experiment),
+     #FaultTreeExact('FT' ,'Fault Tree (exact)', experiment),
+     #FaultTreeMC('FTre', 'Fault Tree (approx.)', experiment),
      #ScalableBNExact('ScgRain' ,'BN (exact)', experiment),
      ScalableBN('Scbnlearn' ,'BN  (approx.)', use_cached_file=False, experimentData = experiment)
 ]
