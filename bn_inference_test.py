@@ -1,10 +1,12 @@
-from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
-from CloudGraph.GraphParser import GraphParser
-import json
-from Inference.bnlearn.BNLearn import BNLearn
-from Inference.pgmpy.custom.ApproxInference import ApproxInference
+# from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
+# from CloudGraph.GraphParser import GraphParser
+# import json
+# from Inference.bnlearn.BNLearn import BNLearn
+from Inference.pgmpy.SimpleSampling import SimpleSampling
+# from Inference.pgmpy.custom.ApproxInference import ApproxInference
 import Evaluation.generators.CreateFromGraph as gn
-
+# import bnlearn
+import time
 import logging
 logger = logging.getLogger()
 logger.disabled = True
@@ -30,19 +32,32 @@ n = 10 # number of replicas/processes (processes are distributed in round-robin 
 
 generator = gn.CreateFromGraph(n, int(n / 2) + 1, graph_file,init='N1')
 
+bn = generator.createNaiveNetwork()
 bn = generator.createScalableNetwork()
 
+start = time.time()
 # Execute approximate inference
-approx = BNLearn(bn)
+approx = SimpleSampling(bn)
+approx.repetition = 1
 approx.run("er")
 print(approx.meanAvailability)
 print(approx.meanTime)
+print(time.time()-start)
+
+# start = time.time()
+# # Execute approximate inference
+# approx = BNLearn(bn)
+# approx.repetition = 1
+# approx.run("er")
+# print(approx.meanAvailability)
+# print(approx.meanTime)
+# print(time.time()-start)
 
 # Execute the custom python inference algorithm
-approx = ApproxInference(bn)
-approx.run("er")
-print(approx.meanAvailability)
-print(approx.meanTime)
+# approx = ApproxInference(bn)
+# approx.run("er")
+# print(approx.meanAvailability)
+# print(approx.meanTime)
 
 
 

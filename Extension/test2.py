@@ -24,4 +24,4 @@ bn = ba.bn
 
 bn
 
-print(bnlearn.cpdist(bn,'D1'))
+print(bnlearn.cpdist(bn,'er'))
