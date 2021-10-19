@@ -15,7 +15,7 @@ typedef struct Stack Stack;
 typedef npy_intp dom_size;
 
 typedef struct {
-    int tid;
+    long tid;
     Graph *graph;
     long n_samples;
     long* frequencies;
@@ -32,12 +32,13 @@ struct Node{
     Py_ssize_t index;
     Graph *graph;
     PyObject *name;
-    PyObject *cpd;
+    double *cpd;
     dom_size cardinality;
     Node **parents;
     Py_ssize_t n_parents;
     Node **children; // Array
     Py_ssize_t n_children;
+    //long *indexes;
 };
 
 pthread_mutex_t lock;
@@ -50,7 +51,11 @@ void freeGraph(Graph *graph){
 
       for(Py_ssize_t i = 0; i< graph->n_nodes; i++){
 
-            Py_DECREF(graph->nodes[i].cpd);
+            free(graph->nodes[i].parents);
+
+            free(graph->nodes[i].children);
+
+            //free(graph->nodes[i].indexes);
 
             Py_DECREF(graph->nodes[i].name);
 
@@ -165,7 +170,7 @@ int printError(char * text){
 }
 
 
-void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents){
+void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents, long num_cores){
 
         Node  *nodes;
 
@@ -229,6 +234,9 @@ void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents){
 
                 if(b_parents){
                      nodes[i].parents = (Node **)malloc(num_nodes * sizeof(void*));
+
+                     //nodes[i].indexes = malloc((num_nodes + 1) * sizeof(long) * num_cores);
+
                 }else{
                      nodes[i].children = (Node **)malloc(num_nodes * sizeof(void*));
                 }
@@ -252,8 +260,7 @@ void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents){
                                 nodes[i].parents[j]  = &nodes[g];
                             }else{
                                 nodes[i].children[j]  = &nodes[g];
-                                // PyObject_Print(nodes[g].name, stdout, 0);
-                                //PyObject_Print(nodes[i].children[j].name, stdout, 0);
+
                             }
                         }
 
@@ -272,7 +279,7 @@ void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents){
         Py_DECREF(bn_get_children);
 }
 
-Graph * buildGraph(PyObject *bn_obj){
+Graph * buildGraph(PyObject *bn_obj,long num_cores){
 
     Graph *graph;
 
@@ -286,10 +293,7 @@ Graph * buildGraph(PyObject *bn_obj){
     Py_ssize_t  n = 0,
                 i = 0;
 
-
-
     bn_get_cpds = PyUnicode_FromString("get_cpds");
-
 
     graph = (Graph *)malloc(sizeof(Graph));
 
@@ -316,6 +320,8 @@ Graph * buildGraph(PyObject *bn_obj){
 
          bn_cpd =  PyObject_CallMethodOneArg(bn_obj,bn_get_cpds,bn_node);
 
+         PyObject *bn_cpd_values = PyObject_GetAttrString(bn_cpd, "values");
+
          if(!bn_cpd || printError("get_cpds")){
             PyObject_Print(bn_cpd, stdout, 0);
          }
@@ -333,7 +339,7 @@ Graph * buildGraph(PyObject *bn_obj){
          graph->nodes[i].name = bn_node;
          Py_INCREF(bn_node);
 
-         graph->nodes[i].cpd = bn_cpd;
+         graph->nodes[i].cpd = (double *) PyArray_DATA((PyArrayObject *) bn_cpd_values);
 
          graph->nodes[i].cardinality = *((int *)PyArray_GETPTR1((PyArrayObject *)bn_cardinality, 0));
 
@@ -351,8 +357,8 @@ Graph * buildGraph(PyObject *bn_obj){
     Py_DECREF(bn_iterator);
     Py_DECREF(bn_nodes);
 
-    linkAdjacentNodes(bn_obj, graph, 1);
-    linkAdjacentNodes(bn_obj, graph, 0);
+    linkAdjacentNodes(bn_obj, graph, 1, num_cores);
+    linkAdjacentNodes(bn_obj, graph, 0, num_cores);
 
     Py_DECREF(bn_get_cpds);
     Py_DECREF(bn_obj);
@@ -362,69 +368,63 @@ Graph * buildGraph(PyObject *bn_obj){
 
 double nparams(Graph *graph){
 
-    PyObject *bn_cardinality_array;
-
     Py_ssize_t i;
     Py_ssize_t n = graph->n_sorted_nodes;
 
-    double total = 0.0;
+    double total = 1.0;
 
     for(i = 0; i < n; i++){
 
-        bn_cardinality_array = PyObject_GetAttrString(graph->sorted_nodes[i]->cpd, "cardinality");
+        total = graph->sorted_nodes[i]->cardinality;
 
-        PyObject *res = PyArray_Prod((PyArrayObject *)bn_cardinality_array, NPY_MAXDIMS, PyArray_DESCR((PyArrayObject *)bn_cardinality_array)->type_num, NULL);
 
-        total += PyFloat_AsDouble(res);
+        for(Py_ssize_t j = 0; i < graph->sorted_nodes[i]->n_parents; j++){
 
-        Py_DECREF(bn_cardinality_array);
-        Py_DECREF(res);
+            total *= graph->sorted_nodes[i]->parents[j]->cardinality;
+
+        }
     }
 
     return total;
 }
 
 
-void display(Graph *graph, int show){
+double get_value(Node *node, long* indexes){
+    long position = 0;
 
-       for(Py_ssize_t i = 0; i< graph->n_sorted_nodes; i++){
+    if(node->n_parents == 0){
+        position = indexes[0];
+    }else if(node->n_parents == 1){
+        position =   node->parents[0]->cardinality*indexes[0]
+                   + indexes[1];
+    }else if(node->n_parents == 2){
+        position =   node->parents[1]->cardinality *  node->parents[0]->cardinality * indexes[0]
+                   + node->parents[1]->cardinality *  indexes[1]
+                   + indexes[2];
+    }else{
+        long prod = 1;
+        for(Py_ssize_t i = 0; i <= node->n_parents; i++){
 
-            if(show){
-                PyObject_Print(graph->nodes[i].name, stdout, 0);
-            }else{
-                PyObject_Print(graph->sorted_nodes[i]->name, stdout, 0);
+           prod = 1;
+
+            for(Py_ssize_t j = i; j < node->n_parents; j++){
+
+                prod = prod * node->parents[j]->cardinality;
+
             }
-//            PyObject_Print(PyLong_FromLong(graph->nodes[i].n_children), stdout, 0);
-//
-//            for(Py_ssize_t j = 0; j< graph->nodes[i].n_children; j++){
-//
-//                PyObject_Print(graph->nodes[i].children[j]->name, stdout, 0);
-//
-//            }
-            //PyObject_Print(PyUnicode_FromString(" "), stdout, 0);
-       }
 
+            position += prod * indexes[i];
+        }
+    }
+    return node->cpd[position];
 }
 
-long observation(Node *node, dom_size *evidence){
-    PyObject *bn_value_array;
+
+long observation(Node *node, dom_size *evidence, long tid){
+
     double choice = (double) rand()/RAND_MAX;
 
-    //printf("g\n");
-  PyGILState_STATE gstate;
-  gstate = PyGILState_Ensure();
-  // printf("h\n");
-////
-  // bn_value_array = PyObject_GetAttrString(node->cpd, "values");
-//
-  // Py_DECREF(bn_value_array);
-////
-////printf("j\n");
-  PyGILState_Release(gstate);
-
-    return 0;
-
-    npy_intp *indexes = malloc((node->n_parents + 1) * sizeof(npy_intp));
+    long indexes[40]; //= node->indexes + (tid * (node->n_parents+1));
 
     double sum = 0;
 
@@ -438,15 +438,13 @@ long observation(Node *node, dom_size *evidence){
 
         }
 
+        double value = get_value(node, indexes);
 
-        sum += *((double*)PyArray_GetPtr((PyArrayObject *)bn_value_array, indexes));
-
+        sum += value;
 
         if(choice <= sum){
 
-            free(indexes);
-
-            Py_DECREF(bn_value_array);
+            //free(indexes);
 
             return i;
 
@@ -456,7 +454,7 @@ long observation(Node *node, dom_size *evidence){
     return 0;
 }
 
-long sample(Graph *graph, dom_size *evidence){
+long sample(Graph *graph, dom_size *evidence, long tid){
 
      Node *node;
 
@@ -464,10 +462,10 @@ long sample(Graph *graph, dom_size *evidence){
 
         node = graph->sorted_nodes[i];
 
-        evidence[node->index] = observation(node, evidence);
+        evidence[node->index] = observation(node, evidence, tid);
 
      }
-      //  printf("%ls\n",PyUnicode_AsUnicode(node->name));
+
      return evidence[node->index];
 }
 
@@ -477,8 +475,8 @@ void* compute_samples(void *args)
 {
     ThreadArgs *param = (ThreadArgs *) args;
 
-    //printf("%i\n",param->tid);
-    fflush(stdout);
+    long tid = param->tid;
+
     long *frequencies = param->frequencies;
 
     long n_samples = param->n_samples;
@@ -495,31 +493,45 @@ void* compute_samples(void *args)
 
     for(long i = 0; i< n_samples; i++){
 
-        long ev = sample(graph, evidence);
-        //printf("[%i]\n ",param->tid);
-         //fflush(stdout);
-        //pthread_mutex_lock(&lock);
+        long ev = sample(graph, evidence, tid);
 
-        frequencies[ev] += 1;
+        pthread_mutex_lock(&lock);
 
-        //pthread_mutex_unlock(&lock);
+            frequencies[ev] += 1;
+
+        pthread_mutex_unlock(&lock);
    }
-
-    printf("%i end\n ",param->tid);
-    fflush(stdout);
 
     free(evidence);
 
-   // pthread_exit(NULL);
     return NULL;
 }
 
 
+//void show(Node *node){
+//    int clac = 1;
+//
+//    printf("%ls: \n\t\t",PyUnicode_AsUnicode(node->name));
+//
+//    for(int j = 0; j < node->n_parents; j++){
+//       clac *= node->parents[j]->cardinality;
+//
+//       printf("%ls\t",PyUnicode_AsUnicode(node->parents[j]->name));
+//    }
+//    printf("\n\t\t");
+//
+//    for(int c = 0; c < clac * node->cardinality; c++){
+//        printf("%f ",node->cpd[c]);
+//        if (c % clac == clac-1){
+//            printf("|\n\t\t");
+//        }
+//    }
+////    printf("\n");
+//}
+
 static PyObject* cpdist(PyObject* self, PyObject *args) {
 
-   PyEval_InitThreads();
-
-    int num_cores = 6;
+    long num_cores = 5;
 
     int error;
 
@@ -530,19 +542,15 @@ static PyObject* cpdist(PyObject* self, PyObject *args) {
     PyObject *node_name;
     PyObject *bn_obj;
     PyObject *result;
+    PyObject *cores;
 
-    if (!PyArg_ParseTuple(args, "OO", &bn_obj,&node_name)){
+    if (!PyArg_ParseTuple(args, "OOO", &bn_obj,&node_name,&cores)){
         return NULL;
         }
 
+    num_cores = PyLong_AsLong(cores);
 
- //
-
-//PyThreadState *_save;
-//
-//_save = PyEval_SaveThread();
-
-   Graph *graph = buildGraph(bn_obj);
+   Graph *graph = buildGraph(bn_obj,num_cores);
 
    graph->n_sorted_nodes = graph->n_nodes;
 
@@ -555,9 +563,11 @@ static PyObject* cpdist(PyObject* self, PyObject *args) {
         Node *temp_node = pop(stack);
 
         graph->sorted_nodes[i] = temp_node;
+
+        //show(temp_node);
    }
 
-   long n_samples = (long)((5000.0 * log10(nparams(graph)))/num_cores);
+   long n_samples = (long)((10000.0 * log10(nparams(graph))));
 
    dom_size cardinality = graph->sorted_nodes[graph->n_sorted_nodes - 1]->cardinality;
 
@@ -582,10 +592,12 @@ static PyObject* cpdist(PyObject* self, PyObject *args) {
     pthread_t *worker = malloc(num_cores * sizeof(pthread_t));
 
     ThreadArgs *param = malloc(num_cores * sizeof(ThreadArgs));
- Py_BEGIN_ALLOW_THREADS
-     for(int i = 0; i < num_cores; i++) {
 
-        param[i].n_samples = n_samples;
+     Py_BEGIN_ALLOW_THREADS
+
+     for(long i = 0; i < num_cores; i++) {
+
+        param[i].n_samples = n_samples/num_cores;
         param[i].frequencies = frequencies;
         param[i].graph = graph;
         param[i].tid = i;
@@ -600,16 +612,13 @@ static PyObject* cpdist(PyObject* self, PyObject *args) {
                    strerror(error));
     }
 
-    for(int i = 0; i < num_cores; i++) {
-        printf("fin %i\n",i);
-        fflush(stdout);
+    for(long i = 0; i < num_cores; i++) {
         pthread_join(worker[i], NULL);
-
     }
-Py_END_ALLOW_THREADS
-//PyEval_RestoreThread(_save);
 
-   // pthread_mutex_destroy(&lock);
+    Py_END_ALLOW_THREADS
+
+    pthread_mutex_destroy(&lock);
 
    result = PyList_New(cardinality+1);
 
@@ -626,9 +635,6 @@ Py_END_ALLOW_THREADS
    freeStack(stack);
 
    free(frequencies);
-
-
-
 
    return result;
 }
@@ -665,41 +671,3 @@ PyMODINIT_FUNC PyInit_cpdist(void)
 
     return module;
 }
-
-//int
-//main(int argc, char *argv[])
-//{
-//    wchar_t *program = Py_DecodeLocale(argv[0], NULL);
-//    if (program == NULL) {
-//        fprintf(stderr, "Fatal error: cannot decode argv[0]\n");
-//        exit(1);
-//    }
-//
-//    /* Add a built-in module, before Py_Initialize */
-//    if (PyImport_AppendInittab("bnlearn", PyInit_bnlearn) == -1) {
-//        fprintf(stderr, "Error: could not extend in-built modules table\n");
-//        exit(1);
-//    }
-//    //import_array();
-//
-//
-//    /* Pass argv[0] to the Python interpreter */
-//    Py_SetProgramName(program);
-//
-//    /* Initialize the Python interpreter.  Required.
-//       If this step fails, it will be a fatal error. */
-//    Py_Initialize();
-//    import_array();
-//
-//    /* Optionally import the module; alternatively,
-//       import can be deferred until the embedded script
-//       imports it. */
-//    PyObject *pmodule = PyImport_ImportModule("bnlearn");
-//    if (!pmodule) {
-//        PyErr_Print();
-//        fprintf(stderr, "Error: could not import module 'spam'\n");
-//    }
-//
-//    PyMem_RawFree(program);
-//    return 0;
-//}

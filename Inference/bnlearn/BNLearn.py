@@ -134,7 +134,7 @@ class BNLearn(Engine):
         #print(self.meanAvailability)
         #print(st.describe(res['availability']))
         #print(st.describe(res['times']))
-
+        return
         if not self.use_cached_file:
             try:
                 shutil.rmtree(self.tmp_file_name)
