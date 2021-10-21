@@ -1,11 +1,7 @@
-import Evaluation.generators.SimpleExample as gn
+import Evaluation.generators.SimpleANDExample as gn
 import Evaluation.evaluate as ev
 from Evaluation.executors.CpdistScalableBN import CpdistScalableBN
 from Evaluation.executors.ExperimentData import ExperimentData
-from Evaluation.executors.CpdistBN import CpdistBN
-from Evaluation.executors.ScalableBN import ScalableBN
-from Evaluation.executors.NaiveBNExact import NaiveBNExact
-from Evaluation.executors.NaiveBN import NaiveBN
 import logging
 
 from Evaluation.executors.ScalableBNExact import ScalableBNExact
@@ -13,17 +9,17 @@ from Evaluation.executors.ScalableBNExact import ScalableBNExact
 logger = logging.getLogger()
 logger.disabled = True
 
-title = "SimpleExperiment"
+title = "SimpleANDExperiment"
 
-generator = lambda n: gn.SimpleExample(n, int(n / 2) + 1)
+generator = lambda n: gn.SimpleANDExample(n)
 
-tests = range(60,701,10)
+tests = [700];#range(60,700,10)
 
 experiment = ExperimentData()
 
 instances = [
-    CpdistScalableBN('CpdistScalableBN', 'Scalable BN with Approx Inference', experiment),
-    ScalableBNExact('ScalableBNExact', 'Scalable BN Exact Inference', experiment),
+     CpdistScalableBN('CpdistScalableBN' ,'Scalable BN with Approx Inference', experiment),
+     ScalableBNExact('ScalableBNExact' ,'Scalable BN Exact Inference', experiment),
 ]
 
 r = ev.Evaluate(instances, title, tests,

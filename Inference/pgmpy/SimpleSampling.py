@@ -26,7 +26,7 @@ class SimpleSampling(Engine):
         try:
 
             cores = mp.cpu_count()
-            print("Cores "+str(cores))
+            #print("Cores "+str(cores))
             for i in range(self.repetition):
                 start = time.time()
 

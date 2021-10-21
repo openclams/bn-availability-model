@@ -5,11 +5,11 @@ from Evaluation.generators.Generator import Generator
 from BayesianNetworks.pgmpy import writers as bnwriters
 
 
-class SimpleExample(Generator):
+class SimpleANDExample(Generator):
 
-    def __init__(self, n, k):
+    def __init__(self, n):
         self.n = n
-        self.k = k
+        self.k = 1
         self.solution = "K"
 
     def createBasicNetwork(self):
@@ -27,11 +27,11 @@ class SimpleExample(Generator):
             bn.add_cpds(cpd)
         return bn
 
-    def createNaiveNetwork(self,write=False):
+    def createNaiveNetwork(self, write=False):
         try:
             bn = self.createBasicNetwork()
 
-            op.kn_node(bn, "K", self.k)
+            op.and_node(bn, "K")
         except Exception as inst:
             bn = BayesianModel()
 
@@ -40,12 +40,12 @@ class SimpleExample(Generator):
 
         return bn
 
-    def createScalableNetwork(self,write=False):
+    def createScalableNetwork(self, write=False):
 
         try:
             bn = self.createBasicNetwork()
 
-            op.scalable_kn_node(bn, "K", self.k)
+            op.efficient_and_node(bn, "K")
         except Exception as inst:
             bn = BayesianModel()
 

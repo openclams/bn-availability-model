@@ -2,6 +2,9 @@ import logging
 
 import numpy
 import pickle
+
+from Inference.pgmpy.SimpleSampling import SimpleSampling
+
 logger = logging.getLogger()
 logger.disabled = True
 import requests
@@ -21,7 +24,7 @@ import pandas as pd
 import os
 import sys
 
-cim = json.load(open('../Assets/large_service/graph.json'))
+cim = json.load(open('./Assets/large_service/graph.json'))
 
 parser = GraphParser(cim)
 
@@ -141,7 +144,7 @@ def loss_function(candidates: List[Candidate]) -> float:
     start = time.time()
 
     # Execute approximate inference
-    approx = BNLearn(ba.bn,tmp_file_name="{}_{}_{}".format("bnlearn_tmp",os.getpid(),random.randint(0, 2**32)))
+    approx = SimpleSampling(bn)
 
     approx.run(final_node)
 
