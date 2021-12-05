@@ -138,7 +138,7 @@ class Evaluate:
             del res
             instance.clean()
 
-            gc.collect()
+            #gc.collect()
 
         res = pn.DataFrame(experiment.res_dic)
         res.to_csv(self.project_folder + '/final_availability.csv', index=None, header=True)

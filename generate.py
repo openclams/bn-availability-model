@@ -30,7 +30,7 @@ config = [
     {"n": 200, "k": 101, "numRootNodes": 2, "maxLevel": 3, "degree": [5], "net": 5, "epsilon": 10 ** -1.6, "epsilonRate": 1e-8, "maxTime": 20, "sample_size": 20000},
     #8 service_200_101_with_X_nodes
     {"n": 100, "k": 51, "numRootNodes": 3, "maxLevel": 8, "degree": [2,1,2,1], "net": 15, "epsilon": 10 ** -1.6, "epsilonRate": 1e-8, "maxTime": 20, "sample_size": 20000},
-    #8 service_200_101_with_X_nodes
+    #9 service_200_101_with_X_nodes
     {"n": 100, "k": 51, "numRootNodes": 3, "maxLevel": 10, "degree": [2,1,2,1,1,1,1,1,1,2], "net": 15, "epsilon": 10 ** -1.6, "epsilonRate": 1e-8, "maxTime": 20, "sample_size": 20000},
 
 ]
@@ -96,8 +96,8 @@ else:
                         ratio_random_connection=0.5,
                         max_level=c["maxLevel"],
                         degree=c["degree"],
-                        a=1000,
-                        b=10)
+                        a=10000,
+                        b=1)
     app = gg.create_app(c["n"],c["k"])
     #print(cim)
     #print(app)

@@ -13,7 +13,7 @@ title = "SimpleANDExperiment"
 
 generator = lambda n: gn.SimpleANDExample(n)
 
-tests = [700];#range(60,700,10)
+tests = [700]#range(60,700,10)
 
 experiment = ExperimentData()
 

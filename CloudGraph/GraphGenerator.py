@@ -16,8 +16,8 @@ class GraphGenerator:
                    ratio_random_connection:float = 0.0,
                    max_level: int = 2,
                    degree: List[int] = [3],
-                   a:float = 1000,
-                   b:float = 10):
+                   a:float = 10000,
+                   b:float = 1):
 
         fault_dependencies, infrastructure, hosts = self.create_fault_dependency_graph(num_root_nodes, ratio_random_connection, max_level, degree)
 

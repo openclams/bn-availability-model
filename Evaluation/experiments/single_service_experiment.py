@@ -1,4 +1,4 @@
-import Evaluation.generators.SimpleExample as gn
+import Evaluation.generators.CreateFromGraph as gn
 import Evaluation.evaluate as ev
 from Evaluation.executors.CpdistScalableBN import CpdistScalableBN
 from Evaluation.executors.ExperimentData import ExperimentData
@@ -15,25 +15,26 @@ from Evaluation.executors.ScalableBNExact import ScalableBNExact
 logger = logging.getLogger()
 logger.disabled = True
 
-title = "SimpleServiceExperiment"
-
-generator = lambda n: gn.SimpleExample(n, int(n / 2) + 1)
-
-tests = range(3,12)
-
+title = "Simple Scalable Service Experiment"
+cim = "../../Assets/simple_service/graph.json"
+generator = lambda n: gn.CreateFromGraph(n, int(n / 2) + 1, cim,init='N1')
+tests = [5]
 experiment = ExperimentData()
 
 instances = [
-    CpdistBN('CpdistBN', 'BN with Approx Inference', experiment),
-    NaiveBNExact('BNExact', 'BN Exact Inference', experiment),
-    FaultTreeExact('FTExact', 'FT Exact', experiment),
-    FaultTreeMC('FaultTreeMC','FT MC',experiment)
+    CpdistScalableBN('sc_approx', 'SC with Approx Inference', experiment),
+    #ScalableBNExact('sc_exact', 'SC with Exact Inference', experiment),
+    #NaiveBN('approx', 'BN Approx Inference', experiment),
+    #NaiveBNExact('exact', 'BN Exact Inference', experiment),
+    #FaultTreeExact('FTExact', 'FT Exact', experiment),
+    #FaultTreeMC('FaultTreeMC','FT MC',experiment)
 ]
 
 r = ev.Evaluate(instances, title, tests,
                 skip_engines = [],
                 add_to_skip_list={
-                    #"ScgRain" : 9,
+                    "approx" : 31,
+                    "exact" : 10
                 },
                 run_file=__file__)
 r.run(generator,experiment)

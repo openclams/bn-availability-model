@@ -1,4 +1,4 @@
-import Evaluation.generators.SimpleExample as gn
+import Evaluation.generators.CreateAppFromGraph as gn
 import Evaluation.evaluate as ev
 from Evaluation.executors.CpdistScalableBN import CpdistScalableBN
 from Evaluation.executors.ExperimentData import ExperimentData
@@ -9,31 +9,41 @@ from Evaluation.executors.ScalableBN import ScalableBN
 from Evaluation.executors.NaiveBNExact import NaiveBNExact
 from Evaluation.executors.NaiveBN import NaiveBN
 import logging
-
+import itertools
 from Evaluation.executors.ScalableBNExact import ScalableBNExact
 
 logger = logging.getLogger()
 logger.disabled = True
 
-title = "SimpleServiceExperiment"
+title = "App Experiment Full Complex Inf Scalable 6 Services Extended"
+cim = "Assets/large_service/graph.json"
+#generator = lambda n: gn.CreateAppFromGraph(n, int(n / 2) + 1, cim,init='N1')
 
-generator = lambda n: gn.SimpleExample(n, int(n / 2) + 1)
+nm = [[i for i in [6]], #13
+      [i for i in range(27,62,3)]] #12
 
-tests = range(3,12)
+options = list(itertools.product(*nm))
 
+def generator(n):
+    global cim
+    global options
+
+    return gn.CreateAppFromGraph(options[n][0], options[n][1], cim,init='N1',fully=True)
+
+tests = range(0,len(options))
 experiment = ExperimentData()
 
 instances = [
-    CpdistBN('CpdistBN', 'BN with Approx Inference', experiment),
-    NaiveBNExact('BNExact', 'BN Exact Inference', experiment),
-    FaultTreeExact('FTExact', 'FT Exact', experiment),
-    FaultTreeMC('FaultTreeMC','FT MC',experiment)
+    CpdistScalableBN('ScCpdistBN', 'SC BN with Approx Inference', experiment),
+    #CpdistBN('CpdistBN', 'BN Approx Inference', experiment),
+    #FaultTreeExact('FTExact', 'FT Exact', experiment),
+    #FaultTreeMC('FaultTreeMC','FT MC',experiment)
 ]
 
 r = ev.Evaluate(instances, title, tests,
                 skip_engines = [],
                 add_to_skip_list={
-                    #"ScgRain" : 9,
+                    #"BNExact" : 6,
                 },
                 run_file=__file__)
 r.run(generator,experiment)

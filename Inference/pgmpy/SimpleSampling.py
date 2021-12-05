@@ -11,9 +11,14 @@ def samling_thread(bn: BayesianModel, solution, sample_size, results, index):
 
 class SimpleSampling(Engine):
 
-    def __init__(self, bn):
+    def __init__(self, bn, numThreads = None):
         Engine.__init__(self, bn)
         self.is_exact_algorithm = False
+        self.repetition = 1
+        if numThreads is None:
+            self.cores = mp.cpu_count()
+        else:
+            self.cores = numThreads
 
     def nparams(self, bn: BayesianModel):
         # "The default value is 5000 * log10(nparams(fitted)) for discrete and conditional Gaussian networks
@@ -25,12 +30,10 @@ class SimpleSampling(Engine):
         start_new_run = time.time()
         try:
 
-            cores = mp.cpu_count()
-            #print("Cores "+str(cores))
             for i in range(self.repetition):
                 start = time.time()
 
-                results = cpdist.cpdist(self.bn, solution, cores)
+                results = cpdist.cpdist(self.bn, solution,  self.cores)
 
                 availability = results[1]/(results[1]+results[0])
 

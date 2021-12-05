@@ -7,37 +7,38 @@
 #include <math.h>
 #include <time.h>
 #include <pthread.h>
-
+#include <string.h>
 
 typedef struct Graph Graph;
 typedef struct Node Node;
 typedef struct Stack Stack;
-typedef npy_intp dom_size;
+
 
 typedef struct {
-    long tid;
+    int tid;
     Graph *graph;
-    long n_samples;
-    long* frequencies;
+    int n_samples;
+    int *frequencies;
 } ThreadArgs;
 
 struct Graph{
     Node *nodes;
-    Py_ssize_t n_nodes;
+    int n_nodes;
     Node **sorted_nodes;
-    Py_ssize_t n_sorted_nodes;
+    int n_sorted_nodes;
 };
 
 struct Node{
-    Py_ssize_t index;
+    int index;
     Graph *graph;
     PyObject *name;
     double *cpd;
-    dom_size cardinality;
+    int n_cpd;
+    int cardinality;
     Node **parents;
-    Py_ssize_t n_parents;
+    int n_parents;
     Node **children; // Array
-    Py_ssize_t n_children;
+    int n_children;
     //long *indexes;
 };
 
@@ -49,16 +50,16 @@ void freeGraph(Graph *graph){
         free(graph->sorted_nodes);
       }
 
-      for(Py_ssize_t i = 0; i< graph->n_nodes; i++){
+      for(int i = 0; i< graph->n_nodes; i++){
 
             free(graph->nodes[i].parents);
 
             free(graph->nodes[i].children);
 
             //free(graph->nodes[i].indexes);
-
-            Py_DECREF(graph->nodes[i].name);
-
+            if(graph->nodes[i].name){
+                Py_DECREF(graph->nodes[i].name);
+            }
       }
 
       free(graph->nodes);
@@ -66,9 +67,43 @@ void freeGraph(Graph *graph){
       free(graph);
 }
 
+Graph * copyGraph(Graph *graph){
+    Graph *graph_copy = malloc(sizeof(Graph));
+
+    memcpy(graph_copy,graph,sizeof(Graph));
+
+    graph_copy->nodes = malloc(graph->n_nodes * sizeof(Node));
+
+    memcpy(graph_copy->nodes,graph->nodes,graph->n_nodes * sizeof(Node));
+
+    for(int i = 0; i< graph->n_nodes; i++){
+        graph_copy->nodes[i].graph = graph_copy;
+
+        graph_copy->nodes[i].name = NULL;
+
+        memcpy(graph_copy->nodes[i].cpd,graph->nodes[i].cpd,graph->nodes[i].n_cpd*sizeof(double));
+
+        graph_copy->nodes[i].parents = malloc(graph->nodes[i].n_parents * sizeof(Node*));
+        for(int a = 0; a< graph->nodes[i].n_parents; a++){
+            graph_copy->nodes[i].parents[a] = &graph_copy->nodes[graph->nodes[i].parents[a]->index];
+        }
+
+        graph_copy->nodes[i].children = malloc(graph->nodes[i].n_children * sizeof(Node*));
+        for(int b = 0; b< graph->nodes[i].n_children; b++){
+           graph_copy->nodes[i].children[b] = &graph_copy->nodes[graph->nodes[i].children[b]->index];
+        }
+    }
+
+     for(int i = 0; i< graph->n_nodes; i++){
+            graph_copy->sorted_nodes[i] = &graph_copy->nodes[graph->sorted_nodes[i]->index];
+     }
+
+     return graph_copy;
+}
+
 struct Stack {
     int top;
-    Py_ssize_t capacity;
+    int capacity;
     Node **array;
 };
 
@@ -78,7 +113,7 @@ void freeStack(Stack *stack){
 }
 
 
-struct Stack* createStack(Py_ssize_t capacity){
+struct Stack* createStack(int capacity){
     Stack* stack = (Stack *)malloc(sizeof(Stack));
     stack->capacity = capacity;
     stack->top = -1;
@@ -170,7 +205,7 @@ int printError(char * text){
 }
 
 
-void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents, long num_cores){
+void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents, int num_cores){
 
         Node  *nodes;
 
@@ -182,7 +217,7 @@ void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents, long num_c
                     *bn_get_method;
 
 
-        Py_ssize_t  n = 0,
+        int         n = 0,
                     i = 0,
                     j = 0,
                     g = 0,
@@ -279,7 +314,7 @@ void linkAdjacentNodes(PyObject *bn_obj, Graph *graph, int b_parents, long num_c
         Py_DECREF(bn_get_children);
 }
 
-Graph * buildGraph(PyObject *bn_obj,long num_cores){
+Graph * buildGraph(PyObject *bn_obj,int num_cores){
 
     Graph *graph;
 
@@ -290,8 +325,8 @@ Graph * buildGraph(PyObject *bn_obj,long num_cores){
                 *bn_iterator,
                 *bn_cardinality;
 
-    Py_ssize_t  n = 0,
-                i = 0;
+    int  n = 0;
+    int  i = 0;
 
     bn_get_cpds = PyUnicode_FromString("get_cpds");
 
@@ -339,7 +374,14 @@ Graph * buildGraph(PyObject *bn_obj,long num_cores){
          graph->nodes[i].name = bn_node;
          Py_INCREF(bn_node);
 
-         graph->nodes[i].cpd = (double *) PyArray_DATA((PyArrayObject *) bn_cpd_values);
+         // Copy CPD for performance reasons when multiple processes are called
+         graph->nodes[i].n_cpd = PyArray_SIZE((PyArrayObject *) bn_cpd_values);
+
+         graph->nodes[i].cpd = malloc( graph->nodes[i].n_cpd *sizeof(double));
+
+         double *src_cpd =  (double *) PyArray_DATA((PyArrayObject *) bn_cpd_values);
+
+         memcpy(graph->nodes[i].cpd,src_cpd,graph->nodes[i].n_cpd*sizeof(double));
 
          graph->nodes[i].cardinality = *((int *)PyArray_GETPTR1((PyArrayObject *)bn_cardinality, 0));
 
@@ -368,8 +410,8 @@ Graph * buildGraph(PyObject *bn_obj,long num_cores){
 
 double nparams(Graph *graph){
 
-    Py_ssize_t i;
-    Py_ssize_t n = graph->n_sorted_nodes;
+    int i;
+    int n = graph->n_sorted_nodes;
 
     double total = 1.0;
 
@@ -378,7 +420,7 @@ double nparams(Graph *graph){
         total = graph->sorted_nodes[i]->cardinality;
 
 
-        for(Py_ssize_t j = 0; i < graph->sorted_nodes[i]->n_parents; j++){
+        for(int j = 0; i < graph->sorted_nodes[i]->n_parents; j++){
 
             total *= graph->sorted_nodes[i]->parents[j]->cardinality;
 
@@ -389,8 +431,8 @@ double nparams(Graph *graph){
 }
 
 
-double get_value(Node *node, long* indexes){
-    long position = 0;
+double get_value(Node *node, int* indexes){
+    int position = 0;
 
     if(node->n_parents == 0){
         position = indexes[0];
@@ -402,12 +444,12 @@ double get_value(Node *node, long* indexes){
                    + node->parents[1]->cardinality *  indexes[1]
                    + indexes[2];
     }else{
-        long prod = 1;
-        for(Py_ssize_t i = 0; i <= node->n_parents; i++){
+        int prod = 1;
+        for(int i = 0; i <= node->n_parents; i++){
 
            prod = 1;
 
-            for(Py_ssize_t j = i; j < node->n_parents; j++){
+            for(int j = i; j < node->n_parents; j++){
 
                 prod = prod * node->parents[j]->cardinality;
 
@@ -420,21 +462,21 @@ double get_value(Node *node, long* indexes){
 }
 
 
-long observation(Node *node, dom_size *evidence, long tid){
+int observation(Node *node, int *evidence, int tid){
 
     double choice = (double) rand()/RAND_MAX;
 
-    long indexes[40]; //= node->indexes + (tid * (node->n_parents+1));
+    int indexes[40]; //= node->indexes + (tid * (node->n_parents+1));
 
     double sum = 0;
 
-    for(npy_intp i = 0; i < node->cardinality; i++){
+    for(int i = 0; i < node->cardinality; i++){
 
         indexes[0] = i;
 
         for(long j = 0; j < node->n_parents; j++){
 
-            indexes[j+1] = evidence[node->parents[j]->index];
+           indexes[j+1] = evidence[node->parents[j]->index];
 
         }
 
@@ -443,22 +485,18 @@ long observation(Node *node, dom_size *evidence, long tid){
         sum += value;
 
         if(choice <= sum){
-
-            //free(indexes);
-
             return i;
-
-        }
-    }
+       }
+  }
 
     return 0;
 }
 
-long sample(Graph *graph, dom_size *evidence, long tid){
+long sample(Graph *graph, int *evidence, int tid){
 
      Node *node;
 
-     for(Py_ssize_t i = 0; i < graph->n_sorted_nodes; i++){
+     for(int i = 0; i < graph->n_sorted_nodes; i++){
 
         node = graph->sorted_nodes[i];
 
@@ -470,22 +508,27 @@ long sample(Graph *graph, dom_size *evidence, long tid){
 }
 
 
-
 void* compute_samples(void *args)
 {
     ThreadArgs *param = (ThreadArgs *) args;
 
-    long tid = param->tid;
+    int tid = param->tid;
 
-    long *frequencies = param->frequencies;
+    int *frequencies = param->frequencies;
 
     long n_samples = param->n_samples;
 
     Graph *graph = param->graph;
 
-    dom_size *evidence = (dom_size *)malloc(graph->n_sorted_nodes * sizeof(dom_size));
+    int cardinality = graph->sorted_nodes[graph->n_sorted_nodes - 1]->cardinality;
 
-    for(Py_ssize_t i = 0; i< graph->n_sorted_nodes; i++){
+    for(int i = 0; i< cardinality; i++){
+        frequencies[i] = 0;
+    }
+
+    int *evidence = (int *)malloc(graph->n_nodes * sizeof(int));
+
+    for(int i = 0; i < graph->n_sorted_nodes; i++){
 
         evidence[i] = 0;
 
@@ -493,16 +536,15 @@ void* compute_samples(void *args)
 
     for(long i = 0; i< n_samples; i++){
 
-        long ev = sample(graph, evidence, tid);
+       int ev = sample(graph, evidence, tid);
 
-        pthread_mutex_lock(&lock);
+       frequencies[ev] += 1;
 
-            frequencies[ev] += 1;
-
-        pthread_mutex_unlock(&lock);
    }
 
     free(evidence);
+
+    //free(graph);
 
     return NULL;
 }
@@ -531,7 +573,7 @@ void* compute_samples(void *args)
 
 static PyObject* cpdist(PyObject* self, PyObject *args) {
 
-    long num_cores = 5;
+    int num_cores;
 
     int error;
 
@@ -558,7 +600,7 @@ static PyObject* cpdist(PyObject* self, PyObject *args) {
 
    Stack *stack = topologicalSort(graph);
 
-   for(Py_ssize_t i = 0; i< graph->n_sorted_nodes; i++){
+   for(int i = 0; i< graph->n_sorted_nodes; i++){
 
         Node *temp_node = pop(stack);
 
@@ -569,25 +611,20 @@ static PyObject* cpdist(PyObject* self, PyObject *args) {
 
    long n_samples = (long)((10000.0 * log10(nparams(graph))));
 
-   dom_size cardinality = graph->sorted_nodes[graph->n_sorted_nodes - 1]->cardinality;
+   int cardinality = graph->sorted_nodes[graph->n_sorted_nodes - 1]->cardinality;
 
-   long *frequencies = malloc(cardinality * sizeof(long));
-
-   for(dom_size i = 0; i< cardinality; i++){
+   int *frequencies = malloc(cardinality * sizeof(int));
+    for(int i = 0; i< cardinality; i++){
         frequencies[i] = 0;
-   }
+    }
 
-   for(Py_ssize_t c = 0; c < graph->n_sorted_nodes; c++){
+
+   for(int c = 0; c < graph->n_sorted_nodes; c++){
          if(PyUnicode_Compare(graph->sorted_nodes[c]->name,node_name) == 0){
             graph->n_sorted_nodes = c+1;
             break;
          }
    }
-
-    if (pthread_mutex_init(&lock, NULL) != 0) {
-        printf("\n mutex init has failed\n");
-        return Py_None;
-    }
 
     pthread_t *worker = malloc(num_cores * sizeof(pthread_t));
 
@@ -595,34 +632,52 @@ static PyObject* cpdist(PyObject* self, PyObject *args) {
 
      Py_BEGIN_ALLOW_THREADS
 
-     for(long i = 0; i < num_cores; i++) {
+     for(long i = 1; i < num_cores; i++) {
 
         param[i].n_samples = n_samples/num_cores;
-        param[i].frequencies = frequencies;
+        param[i].frequencies = malloc(cardinality * sizeof(int));
+
         param[i].graph = graph;
         param[i].tid = i;
 
         error = pthread_create(worker + i,
                                NULL,
                                &compute_samples,
-                               param + i);
+                               &param[i]);
 
         if (error != 0)
             printf("\nThread can't be created :[%s]",
                    strerror(error));
     }
 
-    for(long i = 0; i < num_cores; i++) {
+    param[0].n_samples = n_samples/num_cores;
+    param[0].frequencies = malloc(cardinality * sizeof(int));
+
+    param[0].graph = graph;
+    param[0].tid = 0;
+    compute_samples(&param[0]);
+
+    for(int i = 1; i < num_cores; i++) {
         pthread_join(worker[i], NULL);
+    }
+
+    for(long i = 0; i < num_cores; i++) {
+       for(int j = 0; j< cardinality; j++){
+            frequencies[j] += param[i].frequencies[j];
+       }
+    }
+
+     for(long i = 0; i < num_cores; i++) {
+       free(param[i].frequencies);
     }
 
     Py_END_ALLOW_THREADS
 
-    pthread_mutex_destroy(&lock);
+    free(param);
 
    result = PyList_New(cardinality+1);
 
-   for(dom_size i = 0; i< cardinality; i++){
+   for(int i = 0; i< cardinality; i++){
 
         PyList_SetItem(result, i, PyLong_FromLong(frequencies[i]));
 

@@ -82,6 +82,13 @@ class BayesianNetModel:
         channels:Dict[str,str] = {}
 
         for idx, server in enumerate(service["servers"]):
+
+            availability = 1
+
+            if 'availability' in server:
+
+                availability = server['availability']
+
             server_name = server_names[idx]
             # Add BN nodes for each server of the service
             self.bn.add_node(server_name, 2)
@@ -90,6 +97,12 @@ class BayesianNetModel:
             # print(host,server_name,self.bn.cpt(server_name).var_names)
             # Add an AND CPT to the server BN node
             self.andNodeCPT(self.bn, server_name)
+
+            self.bn.get_cpds(server_name).values[:, self.bn.get_cpds(server_name).values.shape[1] - 1] = np.array(
+                [1 - availability,
+                 availability])
+
+            #print(self.bn.get_cpds(server_name))
 
         A_nodes = []
         if not (threshold == total_votes or threshold == 1):  # If not read-on/write-all
@@ -137,15 +150,20 @@ class BayesianNetModel:
 
         gateways = self.get_gateways(service)
         # Add external communication
-        # TODO: Here we assume that every server is reachable from every gateway/front end.
-        # However, we cloud also consider individual connections from gateways to hosts
+        # Here we assume that every server is reachable from every gateway/front end.
+        # However, we could also consider individual connections from gateways to hosts
         for gateway in gateways:
+            gateway_name = service["name"] + '_' + gateway
+            self.bn.add_node(gateway_name, 2)
             for i in range(0, len(hosts)):
                 channel_name = service["name"] + "_" + str(i) + "_" + gateway # here we have i< j
                 host = hosts[i]
                 path_nodes = self.add_paths(gateway, host)
                 self.create_channel(channel_name, gateway, A_nodes[i], path_nodes)
-                self.bn.add_edge(channel_name, service_node)
+                self.bn.add_edge(channel_name, gateway_name)
+
+            self.orNodeCPT(self.bn, gateway_name)
+            self.bn.add_edge(gateway_name, service_node)
 
         # Finalize the service graph
         if threshold == total_votes:  # if write-all
@@ -218,6 +236,23 @@ class BayesianNetModel:
         # Compute external (super) channels
         self.bn.add_node("A", 2) # Create app node
 
+        # User service accessibility
+        client_gateways = self.get_gateways(self.app['application'])
+        self.bn.add_node("Clients", 2)  # Create app node
+        for gateway in client_gateways:
+            # To first service in the service list
+            service_gateways = self.get_gateways(self.app["services"][0])
+            service_name = self.app["services"][0]["name"]
+            for s_gateway in service_gateways:
+                channel_name = service_name + "_" + gateway + "_" + s_gateway
+                path_nodes = self.add_paths(gateway, s_gateway)
+                gateway_node = service_name + '_' + s_gateway
+                self.create_channel(channel_name, gateway, gateway_node, path_nodes)
+                self.bn.add_edge(channel_name, "Clients")
+
+        self.bn.add_edge("Clients","A")
+        self.orNodeCPT(self.bn, "Clients")
+
         for channel in self.app['application']['topology']:
             from_service = channel['from']
             to_service = channel['to']
@@ -232,12 +267,17 @@ class BayesianNetModel:
             # We consider all channels that lead from one gateway to the other
             # we make on channel that contains all the external paths
             # and the channel depends on the service node of the services
-            path_nodes = []
+            #path_nodes = []
             for gf in gateways_from:
                 for gt in gateways_to:
-                    path_nodes.extend(self.add_paths(gf, gt))
+                    #--path_nodes.extend(self.add_paths(gf, gt))
+                    channel_sub_name = from_service + "_" + to_service + "_" + gateway + "_" + s_gateway
+                    from_service_gateway = from_service + '_' + gf
+                    to_service_gateway = to_service + '_' + gt
+                    self.create_channel(channel_sub_name, from_service_gateway, to_service_gateway, self.add_paths(gf, gt))
+                    self.bn.add_edge(channel_sub_name, channel_name)
 
-            self.create_channel(channel_name, from_service, to_service, path_nodes)
+            self.orNodeCPT(self.bn, channel_name)
             self.bn.add_edge(channel_name, "A")
 
         self.andNodeCPT(self.bn, "A")

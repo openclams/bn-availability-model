@@ -3,6 +3,7 @@ import logging
 import numpy
 import pickle
 
+from ClamsEvaluation.ExhaustiveSearch import exhaustive_search
 from Inference.pgmpy.SimpleSampling import SimpleSampling
 
 logger = logging.getLogger()
@@ -14,17 +15,24 @@ from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
 from CloudGraph.GraphParser import GraphParser
 from CloudGraph.Host import Host
 from HarmonySearch.Candidate import Candidate
-from HarmonySearch.HSearch import HSearch
 from HarmonySearch.CHSearch import CHSearch
 from typing import List
-from Inference.bnlearn.BNLearn import BNLearn
-import random
+
+
 import time
 import pandas as pd
-import os
+
 import sys
 
-cim = json.load(open('./Assets/large_service/graph.json'))
+# taskset -c 0-7 befehl
+root_dir = '../'
+
+cim = json.load(open(root_dir+'Assets/simple_service/graph.json'))
+num_hs_instances = 10
+num_inference_threads = 1
+n = 3
+k = 2
+availability_threshold=0.90
 
 parser = GraphParser(cim)
 
@@ -39,6 +47,7 @@ inference_time = []
 def get_leaves(component):
     url = "http://localhost/api/component/" + str(component['id']) + '/leafs'
     resp = requests.get(url=url)
+
     data = resp.json()
 
     return data
@@ -55,14 +64,13 @@ def get_struct(component):
 def loss_function(candidates: List[Candidate]) -> float:
     global G
     global hosts
+    global n
+    global k
+    global availability_threshold
 
     idx = 0
 
     start = time.time()
-
-    n = 3
-
-    k = 2
 
     services = []
 
@@ -94,8 +102,12 @@ def loss_function(candidates: List[Candidate]) -> float:
 
         servers = []
 
+        av = [attr for attr in component['attributes'] if attr['id'] == '_availability'][0]['value']
+
         for i in range(n):
-            servers.append({"host": hosts[current_host].name, "votes": 1})
+            servers.append({"host": hosts[current_host].name,
+                            "votes": 1,
+                            "availability" : av})
 
             current_host = (current_host + 1) % len(hosts)
 
@@ -144,18 +156,18 @@ def loss_function(candidates: List[Candidate]) -> float:
     start = time.time()
 
     # Execute approximate inference
-    approx = SimpleSampling(bn)
+    approx = SimpleSampling(bn,num_inference_threads)
 
     approx.run(final_node)
 
     end = time.time()
 
     inference_time.append(end-start)
-    # print("Trail ", approx.meanAvailability)
+
 
     candidates[0].value['availability'] = approx.meanAvailability
 
-    if approx.meanAvailability > 0.92:
+    if approx.meanAvailability > availability_threshold:
 
         candidates[0].value['cost'] = total_cost
 
@@ -176,6 +188,8 @@ def evaluate(file_name, iterations):
 
     global inference_time
 
+    global num_hs_instances
+
     inference_time = []
 
     build_app_model_time = []
@@ -191,8 +205,9 @@ def evaluate(file_name, iterations):
 
         candidate_space: List[List[Candidate]] = []
 
-        search_space_size = 1;
+        search_space_size = 1
 
+        build_search_space = time.time()
         for component in components:
             leaves = get_leaves(component)
 
@@ -201,6 +216,7 @@ def evaluate(file_name, iterations):
             search_space_size *= len(leaves)
 
             candidate_space.append([Candidate(get_struct(l)) for l in leaves])
+        build_search_space = time.time() - build_search_space
 
         # pickle.dump(candidate_space, open("save.p", "wb"))
         #
@@ -208,22 +224,34 @@ def evaluate(file_name, iterations):
         # print([len(c) for c in candidate_space])
 
         start = time.time()
-
+        print("Start HS - ",end="")
         imp = CHSearch(candidate_space=candidate_space, loss_function=loss_function,
                      termination=iterations,
                      harmony_memory_size=10,
                      harmony_memory_consideration_rate=0.85,
-                     pitch_adjustment_rate=0.05)
+                     pitch_adjustment_rate=0.05,
+                     num_processes=num_hs_instances)
 
         #imp = imp.run()
 
         end = time.time()
-
+        print("Finished ",str(end-start),'s -',end="")
         # Re-evaluate the loss function to get the availability and cost values
         ## We need this solution because of the concurency problem
         loss_function(imp.candidates)
 
         solution = [v.value for v in imp.candidates]
+
+        print("Start EX - ", end="")
+        # Exhaustive search
+        if  search_space_size < 1000000:
+            ex_start = time.time()
+            min_loss =  exhaustive_search(candidate_space, loss_function)
+            exTime = time.time() - ex_start
+        else:
+            min_loss = float('inf')
+            exTime = float('inf')
+        print("Finished ", str(exTime), 's with lmin=',str(min_loss))
 
         data = {
             'NumComponents' : len(components),
@@ -238,7 +266,11 @@ def evaluate(file_name, iterations):
             'MeanSingleBuildBNTime' : numpy.mean(build_bn_model_time),
             'StdSingleBuildBNTime' : numpy.std(build_bn_model_time),
             'MeanSingleBuildAppTime' : numpy.mean(build_app_model_time),
-            'StdSingleBuildAppTime' : numpy.std(build_app_model_time)
+            'StdSingleBuildAppTime' : numpy.std(build_app_model_time),
+            'BuildSearchSpaceTime': build_search_space,
+            'MinLoss': min_loss,
+            'ExTime':exTime,
+
         }
 
         return pd.DataFrame(data,index=[0])
@@ -254,18 +286,18 @@ if __name__ == '__main__':
 
         main_df = pd.DataFrame()
 
-        for it in [100,1000,10000]:
+        for it in [5000]:
 
-            df = evaluate("TestCases/{}.json".format(i), it)
+            df = evaluate(root_dir+"ClamsEvaluation/TestCases/{}.json".format(i), it)
 
-            print(df)
+            #print(df)
 
-            df.to_csv('raw_big/{}_{}.csv'.format(i,it),index=False)
+            df.to_csv(root_dir+'ClamsEvaluation/local_raw/{}_{}.csv'.format(i,it),index=False)
 
             main_df = main_df.append(df, ignore_index=True)
 
         print(main_df)
 
-        main_df.to_csv('final_big/{}.csv'.format(i), index=False)
+        main_df.to_csv(root_dir+'ClamsEvaluation/local_final/{}.csv'.format(i), index=False)
 
     sys.stdout.close()

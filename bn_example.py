@@ -3,9 +3,14 @@ from CloudGraph.GraphParser import GraphParser
 import json
 from Inference.bnlearn.BNLearn import BNLearn
 from Inference.grain.gRain import gRain
+from Inference.pgmpy.SimpleSampling import SimpleSampling
+import logging
 
-graph_file = "./Assets/simple_service/graph.json"
-deployment_file = "./Assets/simple_service/deployment.json"
+logger = logging.getLogger()
+logger.disabled = True
+
+graph_file = "./Assets/simple_app/graph.json"
+deployment_file = "./Assets/simple_app/deployment.json"
 
 # Load the infrastructure model
 graph = json.load(open(graph_file))
@@ -19,7 +24,7 @@ service = json.load(open(deployment_file))
 ba = BayesianNetModel(G, service)
 
 # Execute approximate inference
-approx = BNLearn(ba.bn)
+approx = SimpleSampling(ba.bn)
 # select the service name from the deployment.json
 approx.run("er")
 print(approx.meanAvailability)

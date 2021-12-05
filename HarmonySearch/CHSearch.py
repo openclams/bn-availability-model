@@ -20,7 +20,8 @@ def CHSearch(candidate_space: List[List[Candidate]],
              harmony_memory_size = 5,
              harmony_memory_consideration_rate = 0.95, # probability to select from HM or generate a new imporvisation
              pitch_adjustment_rate = 0.1,
-             termination = 1000
+             termination = 1000,
+             num_processes = 8,
              ):
 
     global HM
@@ -76,7 +77,7 @@ def CHSearch(candidate_space: List[List[Candidate]],
         L[i] = init_L[i]
 
     #Create new improvisations
-    with Pool(processes=8,initializer=init, initargs=(HM,L,lock)) as pool:
+    with Pool(processes=num_processes,initializer=init, initargs=(HM,L,lock)) as pool:
 
         pool.map(partial(proc_F , candidate_space=candidate_space, HMCR=HMCR, PAR=PAR, loss_function=loss_function), range(termination))
 
