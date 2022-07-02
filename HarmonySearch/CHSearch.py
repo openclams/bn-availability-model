@@ -81,9 +81,12 @@ def CHSearch(candidate_space: List[List[Candidate]],
 
         pool.map(partial(proc_F , candidate_space=candidate_space, HMCR=HMCR, PAR=PAR, loss_function=loss_function), range(termination))
 
-        job = pool.apply_async(best_solution, (candidate_space,))
+        #job = pool.apply_async(best_solution, (candidate_space,))
 
-        return job.get()
+        #return job.get()
+
+    return best_solution(candidate_space)
+
 
 def best_solution(candidate_space):
     global HM

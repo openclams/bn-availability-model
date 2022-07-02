@@ -78,6 +78,14 @@ def get_sources(id):
     ]
     return sources[id]
 
+def get_depth(component):
+    url = "http://localhost/api/component/" + str(component['id']) + '/depth'
+    resp = requests.get(url=url)
+
+    data = resp.json()
+
+    return data
+
 def get_leaves(component):
     url = "http://localhost/api/component/" + str(component['id']) + '/leafs'
     resp = requests.get(url=url)
@@ -97,13 +105,14 @@ def summary(file_name):
 
         search_space_size = 1
         print("\\begin{tabular}{lc}")
-        print("Component Name & Number of matching services \\\\")
+        print("Component Name & Number of matching services & Refinement Tree Depth & Traversing Steps  \\\\")
         print("\\hline")
         for component in components:
 
             leaves = get_leaves(component)
+            d = get_depth(component)
 
-            print(component['name'],'&',len(leaves),'\\\\')
+            print(component['name'],'&',len(leaves),'&',d[0],'&',d[1],'\\\\')
 
             search_space_size *= len(leaves)
         print('\\end{tabular}')
@@ -112,13 +121,14 @@ def summary(file_name):
 if __name__ == '__main__':
 
     for i in range(0,31):
-        print('\n\\item['+get_title(i)+'] \leavevmode')
-        print('\n\\textbf{Source:}\\\\')
-        print('\\url{'+get_sources(i)+'}')
-        print('\n')
-        print('\\textbf{Description:}')
-        print('\n')
-        print('\\textbf{Components:}')
-        print('\n')
+        # print('\n\\item['+get_title(i)+'] \leavevmode')
+        # print('\n\\textbf{Source:}\\\\')
+        # print('\\url{'+get_sources(i)+'}')
+        # print('\n')
+        # print('\\textbf{Description:}')
+        # print('\n')
+        # print('\\textbf{Components:}')
+        # print('\n')
         summary("./TestCases/{}.json".format(i+1))
+        print()
 

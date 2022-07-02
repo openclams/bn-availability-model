@@ -26,17 +26,17 @@ class BaseExperiment:
 
     # overwrite
     def memory(self):
-        size = 0;
+        size = 0
         for n in self.bn.nodes():
             n = self.get_cpds(n).get_values()
             size = size + n.size
         return size
 
     def build(self):
-        start_build_time_nv = time.time()
+        start_build_time_nv = time.perf_counter()
         self.generate()
+        build_time_nv = time.perf_counter() - start_build_time_nv
         mem_nv = self.memory()
-        build_time_nv = time.time() - start_build_time_nv
         self.data.build_time_dic[self.name].append(build_time_nv)
         self.data.mem_dic[self.name].append(mem_nv)
 
@@ -52,11 +52,11 @@ class BaseExperiment:
         pass
 
     def run(self):
-        start_total_time = time.time()
+        start_total_time = time.perf_counter()
 
         self.engine.run(self.generator.solution)
 
-        total_time = time.time() - start_total_time
+        total_time = time.perf_counter() - start_total_time
 
         self.data.res_dic[self.name].append(self.engine.meanAvailability)
         self.data.time_dic[self.name].append(self.engine.meanTime)

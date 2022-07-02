@@ -9,25 +9,26 @@ import datetime
 import shutil
 import Evaluation.render as re
 
-
 import logging
+
 logging.disable(logging.WARNING)
 
 
 class Evaluate:
 
-    def __init__(self,instances, project_folder,tests, skip_engines = [],timeout = 300,add_to_skip_list={},run_file=None):
+    def __init__(self, instances, project_folder, tests, skip_engines=[], timeout=300, add_to_skip_list={},
+                 run_file=None):
         timestamp = datetime.datetime.today().strftime("%d.%m.%Y %H-%M-%S")
         project_folder = project_folder + timestamp
 
         if not os.path.exists(project_folder):
             os.makedirs(project_folder)
 
-        if not os.path.exists(project_folder+'/raw/'):
-            os.makedirs(project_folder+'/raw/')
+        if not os.path.exists(project_folder + '/raw/'):
+            os.makedirs(project_folder + '/raw/')
 
         if run_file:
-            shutil.copy(run_file,project_folder+"/run.py")
+            shutil.copy(run_file, project_folder + "/run.py")
 
         self.timeout = timeout
         self.project_folder = project_folder
@@ -37,9 +38,7 @@ class Evaluate:
         self.tests = tests
         self.add_to_skip_list = add_to_skip_list
 
-
-
-    def run(self,generator,experiment):
+    def run(self, generator, experiment):
 
         for n in self.tests:
 
@@ -89,7 +88,7 @@ class Evaluate:
                 if instance.name not in self.skip_engines:
                     try:
                         instance.setEngine()
-                        #instance.engine.repetition = 1
+                        # instance.engine.repetition = 1
                     except:
                         print("Engine exception occurred")
                         print("Pass")
@@ -102,16 +101,17 @@ class Evaluate:
                     # print('Inference Mean Time', result.meanTime,'sec')
                     # print('Total Time', total_time,'sec')
 
-                    #ouput timing and availability data as raw
+                    # ouput timing and availability data as raw
 
-                    res = pn.DataFrame({"availability":instance.engine.availabilityData})
-                    res.to_csv(self.project_folder + '/raw/'+str(n)+'_'+instance.name+'_availability.csv', index=None, header=True)
+                    res = pn.DataFrame({"availability": instance.engine.availabilityData})
+                    res.to_csv(self.project_folder + '/raw/' + str(n) + '_' + instance.name + '_availability.csv',
+                               index=None, header=True)
                     del res
 
-                    res = pn.DataFrame({"time":instance.engine.timeData})
-                    res.to_csv(self.project_folder + '/raw/'+str(n)+'_'+instance.name+'_time.csv', index=None, header=True)
+                    res = pn.DataFrame({"time": instance.engine.timeData})
+                    res.to_csv(self.project_folder + '/raw/' + str(n) + '_' + instance.name + '_time.csv', index=None,
+                               header=True)
                     del res
-
 
                     # When to ignore any engine
                     # if eng['engine'].meanTime > self.timeout:
@@ -122,11 +122,11 @@ class Evaluate:
                     instance.ignoreRun()
 
             res = pn.DataFrame(experiment.res_dic)
-            res.to_csv(self.project_folder+'/tmp_availability.csv', index=None, header=True)
+            res.to_csv(self.project_folder + '/tmp_availability.csv', index=None, header=True)
             del res
 
             res = pn.DataFrame(experiment.time_dic)
-            res.to_csv(self.project_folder+'/tmp_inference_time.csv', index=None, header=True)
+            res.to_csv(self.project_folder + '/tmp_inference_time.csv', index=None, header=True)
             del res
 
             res = pn.DataFrame(experiment.total_time_dic)
@@ -138,7 +138,7 @@ class Evaluate:
             del res
             instance.clean()
 
-            #gc.collect()
+            # gc.collect()
 
         res = pn.DataFrame(experiment.res_dic)
         res.to_csv(self.project_folder + '/final_availability.csv', index=None, header=True)
@@ -158,21 +158,10 @@ class Evaluate:
         print('Finished')
         self.render(self.project_folder)
 
-    def render(self,project_folder):
-        #avaibility + raw avaibility
-        re.render(project_folder, file="final_inference_time.csv", xLabel='#Processes', yLabel='Computation time [s]',legend=self.instances, errorbars=True, raw="time", skip=self.skip_engines,semilog=True)
-        #inference_time + time
-        re.render(project_folder, file="final_availability.csv", xLabel='#Processes', yLabel='Availability',legend=self.instances, errorbars=True, raw="availability", skip=self.skip_engines)
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def render(self, project_folder):
+        # avaibility + raw avaibility
+        re.render(project_folder, file="final_inference_time.csv", xLabel='#Processes', yLabel='Computation time [s]',
+                  legend=self.instances, errorbars=True, raw="time", skip=self.skip_engines, semilog=True)
+        # inference_time + time
+        re.render(project_folder, file="final_availability.csv", xLabel='#Processes', yLabel='Availability',
+                  legend=self.instances, errorbars=True, raw="availability", skip=self.skip_engines)

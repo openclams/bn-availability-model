@@ -3,23 +3,22 @@ import numpy as np
 import BayesianNetworks.pgmpy.operators as ops
 from CloudGraph.Graph import Graph
 from typing import List, Set, Dict, Optional
-
 import CloudGraph.ComputePath as compute_path
-
 from CloudGraph.Component import Component
 from pgmpy.factors.discrete import TabularCPD
+
 
 class BayesianNetModel:
 
     def __init__(self,
-                 G:Graph,
+                 G: Graph,
                  app,
-                 andNodeCPT = ops.and_node,
-                 orNodeCPT= ops.or_node,
+                 andNodeCPT=ops.and_node,
+                 orNodeCPT=ops.or_node,
                  knNodeCPT=ops.kn_node,
-                 weightedKnNodeCPT = ops.weighted_kn_node):
-        self.G:Graph = G
-        self.bn:BayesianModel = BayesianModel()
+                 weightedKnNodeCPT=ops.weighted_kn_node):
+        self.G: Graph = G
+        self.bn: BayesianModel = BayesianModel()
         self.app = app
         self.andNodeCPT = andNodeCPT
         self.orNodeCPT = orNodeCPT
@@ -31,12 +30,12 @@ class BayesianNetModel:
         self.current_path_index = 1
         self.construct_bn()
 
-    def create_fault_dependencies(self,bn:BayesianModel,nodes:Dict[str,Component]):
+    def create_fault_dependencies(self, bn: BayesianModel, nodes: Dict[str, Component]):
         for node_src_name in nodes:
             # node_name contains the string id of a component
             # For each node in V we create a node in the BN with binary state
             bn.add_node(node_src_name, 2)
-            cpd = TabularCPD(variable=node_src_name, variable_card=2, values=[[1 ,0]])
+            cpd = TabularCPD(variable=node_src_name, variable_card=2, values=[[1, 0]])
             bn.add_cpds(cpd)
 
         for node_src_name in nodes:
@@ -57,36 +56,45 @@ class BayesianNetModel:
                 parents = list(bn.get_parents(node_name))
                 print(bn.get_cardinality(parents[0]))
                 print(bn.get_cardinality(parents[1]))
-                exit();
+                exit()
             # TODO: At this point we can insert the mechanism to implement any arbitrary FT to BN model
 
             # Now we need to add at the last row of the CPT, where all conditions are true, the availability
             if len(list(bn.get_parents(node_name))) > 0:
                 # IF the last row is still an array, i.e. no root nodes
-                bn.get_cpds(node_name).values[:,bn.get_cpds(node_name).values.shape[1]-1] = np.array([1-nodes[node_name].availability,
-                                                                                                      nodes[node_name].availability])
+                bn.get_cpds(node_name).values[:, bn.get_cpds(node_name).values.shape[1] - 1] = np.array(
+                    [1 - nodes[node_name].availability,
+                     nodes[node_name].availability])
             else:
                 # If we have a root node
                 bn.get_cpds(node_name).values = np.array([1 - nodes[node_name].availability,
                                                           nodes[node_name].availability])
 
-    def add_service(self,service):
-        hosts = [s["host"] for idx,s in enumerate(service["servers"])]
-        server_names = [service["name"] + "_" + "R_" + str(idx) for idx,s in enumerate(service["servers"])]
-        votes = [s["votes"] for idx,s in enumerate(service["servers"])]
+    def add_service(self, service):
+
+        hosts = [s["host"] for idx, s in enumerate(service["servers"])]
+
+        server_names = [service["name"] + "_" + "R_" + str(idx) for idx, s in enumerate(service["servers"])]
+
+        votes = [s["votes"] for idx, s in enumerate(service["servers"])]
+
         total_votes = sum(votes)
+
         threshold = service['threshold']
-        # Key is a string concatenation of
-        # server indexes between any src dst pair.
-        # The value is the name of the channel.
-        channels:Dict[str,str] = {}
+
+        is_voting_based = all([v == 1 for v in votes])
+
+        access_one = threshold == 1
+
+        access_all = threshold == total_votes
+
+        use_direct_communication_pattern = 'communication' in service and service['communication'] == 'direct'
 
         for idx, server in enumerate(service["servers"]):
 
             availability = 1
 
             if 'availability' in server:
-
                 availability = server['availability']
 
             server_name = server_names[idx]
@@ -102,20 +110,25 @@ class BayesianNetModel:
                 [1 - availability,
                  availability])
 
-            #print(self.bn.get_cpds(server_name))
+            # print(self.bn.get_cpds(server_name))
 
         A_nodes = []
-        if not (threshold == total_votes or threshold == 1):  # If not read-on/write-all
-            # We iterate over each src dst pair and we compute the paths and their channels
+        if use_direct_communication_pattern:
+            for idx, server in enumerate(service["servers"]):
+                # Here we use the replica names
+                A_nodes.append(service["name"] + "_" + "R_" + str(idx))
+        else:
+
+            # Apply indirect communication pattern.
+            # We iterate over each src and dst pair and we compute the paths and their channels
             for i in range(0, len(hosts)):
                 for j in range(i + 1, len(hosts)):
-
                     # get host, which is a parent node of the server node
                     host_a = hosts[i]
                     host_b = hosts[j]
-                    path_nodes = self.add_paths(host_a,host_b)
+                    path_nodes = self.add_paths(host_a, host_b)
                     channel_name = service["name"] + "_" + str(i) + "_" + str(j)
-                    self.create_channel(channel_name,server_names[i], server_names[j],path_nodes)
+                    self.create_channel(channel_name, server_names[i], server_names[j], path_nodes)
 
             # print("Add replication semantics",votes, threshold)
             for i in range(0, len(hosts)):
@@ -136,16 +149,20 @@ class BayesianNetModel:
                         channel_name = service["name"] + "_" + str(a) + "_" + str(b)
                         self.bn.add_edge(channel_name, A)
                         temp_votes.append(votes[b])
-                # self.knNodeCPT(self.bn,A,threshold-1)
-                # We subtract the votes of the i-th replica because we assume it allready voted since it issues the protocol
-                self.weightedKnNodeCPT(self.bn, A,  threshold-votes[i], temp_votes)
-        else:
-            # The read-one/write-all case
-            for idx, server in enumerate(service["servers"]):
-                A_nodes.append(service["name"] + "_" + "R_" + str(idx))
 
-        #Create the service node
+                if access_all:
+                    self.andNodeCPT(self.bn, A)
+                elif is_voting_based:
+                    # We subtract the votes of the i-th replica because we assume it
+                    # already voted since it issues the protocol
+                    self.knNodeCPT(self.bn,A,threshold-1)
+                else:
+                    self.weightedKnNodeCPT(self.bn, A, threshold - votes[i], temp_votes)
+
+
+        # Create the service node
         service_node = service["name"]
+
         self.bn.add_node(service_node, 2)
 
         gateways = self.get_gateways(service)
@@ -153,26 +170,38 @@ class BayesianNetModel:
         # Here we assume that every server is reachable from every gateway/front end.
         # However, we could also consider individual connections from gateways to hosts
         for gateway in gateways:
+
             gateway_name = service["name"] + '_' + gateway
+
             self.bn.add_node(gateway_name, 2)
+
             for i in range(0, len(hosts)):
-                channel_name = service["name"] + "_" + str(i) + "_" + gateway # here we have i< j
+
+                channel_name = service["name"] + "_" + str(i) + "_" + gateway
+
                 host = hosts[i]
+
                 path_nodes = self.add_paths(gateway, host)
+
                 self.create_channel(channel_name, gateway, A_nodes[i], path_nodes)
+
                 self.bn.add_edge(channel_name, gateway_name)
 
-            self.orNodeCPT(self.bn, gateway_name)
+            if use_direct_communication_pattern:
+                if access_all:
+                    self.andNodeCPT(self.bn, gateway_name)
+                elif access_one:
+                    self.orNodeCPT(self.bn, gateway_name)
+                else:
+                    self.knNodeCPT(self.bn, gateway_name, threshold)
+            else:
+                self.orNodeCPT(self.bn, gateway_name)
+
             self.bn.add_edge(gateway_name, service_node)
 
-        # Finalize the service graph
-        if threshold == total_votes:  # if write-all
-            self.andNodeCPT(self.bn, service_node)
-        else:
-            self.orNodeCPT(self.bn, service_node)
-        # print(service["name"], "created")
+        self.orNodeCPT(self.bn, service_node)
 
-    def create_channel(self,channel_name,src,dest,path_nodes):
+    def create_channel(self, channel_name, src, dest, path_nodes):
         # Add the inter server channels
         self.bn.add_node(channel_name, 2)
         self.bn.add_edge(src, channel_name)
@@ -191,7 +220,7 @@ class BayesianNetModel:
             self.bn.add_edge(channel_or_node, channel_name)
         self.andNodeCPT(self.bn, channel_name)
 
-    def add_paths(self,src,dest):
+    def add_paths(self, src, dest):
         results = []
         paths = compute_path.print_all_paths(self.G, src, dest)
 
@@ -226,7 +255,7 @@ class BayesianNetModel:
         return results
 
     def construct_bn(self):
-        self.create_fault_dependencies(self.bn,self.G.nodes)
+        self.create_fault_dependencies(self.bn, self.G.nodes)
         for service in self.app["services"]:
             self.add_service(service)
 
@@ -234,13 +263,12 @@ class BayesianNetModel:
             # Stop here. It means we have only one service
             return
         # Compute external (super) channels
-        self.bn.add_node("A", 2) # Create app node
+        self.bn.add_node("A", 2)  # Create app node
 
         # User service accessibility
         client_gateways = self.get_gateways(self.app['application'])
         self.bn.add_node("Clients", 2)  # Create app node
         for gateway in client_gateways:
-            # To first service in the service list
             service_gateways = self.get_gateways(self.app["services"][0])
             service_name = self.app["services"][0]["name"]
             for s_gateway in service_gateways:
@@ -250,7 +278,7 @@ class BayesianNetModel:
                 self.create_channel(channel_name, gateway, gateway_node, path_nodes)
                 self.bn.add_edge(channel_name, "Clients")
 
-        self.bn.add_edge("Clients","A")
+        self.bn.add_edge("Clients", "A")
         self.orNodeCPT(self.bn, "Clients")
 
         for channel in self.app['application']['topology']:
@@ -267,14 +295,15 @@ class BayesianNetModel:
             # We consider all channels that lead from one gateway to the other
             # we make on channel that contains all the external paths
             # and the channel depends on the service node of the services
-            #path_nodes = []
+            # path_nodes = []
             for gf in gateways_from:
                 for gt in gateways_to:
-                    #--path_nodes.extend(self.add_paths(gf, gt))
+                    # --path_nodes.extend(self.add_paths(gf, gt))
                     channel_sub_name = from_service + "_" + to_service + "_" + gateway + "_" + s_gateway
                     from_service_gateway = from_service + '_' + gf
                     to_service_gateway = to_service + '_' + gt
-                    self.create_channel(channel_sub_name, from_service_gateway, to_service_gateway, self.add_paths(gf, gt))
+                    self.create_channel(channel_sub_name, from_service_gateway, to_service_gateway,
+                                        self.add_paths(gf, gt))
                     self.bn.add_edge(channel_sub_name, channel_name)
 
             self.orNodeCPT(self.bn, channel_name)
@@ -283,7 +312,7 @@ class BayesianNetModel:
         self.andNodeCPT(self.bn, "A")
         # print(self.bn.check_model())
 
-    def get_gateways(self,service):
+    def get_gateways(self, service):
         if not isinstance(service["init"], list):
             return [service["init"]]
         else:
@@ -293,4 +322,3 @@ class BayesianNetModel:
         for service in self.app['services']:
             if service['name'] == service_name:
                 return self.get_gateways(service)
-

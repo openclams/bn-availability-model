@@ -14,5 +14,5 @@ class PrismExact(BaseExperiment):
        self.generator.createPrism() # creates the cim.sm file
 
     def setEngine(self):
-        self.engine =PrismSteadyState()
+        self.engine = PrismSteadyState()
         self.engine.repetition = 10

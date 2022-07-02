@@ -53,3 +53,7 @@ class SimpleExample(Generator):
             bnwriters.writeR(bn, "bnlearn_tmp_R")
 
         return bn
+
+
+class CreateFromGraph:
+    pass

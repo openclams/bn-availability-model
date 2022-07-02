@@ -11,7 +11,8 @@
         {"host":"H6","votes": 1},
         {"host":"H9","votes": 1}
       ],
-      "threshold": 4
+      "threshold": 4,
+      "communication" : "direct"
     }
   ]
 }

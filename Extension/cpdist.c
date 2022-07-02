@@ -56,6 +56,8 @@ void freeGraph(Graph *graph){
 
             free(graph->nodes[i].children);
 
+            //free(graph->nodes[i].cpd)
+
             //free(graph->nodes[i].indexes);
             if(graph->nodes[i].name){
                 Py_DECREF(graph->nodes[i].name);
@@ -377,11 +379,12 @@ Graph * buildGraph(PyObject *bn_obj,int num_cores){
          // Copy CPD for performance reasons when multiple processes are called
          graph->nodes[i].n_cpd = PyArray_SIZE((PyArrayObject *) bn_cpd_values);
 
-         graph->nodes[i].cpd = malloc( graph->nodes[i].n_cpd *sizeof(double));
+         //graph->nodes[i].cpd = malloc( graph->nodes[i].n_cpd *sizeof(double));
 
-         double *src_cpd =  (double *) PyArray_DATA((PyArrayObject *) bn_cpd_values);
+         //double *src_cpd
+         graph->nodes[i].cpd =  (double *) PyArray_DATA((PyArrayObject *) bn_cpd_values);
 
-         memcpy(graph->nodes[i].cpd,src_cpd,graph->nodes[i].n_cpd*sizeof(double));
+         //memcpy(graph->nodes[i].cpd,src_cpd,graph->nodes[i].n_cpd*sizeof(double));
 
          graph->nodes[i].cardinality = *((int *)PyArray_GETPTR1((PyArrayObject *)bn_cardinality, 0));
 

@@ -11,8 +11,8 @@ load_dotenv(dotenv_path=env_path)
 class PrismSteadyState(Engine):
 
     def __init__(self, temp_file_name="cim.sm",
-                 prism_location: str = os.getenv("PRISM_LOCATION"),  # "C:\\Program Files\\prism-4.5\\",
-                 prism_bin_path: str = os.getenv("PRISM_PATH")  #"bin\\prism.bat"
+                 prism_location: str = '/Users/ottob/Downloads/prism-4.7-osx64/',  # os.getenv("PRISM_LOCATION"),  # "C:\\Program Files\\prism-4.5\\",
+                 prism_bin_path: str = 'bin/prism' #os.getenv("PRISM_PATH")  #"bin\\prism.bat"
         ):
         Engine.__init__(self, None)
         self.prism_location: str = prism_location

@@ -3,7 +3,17 @@ from functools import partial
 
 # def get_candidates(counts, candidate_space):
 #     return [candidate_space[i][counts[i]] for i in range(len(candidate_space))]
+import sys
 
+def progress(count, total, status=''):
+    bar_len = 60
+    filled_len = int(round(bar_len * count / float(total)))
+
+    percents = round(100.0 * count / float(total), 1)
+    bar = '=' * filled_len + '-' * (bar_len - filled_len)
+
+    sys.stdout.write('[%s] %s%s ...%s\r' % (bar, percents, '%', status))
+    sys.stdout.flush()
 
 class IterateSearchSpace:
 
@@ -14,11 +24,15 @@ class IterateSearchSpace:
 
     def __iter__(self):
         self.counts = [0 for _ in range(len(self.candidate_space))]
+        if(len(self.counts) > 0):
+            self.counts[0] = -1
         self.termination_criteria = [len(s) - 1 for s in self.candidate_space]
+
         return self
 
     def __next__(self):
         if self.counts != self.termination_criteria:
+
             for a in range(len(self.counts)):
                 if a == 0:
                     self.counts[a] += 1
@@ -35,26 +49,31 @@ minimal_loss = Value('d',float('inf'))
 
 best_result = None
 
-def init(ml,br):
+progress_count = 0
+
+def init(ml,br,pc):
     global minimal_loss
     global best_result
+    global progress_count
     minimal_loss = ml
     best_result = br
+    progress_count = pc
 
 
 def worker(counts,candidate_space=[],loss_function=None):
-    #print(counts,candidate_space,loss_function)
 
     global best_result
 
     global minimal_loss
+
+    global progress_count
 
     candidates = [candidate_space[i][counts[i]] for i in range(len(candidate_space))]
 
     l = loss_function(candidates)
 
-    if minimal_loss.value > l:
-        with minimal_loss.get_lock():
+    with minimal_loss.get_lock():
+        if minimal_loss.value > l:
             minimal_loss.value = l
 
         for i in range(len(counts)):
@@ -69,14 +88,17 @@ def exhaustive_search(candidate_space,loss_function,num_processes=30):
 
     global minimal_loss
     global best_result
+    global progress_count
 
+    progress_count = Value('i', 0)
+    minimal_loss = Value('d', float('inf'))
     best_result = Array('i', [0 for _ in range(len(candidate_space))])
 
     # for counts in IterateSearchSpace(candidate_space):
     #
     #    worker(counts,candidate_space,loss_function,minimal_loss,best_result)
 
-    with Pool(processes=num_processes,initializer=init, initargs=(minimal_loss,best_result)) as pool:
+    with Pool(processes=num_processes,initializer=init, initargs=(minimal_loss,best_result,progress_count)) as pool:
         pool.map(partial(worker, candidate_space=candidate_space,loss_function=loss_function),IterateSearchSpace(candidate_space))
 
 

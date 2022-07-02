@@ -13,7 +13,7 @@ from CloudGraph.Host import Host
 
 class CreateFromGraph:
 
-    def __init__(self, n, k,  cim_file_name, is_weighted  = False, init="G1"):
+    def __init__(self, n, k,  cim_file_name, is_weighted  = False, init="G1", use_direct_communication_pattern=False):
         self.n = n
         self.k = k
         self.solution = "er"
@@ -37,11 +37,14 @@ class CreateFromGraph:
                   "name": "er",
                   "init": init,
                   "servers": [],
-                  "threshold": self.k,
-                  "direct_communication": False
+                  "threshold": self.k
                 }
               ]
             }
+
+        if use_direct_communication_pattern:
+            self.app['services'][0]['communication'] = 'direct'
+
         hosts = [h for h in self.G.nodes.values() if isinstance(h,Host)]
 
         h = len(hosts)

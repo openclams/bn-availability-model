@@ -10,7 +10,7 @@ class CpdistScalableBN(NaiveBN):
 
     def setEngine(self):
         self.engine = SimpleSampling(self.bn)
-        self.engine.repetition = 3
+        self.engine.repetition = 1
 
     def generate(self):
         self.bn = self.generator.createScalableNetwork()
