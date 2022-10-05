@@ -61,7 +61,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Stream Analytics 0"
+			"component":"Hybrid Multimedia Web Application 0"
 		},
 		{
 			"type":"Instance",
@@ -72,7 +72,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Event Hubs 1"
+			"component":"Azure Cosmos DB 1"
 		},
 		{
 			"type":"Instance",
@@ -83,7 +83,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Machine Learning 2"
+			"component":"Azure Data Lake Storage Gen1 2"
 		},
 		{
 			"type":"Instance",
@@ -94,18 +94,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Synapse Analytics 3"
-		},
-		{
-			"type":"Instance",
-			"id":"Instance4",
-			"geometry":{
-				"x":480,
-				"y":112,
-				"w":80,
-				"h":80
-			},
-			"component":"Power BI Embedded 4"
+			"component":"Azure Cognitive Search 3"
 		}
 		],
 		"edges":[
@@ -222,44 +211,6 @@
 				}
 				]
 			}
-		},
-		{
-			"type":"Message",
-			"from":"Instance3",
-			"to":"Instance4",
-			"position":16,
-			"edgeType":{
-				"name":"TCP Connection",
-				"attributes":[
-				{
-					"id":"name",
-					"value":"TCP Connection",
-					"img":null,
-					"name":"Name",
-					"type":"string",
-					"readable":false,
-					"description":"Component Name"
-				},
-				{
-					"id":"protocol",
-					"value":"",
-					"img":null,
-					"name":"Protocol",
-					"type":"string",
-					"readable":false,
-					"description":"Communication Protocol"
-				},
-				{
-					"id":"comment",
-					"value":"",
-					"img":null,
-					"name":"Comment",
-					"type":"string",
-					"readable":false,
-					"description":"Comment"
-				}
-				]
-			}
 		}
 		]
 	},
@@ -334,11 +285,10 @@
 	}
 	],
 	"components":[
-{"type": "Service", "id": 62, "name": "Azure Stream Analytics", "img": "http://localhost/storage/components/azure/Stream-Analytics-Jobs.png", "attributes": [{"id": 123, "value": "Real-time analytics on fast moving streams of data from applications and devices", "name": "description", "type": "text", "readable": false}, {"id": 124, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Stream Analytics 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 64, "name": "Event Hubs", "img": "http://localhost/storage/components/azure/Event-Hubs.png", "attributes": [{"id": 127, "value": "Receive telemetry from millions of devices", "name": "description", "type": "text", "readable": false}, {"id": 128, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Event Hubs 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 61, "name": "Azure Machine Learning", "img": "http://localhost/storage/components/azure/Machine-learning-service.png", "attributes": [{"id": 121, "value": "Bring AI to everyone with an end-to-end, scalable, trusted platform with experimentation and model management", "name": "description", "type": "text", "readable": false}, {"id": 122, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Machine Learning 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 52, "name": "Azure Synapse Analytics", "img": "http://localhost/storage/components/azure/Azure-Synapse-Analytics.png", "attributes": [{"id": 103, "value": "Limitless analytics service with unmatched time to insight", "name": "description", "type": "text", "readable": false}, {"id": 104, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Synapse Analytics 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 65, "name": "Power BI Embedded", "img": "http://localhost/storage/components/azure/Power-BI.png", "attributes": [{"id": 129, "value": "Embed fully interactive, stunning data visualizations in your applications", "name": "description", "type": "text", "readable": false}, {"id": 130, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Power BI Embedded 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+{"type": "Service", "id": 4100, "name": "Hybrid Multimedia Web Application", "img": "http://localhost/storage/components/patterns/hybrid_multimedia_web_application_icon.png", "attributes": [{"id": 41735, "value": "Website content is largely provided from a static environment. Multimedia files that cannot be cached efficiently are provided from a large distributed elastic environment for high-performance access.", "name": "intend", "type": "text", "readable": false}, {"id": 41736, "value": "A Distributed Application provides a website accessed by a large globally distributed user group. While most of the website is comprised of static content, there is also a significant amount of multimedia content, such as videos or music that has to be streamed to users.", "name": "context", "type": "text", "readable": false}, {"id": 41737, "value": "Static website content is hosted in a static environment from where it is accessed by users. The streaming content is provided by an elastic cloud environment where it is accessed from the application\u2019s User Interface Component. The static content is provided to users\u2019 client software and in this static content, the multimedia content is referenced. Retrieval of this streaming content is often handled directly by the users\u2019 browser software.", "name": "solution", "type": "text", "readable": false}, {"id": 41738, "value": "Content Distribution Network, Hybrid Application Functions, Three-Tier Cloud Application, Two-Tier Cloud Application", "name": "related-patterns", "type": "text", "readable": false}, {"id": 41739, "value": "http://www.cloudcomputingpatterns.org/hybrid_multimedia_web_application/", "name": "link", "type": "text", "readable": false}, {"id": 41740, "value": "Creative Commons Attribution 4.0 International (CC BY 4.0)", "name": "license", "type": "text", "readable": false}, {"id": 41741, "value": "http://www.cloudcomputingpatterns.org", "name": "ccby", "type": "text", "readable": false}, {"id": "name", "value": "Hybrid Multimedia Web Application 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 47, "name": "Azure Cosmos DB", "img": "http://localhost/storage/components/azure/Azure-Cosmos-DB.png", "attributes": [{"id": 93, "value": "Fast NoSQL database with open APIs for any scale", "name": "description", "type": "text", "readable": false}, {"id": 94, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cosmos DB 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 33, "name": "Azure Data Lake Storage Gen1", "img": "http://localhost/storage/components/azure/Data-Lake-Storage-Gen1.png", "attributes": [{"id": 65, "value": "Hyperscale repository for big data analytics workloads", "name": "description", "type": "text", "readable": false}, {"id": 66, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Data Lake Storage Gen1 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 40, "name": "Azure Cognitive Search", "img": "http://localhost/storage/components/azure/Search-Services.png", "attributes": [{"id": 79, "value": "AI-powered cloud search service for mobile and web app development", "name": "description", "type": "text", "readable": false}, {"id": 80, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cognitive Search 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
 	"lastId":2
 	}
 }

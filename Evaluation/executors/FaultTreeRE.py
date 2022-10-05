@@ -9,4 +9,4 @@ class FaultTreeRE(FaultTreeExact):
 
     def setEngine(self):
         self.engine = Scram(tmp_file_name="ft_mef.xml",method='rare-event')
-        self.engine.repetition = 20
+        self.engine.repetition = 1

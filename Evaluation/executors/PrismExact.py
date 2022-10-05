@@ -15,4 +15,4 @@ class PrismExact(BaseExperiment):
 
     def setEngine(self):
         self.engine = PrismSteadyState()
-        self.engine.repetition = 10
+        self.engine.repetition = 20

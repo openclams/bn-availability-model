@@ -35,7 +35,7 @@ class CreateAppFromGraph:
         # The app graph
 
         services = [{"name": "s_"+str(i),
-                  "init": init,
+                  "init": '',
                   "servers": [],
                   "threshold": k,
                   "direct_communication": False
@@ -67,7 +67,10 @@ class CreateAppFromGraph:
 
         for i in range(n):
             for j in range(m):
-                self.app["services"][i]["servers"].append({"host":hosts[(i*m+j)%h].name,"votes":int(votes[j])})
+                host = hosts[(i*m+j)%h]
+                if j == 0:
+                    self.app["services"][i]["init"] = list(host.network_links['parents'])[0].name
+                self.app["services"][i]["servers"].append({"host":host.name,"votes":int(votes[j])})
 
         if not fully:
             for i in range(n-1):

@@ -61,7 +61,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Data Lake Storage Gen1 0"
+			"component":"Azure Kubernetes Service (AKS) 0"
 		},
 		{
 			"type":"Instance",
@@ -72,7 +72,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Databricks 1"
+			"component":"Container Registry 1"
 		},
 		{
 			"type":"Instance",
@@ -83,7 +83,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Synapse Analytics 2"
+			"component":"Azure Cosmos DB 2"
 		},
 		{
 			"type":"Instance",
@@ -94,7 +94,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Analysis Services 3"
+			"component":"Azure Monitor 3"
 		},
 		{
 			"type":"Instance",
@@ -105,7 +105,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Power BI Embedded 4"
+			"component":"Visual Studio Codespaces 4"
 		}
 		],
 		"edges":[
@@ -334,11 +334,11 @@
 	}
 	],
 	"components":[
-{"type": "Service", "id": 33, "name": "Azure Data Lake Storage Gen1", "img": "http://localhost/storage/components/azure/Data-Lake-Storage-Gen1.png", "attributes": [{"id": 65, "value": "Hyperscale repository for big data analytics workloads", "name": "description", "type": "text", "readable": false}, {"id": 66, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Data Lake Storage Gen1 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 59, "name": "Azure Databricks", "img": "http://localhost/storage/components/azure/Databricks.png", "attributes": [{"id": 117, "value": "Fast, easy, and collaborative Apache Spark-based analytics platform", "name": "description", "type": "text", "readable": false}, {"id": 118, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Databricks 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 52, "name": "Azure Synapse Analytics", "img": "http://localhost/storage/components/azure/Azure-Synapse-Analytics.png", "attributes": [{"id": 103, "value": "Limitless analytics service with unmatched time to insight", "name": "description", "type": "text", "readable": false}, {"id": 104, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Synapse Analytics 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 66, "name": "Azure Analysis Services", "img": "http://localhost/storage/components/azure/Analysis-Services.png", "attributes": [{"id": 131, "value": "Enterprise-grade analytics engine as a service", "name": "description", "type": "text", "readable": false}, {"id": 132, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Analysis Services 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 65, "name": "Power BI Embedded", "img": "http://localhost/storage/components/azure/Power-BI.png", "attributes": [{"id": 129, "value": "Embed fully interactive, stunning data visualizations in your applications", "name": "description", "type": "text", "readable": false}, {"id": 130, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Power BI Embedded 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+{"type": "Service", "id": 3, "name": "Azure Kubernetes Service (AKS)", "img": "http://localhost/storage/components/azure/Container-Services-(Deprecated).png", "attributes": [{"id": 5, "value": "Simplify the deployment, management, and operations of Kubernetes", "name": "description", "type": "text", "readable": false}, {"id": 6, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Kubernetes Service (AKS) 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 45, "name": "Container Registry", "img": "http://localhost/storage/components/azure/Container-Registries.png", "attributes": [{"id": 89, "value": "Store and manage container images across all types of Azure deployments", "name": "description", "type": "text", "readable": false}, {"id": 90, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Container Registry 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 47, "name": "Azure Cosmos DB", "img": "http://localhost/storage/components/azure/Azure-Cosmos-DB.png", "attributes": [{"id": 93, "value": "Fast NoSQL database with open APIs for any scale", "name": "description", "type": "text", "readable": false}, {"id": 94, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cosmos DB 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 96, "name": "Azure Monitor", "img": "http://localhost/storage/components/azure/Monitor.png", "attributes": [{"id": 191, "value": "Full observability into your applications, infrastructure, and network", "name": "description", "type": "text", "readable": false}, {"id": 192, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Monitor 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 95, "name": "Visual Studio Codespaces", "img": "http://localhost/storage/components/azure/Azure.png", "attributes": [{"id": 189, "value": "Cloud-powered development environments accessible from anywhere", "name": "description", "type": "text", "readable": false}, {"id": 190, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Visual Studio Codespaces 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
 	"lastId":2
 	}
 }

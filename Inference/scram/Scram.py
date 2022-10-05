@@ -1,3 +1,5 @@
+import random
+
 from Inference.Engine import Engine
 
 import numpy
@@ -19,7 +21,7 @@ class Scram(Engine):
         start = time.time()
         try:
             for i in range(self.repetition):
-                args = ('scram','--probability','1','--'+self.method,'-l','4','--seed',str(int(time.time())),"-o","res.xml",'ft_mef.xml') #
+                args = ('/home/bibartoo/scram-0.16.2/bin/scram','--probability','1','--'+self.method,'--seed',str(random.randint(1, 1e8)),"-o","res.xml",'ft_mef.xml') #
 
                 popen = subprocess.Popen(args, stdout=subprocess.PIPE)
                 popen.wait()

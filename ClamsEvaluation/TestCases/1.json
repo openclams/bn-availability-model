@@ -61,7 +61,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Virtual Machines 0"
+			"component":"Storage Accounts Managed Disks Premium Blob Storage 0"
 		},
 		{
 			"type":"Instance",
@@ -72,7 +72,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure SQL Database 1"
+			"component":"Azure Cognitive Services Speech Services 1"
 		}
 		],
 		"edges":[
@@ -187,8 +187,8 @@
 	}
 	],
 	"components":[
-{"type": "Service", "id": 1, "name": "Virtual Machines", "img": "http://localhost/storage/components/azure/Virtual-Machine.png", "attributes": [{"id": 1, "value": "Provision Windows and Linux virtual machines in seconds", "name": "description", "type": "text", "readable": false}, {"id": 2, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Virtual Machines 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 48, "name": "Azure SQL Database", "img": "http://localhost/storage/components/azure/SQL-Database.png", "attributes": [{"id": 95, "value": "Managed, intelligent SQL in the cloud", "name": "description", "type": "text", "readable": false}, {"id": 96, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure SQL Database 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+{"type": "Service", "id": 13578, "name": "Storage Accounts Managed Disks Premium Blob Storage", "img": "http://localhost/storage/components/azure/Storage-Accounts.png", "attributes": [{"id": 112297, "value": "Durable, highly available, and massively scalable cloud storage", "name": "description", "type": "text", "readable": false}, {"id": 112298, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Storage Accounts Managed Disks Premium Blob Storage 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 24765, "name": "Azure Cognitive Services Speech Services", "img": "http://localhost/storage/components/azure/Cognitive-Services.png", "attributes": [{"id": 187391, "value": "Add smart API capabilities to enable contextual interactions", "name": "description", "type": "text", "readable": false}, {"id": 187392, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cognitive Services Speech Services 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
 	"lastId":2
 	}
 }

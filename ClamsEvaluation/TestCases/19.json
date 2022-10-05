@@ -61,7 +61,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Event Hubs 0"
+			"component":"Traffic Manager 0"
 		},
 		{
 			"type":"Instance",
@@ -72,7 +72,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Stream Analytics 1"
+			"component":"Azure Site Recovery 1"
 		},
 		{
 			"type":"Instance",
@@ -83,7 +83,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Cosmos DB 2"
+			"component":"Blob Storage 2"
 		},
 		{
 			"type":"Instance",
@@ -94,7 +94,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Storage Accounts 3"
+			"component":"Azure Active Directory 3"
 		},
 		{
 			"type":"Instance",
@@ -105,7 +105,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Functions 4"
+			"component":"VPN Gateway 4"
 		},
 		{
 			"type":"Instance",
@@ -116,29 +116,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Machine Learning 5"
-		},
-		{
-			"type":"Instance",
-			"id":"Instance6",
-			"geometry":{
-				"x":680,
-				"y":112,
-				"w":80,
-				"h":80
-			},
-			"component":"Azure Cache for Redis 6"
-		},
-		{
-			"type":"Instance",
-			"id":"Instance7",
-			"geometry":{
-				"x":780,
-				"y":112,
-				"w":80,
-				"h":80
-			},
-			"component":"Power BI Embedded 7"
+			"component":"Virtual Network 5"
 		}
 		],
 		"edges":[
@@ -331,82 +309,6 @@
 				}
 				]
 			}
-		},
-		{
-			"type":"Message",
-			"from":"Instance5",
-			"to":"Instance6",
-			"position":20,
-			"edgeType":{
-				"name":"TCP Connection",
-				"attributes":[
-				{
-					"id":"name",
-					"value":"TCP Connection",
-					"img":null,
-					"name":"Name",
-					"type":"string",
-					"readable":false,
-					"description":"Component Name"
-				},
-				{
-					"id":"protocol",
-					"value":"",
-					"img":null,
-					"name":"Protocol",
-					"type":"string",
-					"readable":false,
-					"description":"Communication Protocol"
-				},
-				{
-					"id":"comment",
-					"value":"",
-					"img":null,
-					"name":"Comment",
-					"type":"string",
-					"readable":false,
-					"description":"Comment"
-				}
-				]
-			}
-		},
-		{
-			"type":"Message",
-			"from":"Instance6",
-			"to":"Instance7",
-			"position":22,
-			"edgeType":{
-				"name":"TCP Connection",
-				"attributes":[
-				{
-					"id":"name",
-					"value":"TCP Connection",
-					"img":null,
-					"name":"Name",
-					"type":"string",
-					"readable":false,
-					"description":"Component Name"
-				},
-				{
-					"id":"protocol",
-					"value":"",
-					"img":null,
-					"name":"Protocol",
-					"type":"string",
-					"readable":false,
-					"description":"Communication Protocol"
-				},
-				{
-					"id":"comment",
-					"value":"",
-					"img":null,
-					"name":"Comment",
-					"type":"string",
-					"readable":false,
-					"description":"Comment"
-				}
-				]
-			}
 		}
 		]
 	},
@@ -481,14 +383,12 @@
 	}
 	],
 	"components":[
-{"type": "Service", "id": 64, "name": "Event Hubs", "img": "http://localhost/storage/components/azure/Event-Hubs.png", "attributes": [{"id": 127, "value": "Receive telemetry from millions of devices", "name": "description", "type": "text", "readable": false}, {"id": 128, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Event Hubs 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 62, "name": "Azure Stream Analytics", "img": "http://localhost/storage/components/azure/Stream-Analytics-Jobs.png", "attributes": [{"id": 123, "value": "Real-time analytics on fast moving streams of data from applications and devices", "name": "description", "type": "text", "readable": false}, {"id": 124, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Stream Analytics 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 47, "name": "Azure Cosmos DB", "img": "http://localhost/storage/components/azure/Azure-Cosmos-DB.png", "attributes": [{"id": 93, "value": "Fast NoSQL database with open APIs for any scale", "name": "description", "type": "text", "readable": false}, {"id": 94, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cosmos DB 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 32, "name": "Storage Accounts", "img": "http://localhost/storage/components/azure/Storage-Accounts.png", "attributes": [{"id": 63, "value": "Durable, highly available, and massively scalable cloud storage", "name": "description", "type": "text", "readable": false}, {"id": 64, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Storage Accounts 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 4, "name": "Azure Functions", "img": "http://localhost/storage/components/azure/Function-Apps.png", "attributes": [{"id": 7, "value": "Process events with serverless code", "name": "description", "type": "text", "readable": false}, {"id": 8, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Functions 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 61, "name": "Azure Machine Learning", "img": "http://localhost/storage/components/azure/Machine-learning-service.png", "attributes": [{"id": 121, "value": "Bring AI to everyone with an end-to-end, scalable, trusted platform with experimentation and model management", "name": "description", "type": "text", "readable": false}, {"id": 122, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Machine Learning 5", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 54, "name": "Azure Cache for Redis", "img": "http://localhost/storage/components/azure/Cache-Redis.png", "attributes": [{"id": 107, "value": "Accelerate applications with high-throughput, low-latency data caching", "name": "description", "type": "text", "readable": false}, {"id": 108, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cache for Redis 6", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 65, "name": "Power BI Embedded", "img": "http://localhost/storage/components/azure/Power-BI.png", "attributes": [{"id": 129, "value": "Embed fully interactive, stunning data visualizations in your applications", "name": "description", "type": "text", "readable": false}, {"id": 130, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Power BI Embedded 7", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+{"type": "Service", "id": 21, "name": "Traffic Manager", "img": "http://localhost/storage/components/azure/Traffic-Manager-Profiles.png", "attributes": [{"id": 41, "value": "Route incoming traffic for high performance and availability", "name": "description", "type": "text", "readable": false}, {"id": 42, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Traffic Manager 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 101, "name": "Azure Site Recovery", "img": "http://localhost/storage/components/azure/Recovery-Services-Vaults.png", "attributes": [{"id": 201, "value": "Keep your business running with built-in disaster recovery service", "name": "description", "type": "text", "readable": false}, {"id": 202, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Site Recovery 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 4048, "name": "Blob Storage", "img": "http://localhost/storage/components/patterns/blob_storage_icon.png", "attributes": [{"id": 41371, "value": "Data is provided in form of large files that are made available in a file system-like fashion by Storage Offerings that provides elasticity.", "name": "intend", "type": "text", "readable": false}, {"id": 41372, "value": "Distributed cloud applications often need to handle large data elements, also referred to as binary large objects (blob). Examples are virtual server images managed in an Elastic Infrastructure, pictures, or videos.", "name": "context", "type": "text", "readable": false}, {"id": 41373, "value": "Data elements are organized in a folder hierarchy similar to a local file system. Each data element is given a unique identifier comprised of its location in the folder hierarchy and a file name. This unique identifier is passed to the storage offerings to retrieve a file over a network.", "name": "solution", "type": "text", "readable": false}, {"id": 41374, "value": "Block Storage, Processing Component, Stateless Component, Data Access Component, Strict Consistency, Eventual Consistency", "name": "related-patterns", "type": "text", "readable": false}, {"id": 41375, "value": "http://www.cloudcomputingpatterns.org/blob_storage/", "name": "link", "type": "text", "readable": false}, {"id": 41376, "value": "Creative Commons Attribution 4.0 International (CC BY 4.0)", "name": "license", "type": "text", "readable": false}, {"id": 41377, "value": "http://www.cloudcomputingpatterns.org", "name": "ccby", "type": "text", "readable": false}, {"id": "name", "value": "Blob Storage 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 85, "name": "Azure Active Directory", "img": "http://localhost/storage/components/azure/Azure-Active-Directory.png", "attributes": [{"id": 169, "value": "Synchronize on-premises directories and enable single sign-on", "name": "description", "type": "text", "readable": false}, {"id": 170, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Active Directory 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 17, "name": "VPN Gateway", "img": "http://localhost/storage/components/azure/Virtual-Network-Gateways.png", "attributes": [{"id": 33, "value": "Establish secure, cross-premises connectivity", "name": "description", "type": "text", "readable": false}, {"id": 34, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "VPN Gateway 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 14, "name": "Virtual Network", "img": "http://localhost/storage/components/azure/Virtual-Networks.png", "attributes": [{"id": 27, "value": "Provision private networks, optionally connect to on-premises datacenters", "name": "description", "type": "text", "readable": false}, {"id": 28, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Virtual Network 5", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
 	"lastId":2
 	}
 }

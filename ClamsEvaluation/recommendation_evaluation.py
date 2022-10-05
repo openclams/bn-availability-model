@@ -25,14 +25,14 @@ import pandas as pd
 import sys
 
 # taskset -c 0-7 befehl
-root_dir = './'
+root_dir = './'#'./'
 
-cim = json.load(open(root_dir+'Assets/simple_service/graph.json'))
+cim = json.load(open(root_dir+'Assets/large_service_v2/graph.json'))
 num_hs_instances = 30
 num_inference_threads = 1
-n = 3
-k = 2
-availability_threshold=0.90
+n = 15
+k = 8
+availability_threshold= 0.995 #0.995
 
 parser = GraphParser(cim)
 
@@ -164,7 +164,10 @@ def loss_function(candidates: List[Candidate]) -> float:
 
     inference_time.append(end-start)
 
-    del bn
+    del ba.bn.graph
+    del ba.bn.cpds
+    del ba.bn
+    del ba
 
     candidates[0].value['availability'] = approx.meanAvailability
 
@@ -245,7 +248,7 @@ def evaluate(file_name, iterations):
 
         print("Start EX - ", end="")
         # Exhaustive search
-        if  search_space_size < 50000000:
+        if  search_space_size < 10000000:
             ex_start = time.time()
             min_loss =  exhaustive_search(candidate_space, loss_function)
             exTime = time.time() - ex_start
@@ -283,7 +286,7 @@ if __name__ == '__main__':
 
     pd.set_option('display.expand_frame_repr', False)
 
-    for i in [10,9]:
+    for i in range(10,15):
 
         main_df = pd.DataFrame()
 
@@ -291,14 +294,12 @@ if __name__ == '__main__':
 
             df = evaluate(root_dir+"ClamsEvaluation/TestCases/{}.json".format(i), it)
 
-            #print(df)
-
-            df.to_csv(root_dir+'ClamsEvaluation/small_multi_raw_3/{}_{}.csv'.format(i,it),index=False)
+            df.to_csv(root_dir+'ClamsEvaluation/results/large/tier/15_raw/{}_{}.csv'.format(i,it),index=False)
 
             main_df = main_df.append(df, ignore_index=True)
 
         print(main_df)
 
-        main_df.to_csv(root_dir+'ClamsEvaluation/small_multi_final_3/{}.csv'.format(i), index=False)
+        main_df.to_csv(root_dir+'ClamsEvaluation/results/large/tier/15/{}.csv'.format(i), index=False)
 
     sys.stdout.close()

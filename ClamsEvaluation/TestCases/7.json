@@ -61,7 +61,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Virtual Network 0"
+			"component":"Service Bus 0"
 		},
 		{
 			"type":"Instance",
@@ -72,7 +72,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"VPN Gateway 1"
+			"component":"Azure SignalR Service 1"
 		},
 		{
 			"type":"Instance",
@@ -83,29 +83,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure SQL Database 2"
-		},
-		{
-			"type":"Instance",
-			"id":"Instance3",
-			"geometry":{
-				"x":380,
-				"y":112,
-				"w":80,
-				"h":80
-			},
-			"component":"Azure Functions 3"
-		},
-		{
-			"type":"Instance",
-			"id":"Instance4",
-			"geometry":{
-				"x":480,
-				"y":112,
-				"w":80,
-				"h":80
-			},
-			"component":"Azure Stack Edge 4"
+			"component":"Azure Functions 2"
 		}
 		],
 		"edges":[
@@ -152,82 +130,6 @@
 			"from":"Instance1",
 			"to":"Instance2",
 			"position":12,
-			"edgeType":{
-				"name":"TCP Connection",
-				"attributes":[
-				{
-					"id":"name",
-					"value":"TCP Connection",
-					"img":null,
-					"name":"Name",
-					"type":"string",
-					"readable":false,
-					"description":"Component Name"
-				},
-				{
-					"id":"protocol",
-					"value":"",
-					"img":null,
-					"name":"Protocol",
-					"type":"string",
-					"readable":false,
-					"description":"Communication Protocol"
-				},
-				{
-					"id":"comment",
-					"value":"",
-					"img":null,
-					"name":"Comment",
-					"type":"string",
-					"readable":false,
-					"description":"Comment"
-				}
-				]
-			}
-		},
-		{
-			"type":"Message",
-			"from":"Instance2",
-			"to":"Instance3",
-			"position":14,
-			"edgeType":{
-				"name":"TCP Connection",
-				"attributes":[
-				{
-					"id":"name",
-					"value":"TCP Connection",
-					"img":null,
-					"name":"Name",
-					"type":"string",
-					"readable":false,
-					"description":"Component Name"
-				},
-				{
-					"id":"protocol",
-					"value":"",
-					"img":null,
-					"name":"Protocol",
-					"type":"string",
-					"readable":false,
-					"description":"Communication Protocol"
-				},
-				{
-					"id":"comment",
-					"value":"",
-					"img":null,
-					"name":"Comment",
-					"type":"string",
-					"readable":false,
-					"description":"Comment"
-				}
-				]
-			}
-		},
-		{
-			"type":"Message",
-			"from":"Instance3",
-			"to":"Instance4",
-			"position":16,
 			"edgeType":{
 				"name":"TCP Connection",
 				"attributes":[
@@ -334,11 +236,9 @@
 	}
 	],
 	"components":[
-{"type": "Service", "id": 14, "name": "Virtual Network", "img": "http://localhost/storage/components/azure/Virtual-Networks.png", "attributes": [{"id": 27, "value": "Provision private networks, optionally connect to on-premises datacenters", "name": "description", "type": "text", "readable": false}, {"id": 28, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Virtual Network 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 17, "name": "VPN Gateway", "img": "http://localhost/storage/components/azure/Virtual-Network-Gateways.png", "attributes": [{"id": 33, "value": "Establish secure, cross-premises connectivity", "name": "description", "type": "text", "readable": false}, {"id": 34, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "VPN Gateway 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 48, "name": "Azure SQL Database", "img": "http://localhost/storage/components/azure/SQL-Database.png", "attributes": [{"id": 95, "value": "Managed, intelligent SQL in the cloud", "name": "description", "type": "text", "readable": false}, {"id": 96, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure SQL Database 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 4, "name": "Azure Functions", "img": "http://localhost/storage/components/azure/Function-Apps.png", "attributes": [{"id": 7, "value": "Process events with serverless code", "name": "description", "type": "text", "readable": false}, {"id": 8, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Functions 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 38, "name": "Azure Stack Edge", "img": "http://localhost/storage/components/azure/Data-Box-Edge.png", "attributes": [{"id": 75, "value": "An Azure managed device that brings the compute, storage, and intelligence of Azure to the edge", "name": "description", "type": "text", "readable": false}, {"id": 76, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Stack Edge 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+{"type": "Service", "id": 84, "name": "Service Bus", "img": "http://localhost/storage/components/azure/Service-bus.png", "attributes": [{"id": 167, "value": "Connect across private and public cloud environments", "name": "description", "type": "text", "readable": false}, {"id": 168, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Service Bus 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 41, "name": "Azure SignalR Service", "img": "http://localhost/storage/components/azure/SignalR-Service.png", "attributes": [{"id": 81, "value": "Add real-time web functionalities easily", "name": "description", "type": "text", "readable": false}, {"id": 82, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure SignalR Service 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 4, "name": "Azure Functions", "img": "http://localhost/storage/components/azure/Function-Apps.png", "attributes": [{"id": 7, "value": "Process events with serverless code", "name": "description", "type": "text", "readable": false}, {"id": 8, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Functions 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
 	"lastId":2
 	}
 }

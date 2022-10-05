@@ -268,9 +268,11 @@ class BayesianNetModel:
         # User service accessibility
         client_gateways = self.get_gateways(self.app['application'])
         self.bn.add_node("Clients", 2)  # Create app node
+
+        service_gateways = self.get_gateways(self.app["services"][0])
+        service_name = self.app["services"][0]["name"]
+
         for gateway in client_gateways:
-            service_gateways = self.get_gateways(self.app["services"][0])
-            service_name = self.app["services"][0]["name"]
             for s_gateway in service_gateways:
                 channel_name = service_name + "_" + gateway + "_" + s_gateway
                 path_nodes = self.add_paths(gateway, s_gateway)

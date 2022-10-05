@@ -61,7 +61,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Hybrid Multimedia Web Application 0"
+			"component":"Service Bus 0"
 		},
 		{
 			"type":"Instance",
@@ -72,7 +72,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Cosmos DB 1"
+			"component":"Azure Databricks 1"
 		},
 		{
 			"type":"Instance",
@@ -83,7 +83,7 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Data Lake Storage Gen1 2"
+			"component":"Power BI Embedded 2"
 		},
 		{
 			"type":"Instance",
@@ -94,7 +94,29 @@
 				"w":80,
 				"h":80
 			},
-			"component":"Azure Cognitive Search 3"
+			"component":"Storage Accounts 3"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance4",
+			"geometry":{
+				"x":480,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Cognitive Services 4"
+		},
+		{
+			"type":"Instance",
+			"id":"Instance5",
+			"geometry":{
+				"x":580,
+				"y":112,
+				"w":80,
+				"h":80
+			},
+			"component":"Azure Logic Apps 5"
 		}
 		],
 		"edges":[
@@ -211,6 +233,82 @@
 				}
 				]
 			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance3",
+			"to":"Instance4",
+			"position":16,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
+		},
+		{
+			"type":"Message",
+			"from":"Instance4",
+			"to":"Instance5",
+			"position":18,
+			"edgeType":{
+				"name":"TCP Connection",
+				"attributes":[
+				{
+					"id":"name",
+					"value":"TCP Connection",
+					"img":null,
+					"name":"Name",
+					"type":"string",
+					"readable":false,
+					"description":"Component Name"
+				},
+				{
+					"id":"protocol",
+					"value":"",
+					"img":null,
+					"name":"Protocol",
+					"type":"string",
+					"readable":false,
+					"description":"Communication Protocol"
+				},
+				{
+					"id":"comment",
+					"value":"",
+					"img":null,
+					"name":"Comment",
+					"type":"string",
+					"readable":false,
+					"description":"Comment"
+				}
+				]
+			}
 		}
 		]
 	},
@@ -285,10 +383,12 @@
 	}
 	],
 	"components":[
-{"type": "Service", "id": 4100, "name": "Hybrid Multimedia Web Application", "img": "http://localhost/storage/components/patterns/hybrid_multimedia_web_application_icon.png", "attributes": [{"id": 41735, "value": "Website content is largely provided from a static environment. Multimedia files that cannot be cached efficiently are provided from a large distributed elastic environment for high-performance access.", "name": "intend", "type": "text", "readable": false}, {"id": 41736, "value": "A Distributed Application provides a website accessed by a large globally distributed user group. While most of the website is comprised of static content, there is also a significant amount of multimedia content, such as videos or music that has to be streamed to users.", "name": "context", "type": "text", "readable": false}, {"id": 41737, "value": "Static website content is hosted in a static environment from where it is accessed by users. The streaming content is provided by an elastic cloud environment where it is accessed from the application\u2019s User Interface Component. The static content is provided to users\u2019 client software and in this static content, the multimedia content is referenced. Retrieval of this streaming content is often handled directly by the users\u2019 browser software.", "name": "solution", "type": "text", "readable": false}, {"id": 41738, "value": "Content Distribution Network, Hybrid Application Functions, Three-Tier Cloud Application, Two-Tier Cloud Application", "name": "related-patterns", "type": "text", "readable": false}, {"id": 41739, "value": "http://www.cloudcomputingpatterns.org/hybrid_multimedia_web_application/", "name": "link", "type": "text", "readable": false}, {"id": 41740, "value": "Creative Commons Attribution 4.0 International (CC BY 4.0)", "name": "license", "type": "text", "readable": false}, {"id": 41741, "value": "http://www.cloudcomputingpatterns.org", "name": "ccby", "type": "text", "readable": false}, {"id": "name", "value": "Hybrid Multimedia Web Application 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 47, "name": "Azure Cosmos DB", "img": "http://localhost/storage/components/azure/Azure-Cosmos-DB.png", "attributes": [{"id": 93, "value": "Fast NoSQL database with open APIs for any scale", "name": "description", "type": "text", "readable": false}, {"id": 94, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cosmos DB 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 33, "name": "Azure Data Lake Storage Gen1", "img": "http://localhost/storage/components/azure/Data-Lake-Storage-Gen1.png", "attributes": [{"id": 65, "value": "Hyperscale repository for big data analytics workloads", "name": "description", "type": "text", "readable": false}, {"id": 66, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Data Lake Storage Gen1 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
-{"type": "Service", "id": 40, "name": "Azure Cognitive Search", "img": "http://localhost/storage/components/azure/Search-Services.png", "attributes": [{"id": 79, "value": "AI-powered cloud search service for mobile and web app development", "name": "description", "type": "text", "readable": false}, {"id": 80, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cognitive Search 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
+{"type": "Service", "id": 84, "name": "Service Bus", "img": "http://localhost/storage/components/azure/Service-bus.png", "attributes": [{"id": 167, "value": "Connect across private and public cloud environments", "name": "description", "type": "text", "readable": false}, {"id": 168, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Service Bus 0", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 59, "name": "Azure Databricks", "img": "http://localhost/storage/components/azure/Databricks.png", "attributes": [{"id": 117, "value": "Fast, easy, and collaborative Apache Spark-based analytics platform", "name": "description", "type": "text", "readable": false}, {"id": 118, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Databricks 1", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 65, "name": "Power BI Embedded", "img": "http://localhost/storage/components/azure/Power-BI.png", "attributes": [{"id": 129, "value": "Embed fully interactive, stunning data visualizations in your applications", "name": "description", "type": "text", "readable": false}, {"id": 130, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Power BI Embedded 2", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 32, "name": "Storage Accounts", "img": "http://localhost/storage/components/azure/Storage-Accounts.png", "attributes": [{"id": 63, "value": "Durable, highly available, and massively scalable cloud storage", "name": "description", "type": "text", "readable": false}, {"id": 64, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Storage Accounts 3", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 73, "name": "Azure Cognitive Services", "img": "http://localhost/storage/components/azure/Cognitive-Services.png", "attributes": [{"id": 145, "value": "Add smart API capabilities to enable contextual interactions", "name": "description", "type": "text", "readable": false}, {"id": 146, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Cognitive Services 4", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []},
+{"type": "Service", "id": 81, "name": "Azure Logic Apps", "img": "http://localhost/storage/components/azure/Logic-Apps.png", "attributes": [{"id": 161, "value": "Automate the access and use of data across clouds without writing code", "name": "description", "type": "text", "readable": false}, {"id": 162, "value": "https://azure.microsoft.com/en-us/pricing/calculator/", "name": "source", "type": "text", "readable": false}, {"id": "name", "value": "Azure Logic Apps 5", "name": "Name", "type": "text", "readable": false}], "targetCloud": "azure", "components": null, "regions": [], "costs": []}	],
 	"lastId":2
 	}
 }

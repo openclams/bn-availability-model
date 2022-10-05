@@ -6,6 +6,8 @@ from CloudGraph.Component import Component
 from CloudGraph.Graph import Graph
 from typing import Dict, List
 
+only_shortest_paths = 0
+
 def compute_all_paths_util(G: Graph,u:str, d:str, visited: Dict[str, bool], path:List[str], paths:List[List[str]]):
     # Mark the current node as visited and store in path
     visited[u] = True
@@ -29,6 +31,7 @@ def compute_all_paths_util(G: Graph,u:str, d:str, visited: Dict[str, bool], path
 
 
 def print_all_paths(G:Graph, s:str, d:str):
+    global only_shortest_paths
     # Call the recursive helper function to print all paths
     visited:Dict[str,bool] = {}
     for k in G.nodes.keys():
@@ -36,4 +39,12 @@ def print_all_paths(G:Graph, s:str, d:str):
     path = []
     paths = []
     compute_all_paths_util(G,s, d, visited, path, paths)
+
+    if len(paths) > 0 and only_shortest_paths > 0:
+        paths.sort(key=lambda x: len(x))
+        paths = paths[0:only_shortest_paths]
+
+    #print(paths)
+    #print()
+
     return paths

@@ -19,24 +19,6 @@ logger.disabled = True
 print('Google Trace V3 (2019) Availability Test')
 print('*' * 40)
 
-# pickle.dump({
-#     'training_a': av,
-#     'training_c': job_states[0:train_num],
-#     'test_a': tv,
-#     'test_c': job_states[train_num:tt],
-# }, open('results/{}/{}_{}'.format(cell, jb.make_safe(service['name']), jb.make_safe(service['user'])), "wb"))
-#
-# ul.roc_plot(job_states[0:train_num], av)
-#
-# ul.roc_plot(job_states[train_num:tt], tv)
-
-# d = pickle.load(open('results/a/KJ8MV0Juy9uRXkIXxeA23iHVVSuQ9XzRcNfUsEg_o4X3IunKhhQOPrNRkjWgxjdJlGtk9ujTmgsSlZKc', "rb"))
-#
-# ul.roc_plot(d['training_c'],d['training_a'])
-#
-# ul.roc_plot(d['test_c'],d['test_a'])
-#
-# exit()
 
 client = ul.connect()
 
@@ -44,26 +26,7 @@ if client:
     print('[X] Connection to Big Query')
 
 cell='a'
-#
-# cells = 'abcdefgh'
-#
-# print('Compute Statistics:')
-# for cell in cells:
-#     print('\nCell:',cell)
-#
-#     nj = jb.get_total_jobs(cell, client)
-#     nfj = jb.get_failed_jobs(cell, client)
-#     nt = jb.get_total_tasks(cell, client)
-#     nft = jb.get_failed_tasks(cell, client)
-#
-#     print("Total Jobs:", nj)
-#     print("Failed and Lost:", nfj)
-#     print("Availability:", 1 - (float(nfj)/nj))
-#     print("Total Tasks:", nt)
-#     print("Failed and Lost:", nft)
-#     print("Availability:", 1 - (float(nft)/nt))
-#
-# exit()
+
 machine_events = mh.load_machines(cell, client)
 
 machines, platforms, racks = mh.get_machine_data(machine_events)
@@ -199,12 +162,11 @@ def availability(job, machines, platforms, task_availability):
             1 - ac.meanAvailability)
 
 
-services = jb.load_services(cell, client,  offset = 0, limit = 100)
+services = jb.load_services(cell, client,  offset = 0, limit = 600)
 
-start_from_service = 1
+start_from_service = 26
 
-evaluation_size = 800
-
+evaluation_size = 400
 
 for idx, service in services.iterrows():
 
@@ -214,6 +176,9 @@ for idx, service in services.iterrows():
     print('[{}] Start with service: {}_{}'.format(idx, service['name'], service['user']))
 
     jobs = jb.load_jobs(service, cell, client)
+
+    if len(jobs) < 3:
+        continue
 
     job_data = jb.prepare_jobs(jobs, service, cell)
 
@@ -272,68 +237,13 @@ for idx, service in services.iterrows():
         'test_c': job_states[train_num:tt],
     }, open('results/{}/{}_{}'.format(cell,jb.make_safe(service['name']), jb.make_safe(service['user'])), "wb"))
 
-    ul.roc_plot(job_states[0:train_num], av)
+    #ul.roc_plot(job_states[0:train_num], av)
 
-    ul.roc_plot(job_states[train_num:tt], tv)
+    #ul.roc_plot(job_states[train_num:tt], tv)
 
-    ##print(roc_auc_score(job_states[0:train_num], av))
+    #print(roc_auc_score(job_states[0:train_num], [av]))
 
-    ##print(roc_auc_score(job_states[train_num:tt], tv))
+    #print(roc_auc_score(job_states[train_num:tt], [tv]))
 
     #break
-
-# print('[X] Loading Data Successful')
-#
-# for idx, service in enumerate(list(data.keys())[7:8]):
-#
-#     print('[{}] Start with service:'.format(idx), service)
-#
-#     for user in data[service]:
-#
-#         print('\tFor user:', user)
-#
-#         job_states = [1 if data[service][user][job]['failed'] else 0 for job in data[service][user]]
-#
-#         print('\t-> Num Jobs:\t', len(job_states))
-#
-#         print('\t-> Failed Jobs:\t', sum(job_states))
-#
-#         tasks = ul.load_tasks(cell, service, user, client)
-#
-#         tj = {}
-#         for idx, row in tasks.iterrows():
-#             j = int(row['collection_id'])
-#             if j not in tj:
-#                 tj[j] = j
-#         print('actual jobs by tasks',len(tj.keys()), len(job_states))
-#
-#
-#         failed_tasks = [1 if row['type'] == 5 else 0 for idx, row in tasks.iterrows()]
-#
-#         print('\t-> Task Availa.:\t',sum(failed_tasks)/len(tasks))
-#
-#         print('\t\t[X] Loading tasks', len(tasks))
-#
-#         ul.map_tasks_to_jobs(data[service][user], tasks)
-#
-#         print('\t\t[X] Mapping tasks')
-#
-#         availability = [ul.A(cell, job, data[service][user][job], client) for job in data[service][user]]
-#
-#         print('\t\t[X] Finished Prediction')
-#
-#         print(availability)
-#
-#         ul.roc_plot(job_states, availability)
-
-
-# 1) formulating hypotheses,
-#   =? How to compute the availability of an existing job for an given user and platform?
-#       e.g availabaility(cell, user, service) = a
-# 2) designing the experiment,
-# Scoring (if I want to go the accuracy line
-#   LogLoss not suitable for imbalanced data sets of [0,1] prefect model has a score of 0
-#   Breir Score Loss in combination with  Brier Skill Score (BSS).
-#   ROC -> requires a threshold
-
 

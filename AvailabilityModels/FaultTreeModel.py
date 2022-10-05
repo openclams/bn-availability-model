@@ -45,8 +45,76 @@ class FaultTreeModel:
 
     def build(self):
         self.create_fault_dependencies()
+
+        if 'application' not in self.app:
+            #  It means we have only one service
+            service = self.app["services"][0]
+
+            self.add_service(service)
+
+            gate = self.ft.add_node("TE")
+            gate.type = "top"
+            self.ft.add_edge(service["name"], "TE")
+            self.clean()
+            return
+
         for service in self.app["services"]:
             self.add_service(service)
+
+        A_gate = self.ft.add_node("A")
+        A_gate.type = 'or'
+
+        client_gateways = self.get_gateways(self.app['application'])
+
+        client_channel_gate = self.ft.add_node("Clients")
+        client_channel_gate.type = 'and'
+        # The first service is considered the init service
+        service_gateways = self.get_gateways(self.app["services"][0])
+        service_name = self.app["services"][0]["name"]
+        for gateway in client_gateways:
+            for s_gateway in service_gateways:
+                channel_name = service_name + "_" + gateway + "_" + s_gateway
+                path_nodes = self.add_paths(gateway, s_gateway)
+                gateway_node = service_name + '_' + s_gateway
+                self.create_channel(channel_name, gateway, gateway_node, path_nodes)
+                self.ft.add_edge(channel_name, "Clients")
+
+        self.ft.add_edge("Clients", "A")
+
+        for channel in self.app['application']['topology']:
+            from_service = channel['from']
+            to_service = channel['to']
+
+            gateways_from = self.get_gateways_name(from_service)
+            gateways_to = self.get_gateways_name(to_service)
+
+            channel_name = "E_" + from_service + "_" + to_service
+
+            ch_gate = self.ft.add_node(channel_name)
+            ch_gate.type = 'and'
+            # We consider all channels that lead from one gateway to the other
+            # we make on channel that contains all the external paths
+            # and the channel depends on the service node of the services
+            # path_nodes = []
+            for gf in gateways_from:
+                for gt in gateways_to:
+                    # --path_nodes.extend(self.add_paths(gf, gt))
+                    channel_sub_name = from_service + "_" + to_service + "_" + gateway + "_" + s_gateway
+                    from_service_gateway = from_service + '_' + gf
+                    to_service_gateway = to_service + '_' + gt
+                    self.create_channel(channel_sub_name, from_service_gateway, to_service_gateway,
+                                        self.add_paths(gf, gt))
+                    self.ft.add_edge(channel_sub_name, channel_name)
+
+            self.ft.add_edge(channel_name, "A")
+
+        gate = self.ft.add_node("TE")
+        gate.type = "top"
+        self.ft.add_edge('A', "TE")
+        self.clean()
+
+
+
 
     def add_service(self, service):
         hosts = [s["host"] for idx, s in enumerate(service["servers"])]
@@ -54,6 +122,9 @@ class FaultTreeModel:
         votes = [s["votes"] for idx, s in enumerate(service["servers"])]
         total_votes = sum(votes)
         threshold = service['threshold']
+
+        use_direct_communication_pattern = 'communication' in service and service['communication'] == 'direct'
+
         # Key is a string concatenation of
         # server indexes between any src dst pair.
         # The value is the name of the channel.
@@ -68,7 +139,7 @@ class FaultTreeModel:
             self.ft.add_edge(server['host'], server_name)
 
         A_nodes = []
-        if not (threshold == total_votes or threshold == 1):  # If not read-on/write-all
+        if not use_direct_communication_pattern:  # If not read-on/write-all
             # We iterate over each src dst pair and we compute the paths and their channels
             for i in range(0, len(hosts)):
                 for j in range(i + 1, len(hosts)):
@@ -125,30 +196,39 @@ class FaultTreeModel:
         # Create the service node
         service_node = service["name"]
         sgate = self.ft.add_node(service_node)
-
+        sgate.type = "or"
         gateways = self.get_gateways(service)
         # Add external communication
         # TODO: Here we assume that every server is reachable from every gateway/front end.
         # However, we cloud also consider individual connections from gateways to hosts
         for gateway in gateways:
+
+            gateway_name = service["name"] + '_' + gateway
+            gate_node = self.ft.add_node(gateway_name)
+
             for i in range(0, len(hosts)):
                 channel_name = service["name"] + "_" + str(i) + "_" + gateway  # here we have i< j
                 host = hosts[i]
                 path_nodes = self.add_paths(gateway, host)
                 self.create_channel(channel_name, gateway, A_nodes[i], path_nodes)
-                self.ft.add_edge(channel_name, service_node)
+                self.ft.add_edge(channel_name, gateway_name)
 
-        # Finalize the service graph
-        if threshold == total_votes:  # if write-all
-            sgate.type = "or"
-        else:
-            sgate.type = "and"
-        # print(service["name"], "created")
+            if use_direct_communication_pattern:
+                if threshold == total_votes:
+                    gate_node.type = 'or'
+                elif threshold == 1:
+                    gate_node.type = 'and'
+                else:
+                    gate_node.type = 'vote'
+                    gate_node.n = len(hosts)
+                    gate_node.k = len(hosts) - threshold + 1
+            else:
+                gate_node.type = 'and'
 
-        gate = self.ft.add_node("TE")
-        gate.type = "top"
-        self.ft.add_edge(service_node,"TE")
-        self.clean()
+            self.ft.add_edge(gateway_name, service_node)
+
+
+
 
 
     def  clean(self):
