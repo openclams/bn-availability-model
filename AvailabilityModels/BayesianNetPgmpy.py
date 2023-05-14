@@ -6,7 +6,7 @@ from typing import List, Set, Dict, Optional
 import CloudGraph.ComputePath as compute_path
 from CloudGraph.Component import Component
 from pgmpy.factors.discrete import TabularCPD
-
+import queue
 
 class BayesianNetModel:
 
@@ -28,7 +28,50 @@ class BayesianNetModel:
         # One ore more channels can have the same path
         # in all paths with store as key the unique path names and as values the network components of the path as array
         self.current_path_index = 1
+        self.i = 0
         self.construct_bn()
+
+
+    def ft(self,bn: BayesianModel, child_node_name, ft):
+
+        if isinstance(ft, str):
+            bn.add_edge(ft, child_node_name)
+            return
+
+        if 'and' in ft:
+            name = 'and' + str(self.i)
+            self.i += 1
+            bn.add_node(name, 2)
+            cpd = TabularCPD(variable=name, variable_card=2, values=[[1, 0]])
+            bn.add_cpds(cpd)
+            for op in ft['and']:
+                self.ft(bn, name, op)
+
+            self.andNodeCPT(bn, name)
+            bn.add_edge(name, child_node_name)
+
+        elif 'or' in ft:
+            name = 'or' + str(self.i)
+            self.i += 1
+            bn.add_node(name, 2)
+            cpd = TabularCPD(variable=name, variable_card=2, values=[[1, 0]])
+            bn.add_cpds(cpd)
+            for op in ft['or']:
+                self.ft(bn, name, op)
+            self.orNodeCPT(bn, name)
+            bn.add_edge(name, child_node_name)
+
+        elif 'kn' in ft:
+            name = 'kn' + str(self.i)
+            self.i += 1
+            bn.add_node(name, 2)
+            cpd = TabularCPD(variable=name, variable_card=2, values=[[1, 0]])
+            bn.add_cpds(cpd)
+            for op in ft['kn']:
+                self.ft(bn, name, op)
+            self.knNodeCPT(bn, name,ft['k'])
+            bn.add_edge(name, child_node_name)
+
 
     def create_fault_dependencies(self, bn: BayesianModel, nodes: Dict[str, Component]):
         for node_src_name in nodes:
@@ -39,13 +82,16 @@ class BayesianNetModel:
             bn.add_cpds(cpd)
 
         for node_src_name in nodes:
-            # For each node_name we get the acctual node object
-            # The Node object contains an array of strings with children node ids
-            for node_dst in nodes[node_src_name].fault_dependencies["children"]:
-                # For each child node id we insert an arc
-                bn.add_edge(node_src_name, node_dst.name)
-                # We have no build the common failure cause tree
-                # TODO: At this point we need insert a mechanism to resolve cycles in the common failure cause structure
+
+            if nodes[node_src_name].ft:
+                self.ft(bn,nodes[node_src_name].name,nodes[node_src_name].ft)
+            else:
+                # For each node_name we get the acctual node object
+                # The Node object contains an array of strings with children node ids
+                for node_dst in nodes[node_src_name].fault_dependencies["children"]:
+                    # For each child node id we insert an arc
+                    bn.add_edge(node_src_name, node_dst.name)
+                    # We have no build the common failure cause tree
 
         for node_name in nodes:
             # For each node string id, we associate a an AND CPT with the corresponding BN node

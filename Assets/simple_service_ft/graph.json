@@ -1,0 +1,129 @@
+{
+  "components": [
+    {
+      "name": "D1",
+      "availability": 0.9908
+    },
+    {
+      "name": "D2",
+      "availability": 0.9931
+    },
+    {
+      "name": "R1",
+      "availability": 0.9920
+    },
+    {
+      "name": "R2",
+      "availability": 0.9921
+    },
+    {
+      "name": "R3",
+      "availability": 0.9910
+    },
+    {
+      "name": "H1",
+      "availability": 0.9897,
+      "type": "host"
+    },
+    {
+      "name": "H2",
+      "availability": 0.9876,
+      "type": "host"
+    },
+    {
+      "name": "H3",
+      "availability": 0.9921,
+      "type": "host"
+    },
+    {
+      "name": "H4",
+      "availability": 0.9897,
+      "type": "host"
+    },
+    {
+      "name": "H5",
+      "availability": 0.9899,
+      "type": "host"
+    },
+    {
+      "name": "H6",
+      "availability": 0.9884,
+      "type": "host"
+    },
+    {
+      "name": "H7",
+      "availability": 0.9860,
+      "type": "host"
+    },
+    {
+      "name": "H8",
+      "availability": 0.9916,
+      "type": "host"
+    },
+    {
+      "name": "H9",
+      "availability": 0.9893,
+      "type": "host"
+    },
+    {
+      "name": "FW",
+      "availability": 0.9842
+    },
+    {
+      "name": "N4",
+      "availability": 0.9831
+    },
+    {
+      "name": "N3",
+      "availability": 0.9947
+    },
+    {
+      "name":"N2",
+      "availability": 0.9921
+    },
+    {
+      "name": "N1",
+      "availability": 0.9943
+    }
+  ],
+  "network" : [
+    {
+      "from": "FW", "to": ["N2"]
+    },
+    {
+      "from": "N1", "to": ["H1","H2","H3"]
+    },
+    {
+      "from": "N2", "to": ["N1","N3","N4"]
+    },
+    {
+      "from": "N3", "to": ["H4","H5","H6"]
+    },
+    {
+      "from": "N4", "to": ["H7","H8","H9"]
+    }
+  ],
+  "dependencies": [
+    {
+      "from": "D1", "to": ["R1","R2","R3"]
+    },
+    {
+      "from": "D2", "to": ["R3"]
+    },
+    {
+      "from": "R1", "to": ["H1","H2","H3","N1","FW","N2"]
+    },
+    {
+      "from": "R2", "to": ["H4","H5","H6","N3"]
+    },
+    {
+      "from": "N2", "to": "R3"
+    },
+    {
+      "from": "R3", "to": ["H7","H8","H9","N4"],
+      "ft": {
+          "and": [ "D1",  {"or": ["D2","N2"] } ]
+      }
+    }
+  ]
+}

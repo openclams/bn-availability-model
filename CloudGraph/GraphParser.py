@@ -43,9 +43,12 @@ class GraphParser():
 
     def load_fault_dependency_edges(self, data):
         for edges in data["dependencies"]:
+            ft = {}
+            if 'ft' in edges:
+                ft = edges["ft"]
             if isinstance(edges["to"],str):
-                self.G.add_fault_dependency_edge(edges["from"],edges["to"])
+                self.G.add_fault_dependency_edge(edges["from"],edges["to"],ft)
             else:
                 for e in edges["to"]:
                     # The name field is an array
-                    self.G.add_fault_dependency_edge(edges["from"],e)
+                    self.G.add_fault_dependency_edge(edges["from"],e,ft)

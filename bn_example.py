@@ -1,16 +1,16 @@
 from AvailabilityModels.BayesianNetPgmpy import BayesianNetModel
 from CloudGraph.GraphParser import GraphParser
 import json
-from Inference.bnlearn.BNLearn import BNLearn
-from Inference.grain.gRain import gRain
+#from Inference.bnlearn.BNLearn import BNLearn
+#from Inference.grain.gRain import gRain
 from Inference.pgmpy.SimpleSampling import SimpleSampling
 import logging
 
 logger = logging.getLogger()
 logger.disabled = True
 
-graph_file = "./Assets/simple_app/graph.json"
-deployment_file = "./Assets/simple_app/deployment.json"
+graph_file = "./Assets/simple_service_ft/graph.json"
+deployment_file = "./Assets/simple_service_ft/deployment.json"
 
 # Load the infrastructure model
 graph = json.load(open(graph_file))
@@ -29,10 +29,10 @@ approx = SimpleSampling(ba.bn)
 approx.run("er")
 print(approx.meanAvailability)
 
-# Execute exact inference
-approx = gRain(ba.bn)
-approx.run("er")
-print(approx.meanAvailability)
+# # Execute exact inference
+# approx = gRain(ba.bn)
+# approx.run("er")
+# print(approx.meanAvailability)
 
 
 

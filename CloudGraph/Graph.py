@@ -15,9 +15,10 @@ class Graph:
         if node.name in self.nodes:
             del self.nodes[node.name]
 
-    def add_fault_dependency_edge(self,src:str, dst:str):
+    def add_fault_dependency_edge(self, src: str, dst: str, ft={}):
         self.nodes[src].fault_dependencies['children'].append(self.nodes[dst])
         self.nodes[dst].fault_dependencies['parents'].append(self.nodes[src])
+        self.nodes[src].ft = ft
 
     def add_network_edge(self, src: str, dst: str):
         self.nodes[src].network_links['children'].add(self.nodes[dst])

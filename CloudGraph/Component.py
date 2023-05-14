@@ -16,5 +16,6 @@ class Component:
         self.availability: float = availability
         self.network_links: Dict[str, Set[Component]] = {'parents': set(), 'children': set()}
         self.fault_dependencies:  Dict[str, List[Component]] = {'parents': [], 'children': []}
+        self.ft = {}
 
 
